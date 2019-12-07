@@ -46,15 +46,19 @@ private:
 	int		active_player_;
 
 
-	CellValue&	cell			(const Position pos)	const;
+	CellValue&	GetCell			(const Position pos)	const;
 	bool		IsValidPosition	(const Position pos)	const;
 	bool		IsPlayerPiece	(const Position pos)	const;
+
 public:
-	Bonol();
+	using Dimensions = Position;
+
+	Bonol(const Dimensions dim);
 
 	bool Over()			const;
 	void UpdateGUI()	const;
 	void ChangePlayer();
+
 };
 
 struct Bonol::Position

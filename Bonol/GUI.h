@@ -20,15 +20,16 @@ private:
 	int				left_, top_;
 	int				table_width_, cell_width_;
 
-	const Bonol*	game_;
+	const Bonol&	game_state_;
 	Position		center_, origin_;
 
 	void DrawLine				(Position from, Position to)			const;
 	void DrawSquare				(Position origin, int width)			const;
 	void GetPolyPointsFromCell	(Position pos, Position polypoints[4])	const;
 	void DrawCell				(const Position pos)					const;
+
 public:
-	GUI(const Bonol* game);
+	GUI(const Bonol* game, const Dimensions dim);
 
 	void DrawScreen()	const;
 };

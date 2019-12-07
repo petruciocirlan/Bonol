@@ -12,7 +12,7 @@
 
 #include "Bonol.h"
 
-Bonol::CellValue& Bonol::cell(const Position pos) const
+Bonol::CellValue& Bonol::GetCell(const Position pos) const
 {
 	/// if (!validPosition(pos)) throw something
 	return (*board_).cell[pos.y][pos.x];
@@ -27,14 +27,14 @@ bool Bonol::IsValidPosition(const Position pos) const
 
 bool Bonol::IsPlayerPiece(const Position pos) const
 {
-	return (cell(pos) == RED || cell(pos) == BLUE);
+	return (GetCell(pos) == RED || GetCell(pos) == BLUE);
 }
 
-Bonol::Bonol()
+Bonol::Bonol(const Dimensions dim)
 {
 	board_			= new Board(kStartingSetup);
 	isOver_			= false;
-	interface_		= new GUI(this);
+	interface_		= new GUI(this, dim);
 	active_player_	= PLAYER_RED;
 	UpdateGUI();
 }

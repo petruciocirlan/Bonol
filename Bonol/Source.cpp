@@ -16,7 +16,8 @@
 
 int main()
 {
-	Bonol game;
+	auto dimensions = Bonol::Dimensions(800, 600);
+	Bonol game(dimensions);
 	
 	getch();
 

@@ -47,7 +47,8 @@ void Bonol::GUI::DrawCell(const Position pos) const
     Position polypoints[4];
     GetPolyPointsFromCell(pos, polypoints);
 
-    switch (game_->cell(pos))
+    auto cell_piece = game_state_.GetCell(pos);
+    switch (cell_piece)
     {
     case PIECE_FREE:
     {
@@ -79,10 +80,9 @@ void Bonol::GUI::DrawCell(const Position pos) const
     fillpoly(numpoints, (int*)polypoints);
 }
 
-Bonol::GUI::GUI(const Bonol* game)
+Bonol::GUI::GUI(const Bonol* game, const Dimensions dim) : game_state_(*game)
 {
-    game_ = game;
-    width_ = 800, height_ = 600;
+    width_ = dim.x, height_ = dim.y;
     left_ = (getmaxwidth() - width_) / 2;
     top_ = (getmaxheight() - height_) / 2;
     initwindow(width_, height_, "BONOL", left_, top_);
@@ -98,9 +98,9 @@ Bonol::GUI::GUI(const Bonol* game)
 
 void Bonol::GUI::DrawScreen() const
 {
-    for (int i = 0; i < kBoardSize; ++i)
-        for (int j = 0; j < kBoardSize; ++j)
-                DrawCell(Position(j, i));
+    for (int line = 0; line < kBoardSize; ++line)
+        for (int column = 0; column < kBoardSize; ++column)
+                DrawCell(Position(column, line));
 
     DrawSquare(origin_, table_width_);
 }
