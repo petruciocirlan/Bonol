@@ -6,7 +6,8 @@
 	CS1105: Practica - Introducere in programare
 	Faculty of Computer Science, UAIC, WINTER 2019
 
-	This is the main source file of the game.
+	ABOUT THIS FILE:
+	Main source file.
 */
 
 #include <iostream>
@@ -16,12 +17,13 @@
 int main()
 {
 	Bonol game;
+	
+	getch();
 
-	game.Draw();
 	//while (!game.Over())
 	//{
 	//	// do move
-	//	game.Draw();
+	//	game.UpdateScreen();
 	//}
 
 	/// congratulate winner

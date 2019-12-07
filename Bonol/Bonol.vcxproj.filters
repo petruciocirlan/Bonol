@@ -16,13 +16,13 @@
     <Filter Include="Source Files\Bonol Game">
       <UniqueIdentifier>{ecb76b5a-bd02-4dbd-a87c-260e9204b4df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics">
-      <UniqueIdentifier>{6f4f3b08-cffe-4918-bf37-663047cf2f8c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Bonol Game">
       <UniqueIdentifier>{bbbde3e1-f3b3-487b-9bc3-fb05c4ecb0d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics">
+    <Filter Include="Source Files\WinBGIm">
+      <UniqueIdentifier>{6f4f3b08-cffe-4918-bf37-663047cf2f8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WinBGIm">
       <UniqueIdentifier>{5526d3a1-7816-4941-94c1-134f75081f53}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -30,38 +30,38 @@
     <ClCompile Include="Bonol.cpp">
       <Filter>Source Files\Bonol Game</Filter>
     </ClCompile>
-    <ClCompile Include="BonolDraw.cpp">
-      <Filter>Source Files\Bonol Game</Filter>
-    </ClCompile>
     <ClCompile Include="Source.cpp">
       <Filter>Source Files\Bonol Game</Filter>
     </ClCompile>
     <ClCompile Include="winbgi.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="dibutil.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="drawing.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="file.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="misc.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="mouse.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="palette.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="text.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
     </ClCompile>
     <ClCompile Include="winthread.cxx">
-      <Filter>Source Files\Graphics</Filter>
+      <Filter>Source Files\WinBGIm</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Source Files\Bonol Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,22 +69,25 @@
       <Filter>Header Files\Bonol Game</Filter>
     </ClInclude>
     <ClInclude Include="dibapi.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\WinBGIm</Filter>
     </ClInclude>
     <ClInclude Include="dibutil.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\WinBGIm</Filter>
     </ClInclude>
     <ClInclude Include="graphics.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\WinBGIm</Filter>
     </ClInclude>
     <ClInclude Include="winbgi.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\WinBGIm</Filter>
     </ClInclude>
     <ClInclude Include="winbgim.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\WinBGIm</Filter>
     </ClInclude>
     <ClInclude Include="winbgitypes.h">
-      <Filter>Header Files\Graphics</Filter>
+      <Filter>Header Files\WinBGIm</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Header Files\Bonol Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

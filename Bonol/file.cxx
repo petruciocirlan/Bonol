@@ -1,3 +1,5 @@
+#pragma warning(push)
+#pragma warning(disable: 6001 6011 6031)
 //*******************************************************************
 //
 //  file.c
@@ -407,3 +409,5 @@ OKExit:
     GlobalUnlock(hDIB);
     return hDIB;
 }
+
+#pragma warning(pop)

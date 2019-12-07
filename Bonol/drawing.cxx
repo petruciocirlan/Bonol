@@ -1,5 +1,5 @@
 #pragma warning(push)
-#pragma warning(disable: 4104 4101 4193)
+#pragma warning(disable: 4101 4104 4193 6054 6387)
 // $Id: drawing.cpp,v 1.7 2003/04/23 06:09:50 bush Exp $
 // Written by:
 //      Grant Macklem (Grant.Macklem@colorado.edu)

@@ -1,5 +1,5 @@
 #pragma warning(push)
-#pragma warning(disable: 4101)
+#pragma warning(disable: 4101 6385)
 // File: winbgi.cpp
 // Written by:
 //      Grant Macklem (Grant.Macklem@colorado.edu)

@@ -1,3 +1,5 @@
+#pragma warning(push)
+#pragma warning(disable: 26495)
 // $Id: winbgitypes.h,v 1.13 2003/07/21 23:14:45 bush Exp $
 // Written by:
 //      Grant Macklem (Grant.Macklem@colorado.edu)
@@ -108,3 +110,5 @@ extern HINSTANCE BGI__hInstance;     // Handle to the instance of the DLL
 
 
 #endif  // WINBGITYPES_H
+
+#pragma warning(pop)

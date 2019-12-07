@@ -1,3 +1,5 @@
+#pragma warning(push)
+#pragma warning(disable: 6001 6011 6387)
 //**********************************************************************
 //
 //  dibutil.c
@@ -1267,3 +1269,4 @@ HDIB ChangeBitmapFormat(HBITMAP hBitmap, WORD wBitCount, DWORD dwCompression,
     return hNewDIB;
 }
 
+#pragma warning(pop)

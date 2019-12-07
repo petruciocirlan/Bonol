@@ -6,7 +6,8 @@
 	CS1105: Practica - Introducere in programare
 	Faculty of Computer Science, UAIC, WINTER 2019
 
-	This header contains the interface of the Bonol game class
+	ABOUT THIS FILE:
+	Interface of the Bonol (L game).
 */
 
 #pragma once
@@ -21,44 +22,55 @@
 class Bonol
 {
 private:
-	using cellValue = int;
-	using cellCoord = int;
-	struct Position;
-	struct Board;
+	using CellValue = int;
+	using CellCoord = int;
+
+	struct	Position;
+	struct	Board;
+	class	GUI;
 
 	static const unsigned kBoardSize = 4;
-	enum Pieces { PIECE_FREE, PIECE_RED, PIECE_BLUE, PIECE_BLOCKED };
-	const cellValue kStartingSetup[kBoardSize][kBoardSize] =
+	enum Pieces	{ PIECE_FREE, PIECE_RED, PIECE_BLUE, PIECE_BLOCKED };
+	const CellValue kStartingSetup[kBoardSize][kBoardSize] =
 	{
 		{PIECE_BLOCKED,	PIECE_RED,	PIECE_RED,	PIECE_FREE},
 		{PIECE_FREE,	PIECE_BLUE,	PIECE_RED,	PIECE_FREE},
 		{PIECE_FREE,	PIECE_BLUE,	PIECE_RED,	PIECE_FREE},
 		{PIECE_FREE,	PIECE_BLUE,	PIECE_BLUE,	PIECE_BLOCKED}
 	};
+	enum Players { PLAYER_RED, PLAYER_BLUE };
 
-	bool isOver_;
-	Board *board_;
+	Board*	board_;
+	bool	isOver_;
+	GUI*	interface_;
+	int		active_player_;
 
-	cellValue& cell(Position);
-	bool ValidPosition(Position);
-	void BonolDraw(Bonol* game);
+
+	CellValue&	cell			(const Position pos)	const;
+	bool		IsValidPosition	(const Position pos)	const;
+	bool		IsPlayerPiece	(const Position pos)	const;
 public:
 	Bonol();
 
-	bool Over();
-
-	void Draw();
+	bool Over()			const;
+	void UpdateGUI()	const;
+	void ChangePlayer();
 };
 
 struct Bonol::Position
 {
-	cellCoord x, y;
-	Position(cellCoord _x, cellCoord _y) : x(_x), y(_y) {};
+	CellCoord x, y;
+
+	Position() : x(0), y(0) {};
+	Position(CellCoord column, CellCoord line) : x(column), y(line) {};
 };
 
 struct Bonol::Board
 {
-	cellValue cell[kBoardSize][kBoardSize];
+	CellValue cell[kBoardSize][kBoardSize];
+
 	Board();
-	Board(const cellValue copy[kBoardSize][kBoardSize]);
+	Board(const CellValue copy[kBoardSize][kBoardSize]);
 };
+
+#include "GUI.h"

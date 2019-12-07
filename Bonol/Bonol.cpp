@@ -6,40 +6,55 @@
 	CS1105: Practica - Introducere in programare
 	Faculty of Computer Science, UAIC, WINTER 2019
 
-	This source contains the implementation of the logic of the Bonol game class
+	ABOUT THIS FILE:
+	Implementation of the mechanics of the Bonol (L game).
 */
 
 #include "Bonol.h"
 
-Bonol::Bonol()
+Bonol::CellValue& Bonol::cell(const Position pos) const
 {
-	board_ = new Board(kStartingSetup);
-	isOver_ = false;
+	/// if (!validPosition(pos)) throw something
+	return (*board_).cell[pos.y][pos.x];
 }
 
-bool Bonol::Over()
+bool Bonol::IsValidPosition(const Position pos) const
+{
+	return
+		((0 <= pos.x && pos.x <= kBoardSize) &&
+		(0 <= pos.y && pos.y <= kBoardSize));
+}
+
+bool Bonol::IsPlayerPiece(const Position pos) const
+{
+	return (cell(pos) == RED || cell(pos) == BLUE);
+}
+
+Bonol::Bonol()
+{
+	board_			= new Board(kStartingSetup);
+	isOver_			= false;
+	interface_		= new GUI(this);
+	active_player_	= PLAYER_RED;
+	UpdateGUI();
+}
+
+bool Bonol::Over() const
 {
 	return isOver_;
 }
 
-bool Bonol::ValidPosition(Position pos)
+void Bonol::UpdateGUI() const
 {
-	return
-		(
-		(0 <= pos.x && pos.x <= kBoardSize) &&
-		(0 <= pos.y && pos.y <= kBoardSize)
-		);
+	(*interface_).DrawScreen();
 }
 
-Bonol::cellValue& Bonol::cell(Position pos)
+void Bonol::ChangePlayer()
 {
-	/// if (!validPosition(pos)) throw something
-	return board_->cell[pos.x][pos.y];
-}
-
-void Bonol::Draw()
-{
-	BonolDraw(this);
+	if (active_player_ == PLAYER_RED)
+		active_player_ = PLAYER_BLUE;
+	else
+		active_player_ = PLAYER_RED;
 }
 
 Bonol::Board::Board()
@@ -47,7 +62,7 @@ Bonol::Board::Board()
 	memset(cell, 0, sizeof(cell));
 }
 
-Bonol::Board::Board(const cellValue copy[kBoardSize][kBoardSize])
+Bonol::Board::Board(const CellValue copy[kBoardSize][kBoardSize])
 {
 	memcpy(cell, copy, sizeof(cell));
 }

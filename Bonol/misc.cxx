@@ -1,5 +1,5 @@
 #pragma warning(push)
-#pragma warning(disable: 4838)
+#pragma warning(disable: 4838 6001 6387)
 // $Id: misc.cpp,v 1.11 2003/05/07 23:41:23 schmidap Exp $
 // Written by:
 //      Grant Macklem (Grant.Macklem@colorado.edu)
