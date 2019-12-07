@@ -1,28 +1,53 @@
 #pragma once
 
+// graphics
+#include "graphics.h"
+#include "winbgim.h"
+
+/// memset & memcpy
+#include <cstring>
+
 class Bonol
 {
-public:
+private:
 	using cellValue = int;
 	using cellCoord = int;
 	struct Position;
-private:
-	static const unsigned BOARD_SIZE = 4;
-	cellValue _board[BOARD_SIZE][BOARD_SIZE] = { 0 };
-	bool _isOver = false;
+	struct Board;
+
+	static const unsigned kBoardSize = 4;
+	enum Pieces { PIECE_FREE, PIECE_RED, PIECE_BLUE, PIECE_BLOCKED };
+	const cellValue kStartingSetup[kBoardSize][kBoardSize] =
+	{
+		{PIECE_BLOCKED,	PIECE_RED,	PIECE_RED,	PIECE_FREE},
+		{PIECE_FREE,	PIECE_BLUE,	PIECE_RED,	PIECE_FREE},
+		{PIECE_FREE,	PIECE_BLUE,	PIECE_RED,	PIECE_FREE},
+		{PIECE_FREE,	PIECE_BLUE,	PIECE_BLUE,	PIECE_BLOCKED}
+	};
+
+	bool isOver_;
+	Board *board_;
 
 	cellValue& cell(Position);
-	bool validPosition(Position);
+	bool ValidPosition(Position);
+	void BonolDraw(Bonol* game);
 public:
 	Bonol();
 
-	bool over();
+	bool Over();
 
-	void draw();
+	void Draw();
 };
 
 struct Bonol::Position
 {
 	cellCoord x, y;
 	Position(cellCoord _x, cellCoord _y) : x(_x), y(_y) {};
+};
+
+struct Bonol::Board
+{
+	cellValue cell[kBoardSize][kBoardSize];
+	Board();
+	Board(const cellValue copy[kBoardSize][kBoardSize]);
 };

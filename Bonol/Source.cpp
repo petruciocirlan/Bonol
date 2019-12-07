@@ -6,12 +6,12 @@ int main()
 {
 	Bonol game;
 
-	//while (!game.over())
+	game.Draw();
+	//while (!game.Over())
 	//{
 	//	// do move
-	//	game.draw();
+	//	game.Draw();
 	//}
-
 
 	/// congratulate winner
 

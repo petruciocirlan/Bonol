@@ -1,32 +1,42 @@
 #include "Bonol.h"
-#include "Bonol_draw.cpp"
 
 Bonol::Bonol()
 {
-	for (cellCoord i = 0; i < BOARD_SIZE; ++i)
-		for (cellCoord j = 0; j < BOARD_SIZE; ++j)
-			cell(Position(i, j)) = 0;
-	/// initialize stuff
+	board_ = new Board(kStartingSetup);
+	isOver_ = false;
 }
 
-bool Bonol::over()
+bool Bonol::Over()
 {
-	return _isOver;
+	return isOver_;
 }
 
-bool Bonol::validPosition(Position pos)
+bool Bonol::ValidPosition(Position pos)
 {
-	return ((0 <= pos.x && pos.x <= BOARD_SIZE) &&
-		(0 <= pos.y && pos.y <= BOARD_SIZE));
+	return
+		(
+		(0 <= pos.x && pos.x <= kBoardSize) &&
+		(0 <= pos.y && pos.y <= kBoardSize)
+		);
 }
 
 Bonol::cellValue& Bonol::cell(Position pos)
 {
 	/// if (!validPosition(pos)) throw something
-	return _board[pos.x][pos.y];
+	return board_->cell[pos.x][pos.y];
 }
 
-void Bonol::draw()
+void Bonol::Draw()
 {
-	Bonol_draw(this);
+	BonolDraw(this);
+}
+
+Bonol::Board::Board()
+{
+	memset(cell, 0, sizeof(cell));
+}
+
+Bonol::Board::Board(const cellValue copy[kBoardSize][kBoardSize])
+{
+	memcpy(cell, copy, sizeof(cell));
 }

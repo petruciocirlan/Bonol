@@ -20,13 +20,26 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bonol.cpp" />
-    <ClCompile Include="Bonol_draw.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="BonolDraw.cpp" />
+    <ClCompile Include="dibutil.cxx" />
+    <ClCompile Include="drawing.cxx" />
+    <ClCompile Include="file.cxx" />
+    <ClCompile Include="misc.cxx" />
+    <ClCompile Include="mouse.cxx" />
+    <ClCompile Include="palette.cxx" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="text.cxx" />
+    <ClCompile Include="winbgi.cxx" />
+    <ClCompile Include="winthread.cxx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bonol.h" />
+    <ClInclude Include="dibapi.h" />
+    <ClInclude Include="dibutil.h" />
+    <ClInclude Include="graphics.h" />
+    <ClInclude Include="winbgi.h" />
+    <ClInclude Include="winbgim.h" />
+    <ClInclude Include="winbgitypes.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -89,6 +102,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
