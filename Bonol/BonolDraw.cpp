@@ -1,8 +1,15 @@
-#include "Bonol.h"
 /*
-	add all necessary graphical libraries
-	set compiler/linker options to include them properly
+    File: BonolDraw.cpp
+    Written by:
+        Petru Ciocirlan		(petru.ciocirlan@info.uaic.ro)
+	    Valentin Grigorean	(valentin.grigorean@info.uaic.ro)
+    CS1105: Practica - Introducere in programare
+    Faculty of Computer Science, UAIC, WINTER 2019
+
+    This source contains the implementation of the graphical part of the Bonol game class
 */
+
+#include "Bonol.h"
 
 #define KEY_ESC 27
 void Bonol::BonolDraw(Bonol* game)

@@ -1,3 +1,14 @@
+/*
+	File: Bonol.h
+	Written by:
+		Petru Ciocirlan		(petru.ciocirlan@info.uaic.ro)
+		Valentin Grigorean	(valentin.grigorean@info.uaic.ro)
+	CS1105: Practica - Introducere in programare
+	Faculty of Computer Science, UAIC, WINTER 2019
+
+	This header contains the interface of the Bonol game class
+*/
+
 #pragma once
 
 // graphics

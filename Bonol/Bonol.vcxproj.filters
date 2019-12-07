@@ -87,4 +87,9 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

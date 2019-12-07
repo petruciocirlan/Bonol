@@ -41,6 +41,9 @@
     <ClInclude Include="winbgim.h" />
     <ClInclude Include="winbgitypes.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{489E241D-06E7-40DB-BF17-33842020E0CC}</ProjectGuid>

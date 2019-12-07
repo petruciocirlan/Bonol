@@ -1,3 +1,14 @@
+/*
+	File: Bonol.cpp
+	Written by:
+		Petru Ciocirlan		(petru.ciocirlan@info.uaic.ro)
+		Valentin Grigorean	(valentin.grigorean@info.uaic.ro)
+	CS1105: Practica - Introducere in programare
+	Faculty of Computer Science, UAIC, WINTER 2019
+
+	This source contains the implementation of the logic of the Bonol game class
+*/
+
 #include "Bonol.h"
 
 Bonol::Bonol()
