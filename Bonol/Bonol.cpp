@@ -30,11 +30,11 @@ bool Bonol::IsPlayerPiece(const Position pos) const
 	return (GetCell(pos) == RED || GetCell(pos) == BLUE);
 }
 
-Bonol::Bonol(const Dimensions dim)
+Bonol::Bonol(const Dimensions window_dimensions)
 {
 	board_			= new Board(kStartingSetup);
 	isOver_			= false;
-	interface_		= new GUI(this, dim);
+	interface_		= new GUI(this, window_dimensions);
 	active_player_	= PLAYER_RED;
 	UpdateGUI();
 }
@@ -62,7 +62,7 @@ Bonol::Board::Board()
 	memset(cell, 0, sizeof(cell));
 }
 
-Bonol::Board::Board(const CellValue copy[kBoardSize][kBoardSize])
+Bonol::Board::Board(const CellValue copy_source[kBoardSize][kBoardSize])
 {
-	memcpy(cell, copy, sizeof(cell));
+	memcpy(cell, copy_source, sizeof(cell));
 }

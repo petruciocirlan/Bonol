@@ -16,8 +16,8 @@
 
 int main()
 {
-	auto dimensions = Bonol::Dimensions(800, 600);
-	Bonol game(dimensions);
+	auto window_dimensions = Bonol::Dimensions(800, 600);
+	Bonol game(window_dimensions);
 	
 	getch();
 

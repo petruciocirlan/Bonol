@@ -29,7 +29,7 @@ private:
 	void DrawCell				(const Position pos)					const;
 
 public:
-	GUI(const Bonol* game, const Dimensions dim);
+	GUI(const Bonol* game, const Dimensions window_dimensions);
 
 	void DrawScreen()	const;
 };

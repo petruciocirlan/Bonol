@@ -53,12 +53,11 @@ private:
 public:
 	using Dimensions = Position;
 
-	Bonol(const Dimensions dim);
+	Bonol(const Dimensions window_dimensions);
 
 	bool Over()			const;
 	void UpdateGUI()	const;
 	void ChangePlayer();
-
 };
 
 struct Bonol::Position
@@ -74,7 +73,7 @@ struct Bonol::Board
 	CellValue cell[kBoardSize][kBoardSize];
 
 	Board();
-	Board(const CellValue copy[kBoardSize][kBoardSize]);
+	Board(const CellValue copy_source[kBoardSize][kBoardSize]);
 };
 
 #include "GUI.h"
