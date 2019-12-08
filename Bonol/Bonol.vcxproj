@@ -20,27 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bonol.cpp" />
-    <ClCompile Include="dibutil.cxx" />
-    <ClCompile Include="drawing.cxx" />
-    <ClCompile Include="file.cxx" />
     <ClCompile Include="GUI.cpp" />
-    <ClCompile Include="misc.cxx" />
-    <ClCompile Include="mouse.cxx" />
-    <ClCompile Include="palette.cxx" />
+    <ClCompile Include="GUIDirect2D.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="text.cxx" />
-    <ClCompile Include="winbgi.cxx" />
-    <ClCompile Include="winthread.cxx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bonol.h" />
-    <ClInclude Include="dibapi.h" />
-    <ClInclude Include="dibutil.h" />
-    <ClInclude Include="graphics.h" />
     <ClInclude Include="GUI.h" />
-    <ClInclude Include="winbgi.h" />
-    <ClInclude Include="winbgim.h" />
-    <ClInclude Include="winbgitypes.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />
@@ -103,9 +89,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

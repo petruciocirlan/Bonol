@@ -12,7 +12,7 @@
 
 #include "Bonol.h"
 
-Bonol::CellValue& Bonol::GetCell(const Position pos) const
+Bonol::Piece& Bonol::GetCellPiece(const Position pos) const
 {
 	/// if (!validPosition(pos)) throw something
 	return (*board_).cell[pos.y][pos.x];
@@ -20,23 +20,26 @@ Bonol::CellValue& Bonol::GetCell(const Position pos) const
 
 bool Bonol::IsValidPosition(const Position pos) const
 {
-	return
-		((0 <= pos.x && pos.x <= kBoardSize) &&
-		(0 <= pos.y && pos.y <= kBoardSize));
+	return ((0 <= pos.x && pos.x <= kBoardSize) &&
+			(0 <= pos.y && pos.y <= kBoardSize));
 }
 
 bool Bonol::IsPlayerPiece(const Position pos) const
 {
-	return (GetCell(pos) == RED || GetCell(pos) == BLUE);
+	return (GetCellPiece(pos) == Piece::RED || GetCellPiece(pos) == Piece::BLUE);
 }
 
-Bonol::Bonol(const Dimensions window_dimensions)
+bool Bonol::IsActivePlayerPiece(const Position pos) const
 {
-	board_			= new Board(kStartingSetup);
+	return ((GetCellPiece(pos) == Piece::RED && GetActivePlayer() == Player::RED) ||
+			(GetCellPiece(pos) == Piece::BLUE && GetActivePlayer() == Player::BLUE));
+}
+
+Bonol::Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
+	: board_(new Board(kStartingSetup)), interface_(new GUI(this, window_dimensions, hInstance, nCmdShow))
+{
 	isOver_			= false;
-	interface_		= new GUI(this, window_dimensions);
-	active_player_	= PLAYER_RED;
-	UpdateGUI();
+	active_player_	= Player::RED;
 }
 
 bool Bonol::Over() const
@@ -44,17 +47,17 @@ bool Bonol::Over() const
 	return isOver_;
 }
 
-void Bonol::UpdateGUI() const
-{
-	(*interface_).DrawScreen();
-}
-
 void Bonol::ChangePlayer()
 {
-	if (active_player_ == PLAYER_RED)
-		active_player_ = PLAYER_BLUE;
+	if (active_player_ == Player::RED)
+		active_player_ = Player::BLUE;
 	else
-		active_player_ = PLAYER_RED;
+		active_player_ = Player::RED;
+}
+
+Bonol::Player Bonol::GetActivePlayer() const
+{
+	return active_player_;
 }
 
 Bonol::Board::Board()
@@ -62,7 +65,7 @@ Bonol::Board::Board()
 	memset(cell, 0, sizeof(cell));
 }
 
-Bonol::Board::Board(const CellValue copy_source[kBoardSize][kBoardSize])
+Bonol::Board::Board(const Piece copy_source[kBoardSize][kBoardSize])
 {
 	memcpy(cell, copy_source, sizeof(cell));
 }

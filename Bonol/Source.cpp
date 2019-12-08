@@ -10,24 +10,12 @@
 	Main source file.
 */
 
-#include <iostream>
 #include "Bonol.h"
-//using namespace std;
 
-int main()
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCmdLine, _In_ INT nCmdShow)
 {
-	auto window_dimensions = Bonol::Dimensions(800, 600);
-	Bonol game(window_dimensions);
-	
-	getch();
+    const auto kWindowDimensions = Bonol::Dimensions(800, 600);
+    Bonol game(kWindowDimensions, hInstance, nCmdShow);
 
-	//while (!game.Over())
-	//{
-	//	// do move
-	//	game.UpdateScreen();
-	//}
-
-	/// congratulate winner
-
-	return 0;
+    return 0;
 }

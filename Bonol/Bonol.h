@@ -12,10 +12,11 @@
 
 #pragma once
 
-// graphics
-#include "graphics.h"
-#include "winbgim.h"
+#ifndef UNICODE
+#define UNICODE
+#endif
 
+#include <windows.h>
 /// memset & memcpy
 #include <cstring>
 
@@ -30,34 +31,39 @@ private:
 	class	GUI;
 
 	static const unsigned kBoardSize = 4;
-	enum Pieces	{ PIECE_FREE, PIECE_RED, PIECE_BLUE, PIECE_BLOCKED };
-	const CellValue kStartingSetup[kBoardSize][kBoardSize] =
+	enum class Piece
 	{
-		{PIECE_BLOCKED,	PIECE_RED,	PIECE_RED,	PIECE_FREE},
-		{PIECE_FREE,	PIECE_BLUE,	PIECE_RED,	PIECE_FREE},
-		{PIECE_FREE,	PIECE_BLUE,	PIECE_RED,	PIECE_FREE},
-		{PIECE_FREE,	PIECE_BLUE,	PIECE_BLUE,	PIECE_BLOCKED}
+		FREE, RED, BLUE, BLOCKED,
+		RED_SELECTED, BLUE_SELECTED, BLOCKED_SELECTED
 	};
-	enum Players { PLAYER_RED, PLAYER_BLUE };
+	const Piece kStartingSetup[kBoardSize][kBoardSize] =
+	{
+		{Piece::BLOCKED,	Piece::RED,		Piece::RED,		Piece::FREE},
+		{Piece::FREE,		Piece::BLUE,	Piece::RED,		Piece::FREE},
+		{Piece::FREE,		Piece::BLUE,	Piece::RED,		Piece::FREE},
+		{Piece::FREE,		Piece::BLUE,	Piece::BLUE,	Piece::BLOCKED}
+	};
+	enum class Player { RED, BLUE };
 
-	Board*	board_;
+	Board*	const	board_;
+	GUI*	const	interface_;
+
 	bool	isOver_;
-	GUI*	interface_;
-	int		active_player_;
+	Player	active_player_;
 
-
-	CellValue&	GetCell			(const Position pos)	const;
-	bool		IsValidPosition	(const Position pos)	const;
-	bool		IsPlayerPiece	(const Position pos)	const;
+	Piece&	GetCellPiece		(const Position pos)	const;
+	bool	IsValidPosition		(const Position pos)	const;
+	bool	IsPlayerPiece		(const Position pos)	const;
+	bool	IsActivePlayerPiece	(const Position pos)	const;
 
 public:
 	using Dimensions = Position;
 
-	Bonol(const Dimensions window_dimensions);
+	Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 
-	bool Over()			const;
-	void UpdateGUI()	const;
-	void ChangePlayer();
+	bool	Over()				const;
+	void	ChangePlayer();
+	Player	GetActivePlayer()	const;
 };
 
 struct Bonol::Position
@@ -70,10 +76,10 @@ struct Bonol::Position
 
 struct Bonol::Board
 {
-	CellValue cell[kBoardSize][kBoardSize];
+	Piece cell[kBoardSize][kBoardSize];
 
 	Board();
-	Board(const CellValue copy_source[kBoardSize][kBoardSize]);
+	Board(const Piece copy_source[kBoardSize][kBoardSize]);
 };
 
 #include "GUI.h"

@@ -11,25 +11,54 @@
 */
 
 #pragma once
+
 #include "Bonol.h"
+
+/// interface
+#include <d2d1.h>
+#pragma comment(lib, "d2d1")
 
 class Bonol::GUI
 {
 private:
-	int				width_, height_;
-	int				left_, top_;
-	int				table_width_, cell_width_;
+	INT	width_, height_;
+	INT	table_width_, cell_width_;
 
-	const Bonol&	game_state_;
+	WNDCLASS		wc_;
+	HWND			hwnd_;
+	const Bonol&	kGameState;
 	Position		center_, origin_;
 
-	void DrawLine				(Position from, Position to)			const;
-	void DrawSquare				(Position origin, int width)			const;
-	void GetPolyPointsFromCell	(Position pos, Position polypoints[4])	const;
-	void DrawCell				(const Position pos)					const;
+	ID2D1Factory*			pFactory_;
+	ID2D1HwndRenderTarget*	pRenderTarget_;
+	//ID2D1SolidColorBrush*	pBrush_;
+
+	template <class T> static void SafeRelease(T** ppT);
+	void    CalculateLayout();
+	HRESULT CreateGraphicsResources();
+	void    DiscardGraphicsResources();
+	void    OnPaint();
+	void    Resize();
+
+	void	CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
+	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void	UpdateDimensions(const RECT& rc);
+
+	void	DrawLine	(const Position from, const Position to)							const;
+	void	DrawSquare	(const Position origin, const INT width, const D2D1_COLOR_F color)	const;
+	void	DrawCell	(const Position pos)												const;
+	void	DrawTable()	const;
 
 public:
-	GUI(const Bonol* game, const Dimensions window_dimensions);
-
-	void DrawScreen()	const;
+	GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 };
+
+template<class T>
+inline void Bonol::GUI::SafeRelease(T** ppT)
+{
+	if (*ppT)
+	{
+		(*ppT)->Release();
+		*ppT = NULL;
+	}
+}

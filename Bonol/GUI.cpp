@@ -12,96 +12,125 @@
 
 #include "GUI.h"
 
-void Bonol::GUI::DrawLine(const Position from, const Position to) const
+void Bonol::GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
 {
-    line(from.x, from.y, to.x, to.y);
+    // Register the window class.
+    const wchar_t CLASS_NAME[] = L"Bonol Window Class";
+
+    wc_.lpfnWndProc = WindowProc;
+    wc_.hInstance = hInstance;
+    wc_.lpszClassName = CLASS_NAME;
+
+    RegisterClass(&wc_);
+
+    // Create the window.
+    hwnd_ = CreateWindowEx(
+        0,                              // Optional window styles.
+        CLASS_NAME,                     // Window class
+        L"Bonol",                       // Window text
+        WS_OVERLAPPEDWINDOW,            // Window style
+
+        // Size and position
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        window_dimensions.x, window_dimensions.y,
+
+        NULL,       // Parent window    
+        NULL,       // Menu
+        hInstance,  // Instance handle
+        this        // Additional application data
+    );
+
+    if (hwnd_ == NULL)
+    {
+        /// TODO(petru): throw error
+        return;
+    }
+
+    ShowWindow(hwnd_, nCmdShow);
 }
 
-void Bonol::GUI::DrawSquare(const Position origin, const int width) const
+void Bonol::GUI::UpdateDimensions(const RECT& rc)
 {
-    Position upper_left_corner  = Position(origin.x, origin.y);
-    Position upper_right_corner = Position(origin.x + width, origin.y);
-    Position lower_left_corner  = Position(origin.x, origin.y + width);
-    Position lower_right_corner = Position(origin.x + width, origin.y + width);
+    width_  = rc.right - rc.left;
+    height_ = rc.bottom - rc.top;
 
-    DrawLine(upper_left_corner, upper_right_corner);
-    DrawLine(upper_right_corner, lower_right_corner);
-    DrawLine(lower_right_corner, lower_left_corner);
-    DrawLine(lower_left_corner, upper_left_corner);
-}
-
-void Bonol::GUI::GetPolyPointsFromCell(Position pos, Position PolyPoints[4]) const
-{
-    int cell_left = origin_.x + pos.x * cell_width_;
-    int cell_top = origin_.y + pos.y * cell_width_;
-
-    PolyPoints[0] = Position(cell_left, cell_top);
-    PolyPoints[1] = Position(cell_left + cell_width_, cell_top);
-    PolyPoints[2] = Position(cell_left + cell_width_, cell_top + cell_width_);
-    PolyPoints[3] = Position(cell_left, cell_top + cell_width_);
-}
-
-void Bonol::GUI::DrawCell(const Position pos) const
-{
-    int numpoints = 4;
-    Position polypoints[4];
-    GetPolyPointsFromCell(pos, polypoints);
-
-    auto cell_piece = game_state_.GetCell(pos);
-    switch (cell_piece)
-    {
-    case PIECE_FREE:
-    {
-        //setcolor(getbkcolor());
-        setfillstyle(SOLID_FILL, getbkcolor());
-        break;
-    }
-    case PIECE_RED:
-    {
-        //setcolor(RED);
-        setfillstyle(SOLID_FILL, LIGHTRED);
-        break;
-    }
-    case PIECE_BLUE:
-    {
-        //setcolor(BLUE);
-        setfillstyle(SOLID_FILL, LIGHTBLUE);
-        break;
-    }
-    case PIECE_BLOCKED:
-    {
-        //setcolor(WHITE);
-        setfillstyle(SOLID_FILL, WHITE);
-        break;
-    }
-    }
-
-    setcolor(WHITE);
-    fillpoly(numpoints, (int*)polypoints);
-}
-
-Bonol::GUI::GUI(const Bonol* game, const Dimensions window_dimensions) : game_state_(*game)
-{
-    width_ = window_dimensions.x;
-    height_ = window_dimensions.y;
-    left_ = (getmaxwidth() - width_) / 2;
-    top_ = (getmaxheight() - height_) / 2;
-    initwindow(width_, height_, "BONOL", left_, top_);
-
-    table_width_ = 400;
-    cell_width_ = table_width_ / kBoardSize;
+    table_width_ = min(width_, height_) / 2;
+    cell_width_  = table_width_ / kBoardSize;
 
     center_ = Position(width_ / 2, height_ / 2);
     origin_ = Position((width_ - table_width_) / 2, (height_ - table_width_) / 2);
-
-    setbkcolor(BLACK);
 }
 
-void Bonol::GUI::DrawScreen() const
+LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    for (CellCoord line = 0; line < kBoardSize; ++line)
-        for (CellCoord column = 0; column < kBoardSize; ++column)
-                DrawCell(Position(column, line));
+    GUI* game_interface;
 
-    DrawSquare(origin_, table_width_);
+    if (uMsg == WM_CREATE)
+    {
+        CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+        game_interface = reinterpret_cast<Bonol::GUI*>(pCreate->lpCreateParams);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
+
+        if (FAILED(D2D1CreateFactory(
+            D2D1_FACTORY_TYPE_SINGLE_THREADED, &game_interface->pFactory_)))
+        {
+            return -1;  // Fail CreateWindowEx.
+        }
+
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+        (*game_interface).UpdateDimensions(rc);
+
+        return 0;
+    }
+    else
+    {
+        game_interface = (GUI*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    }
+
+    switch (uMsg)
+    {
+    case WM_CLOSE:
+    {
+        if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
+        {
+            DestroyWindow(hwnd);
+        }
+
+        return 0;
+    }
+    case WM_DESTROY:
+    {
+        (*game_interface).DiscardGraphicsResources();
+        SafeRelease(&game_interface->pFactory_);
+        PostQuitMessage(0);
+        return 0;
+    }
+    case WM_PAINT:
+    {
+        (*game_interface).OnPaint();
+        ValidateRect(hwnd, NULL);
+        return 0;
+    }
+    case WM_SIZE:
+    {
+        (*game_interface).Resize();
+        return 0;
+    }
+    }
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+Bonol::GUI::GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
+    : kGameState(*game), wc_({}), pFactory_(NULL), pRenderTarget_(NULL)//, pBrush_(NULL)
+{
+    CreateInterface(window_dimensions, hInstance, nCmdShow);
+
+    // Run the message loop.
+    MSG msg = { };
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 }
