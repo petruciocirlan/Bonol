@@ -17,6 +17,7 @@
 #endif
 
 #include <windows.h>
+#include <windowsx.h>
 /// memset & memcpy
 #include <cstring>
 
@@ -26,7 +27,7 @@ private:
 	using CellValue = int;
 	using CellCoord = int;
 
-	struct CellPos;
+	struct PosCell;
 	struct Board;
 	class GUI;
 
@@ -51,13 +52,13 @@ private:
 	bool isOver_;
 	Player active_player_;
 
-	Piece& GetCellPiece(const CellPos pos) const;
-	bool IsValidPosition(const CellPos pos) const;
-	bool IsPlayerPiece(const CellPos pos) const;
-	bool IsActivePlayerPiece(const CellPos pos) const;
+	Piece& GetCellPiece(const PosCell pos) const;
+	bool IsValidPosition(const PosCell pos) const;
+	bool IsPlayerPiece(const PosCell pos) const;
+	bool IsActivePlayerPiece(const PosCell pos) const;
 
 public:
-	using Dimensions = CellPos;
+	using Dimensions = PosCell;
 
 	Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 
@@ -66,12 +67,12 @@ public:
 	Player GetActivePlayer() const;
 };
 
-struct Bonol::CellPos
+struct Bonol::PosCell
 {
 	CellCoord x, y;
 
-	CellPos() : x(0), y(0) {};
-	CellPos(CellCoord column, CellCoord row) : x(column), y(row) {};
+	PosCell() : x(0), y(0) {};
+	PosCell(CellCoord column, CellCoord row) : x(column), y(row) {};
 };
 
 struct Bonol::Board

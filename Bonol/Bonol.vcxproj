@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Bonol.cpp" />
     <ClCompile Include="GUI.cpp" />
-    <ClCompile Include="GUIDirect2D.cpp" />
+    <ClCompile Include="GUIdraw.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>

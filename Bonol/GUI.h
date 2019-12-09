@@ -14,42 +14,42 @@
 
 #include "Bonol.h"
 
-/// interface
-#include <d2d1.h>
-#pragma comment(lib, "d2d1")
+//#include <stdafx.h>
+#include <windows.h>
+#include <objidl.h>
+#include <gdiplus.h>
+using namespace Gdiplus;
+#pragma comment (lib,"Gdiplus.lib")
 
 class Bonol::GUI
 {
 private:
-	using GUICoord = FLOAT;
-	struct GUIPos;
+	using CoordGUI = INT;
+	struct PosGUI;
 
-	GUICoord width_, height_;
-	GUICoord table_width_, cell_width_;
+	CoordGUI width_, height_;
+	CoordGUI table_width_, cell_width_;
+	PosGUI* mouse_;
 
-	HWND hwnd_;
-	WNDCLASS wc_;
 	const Bonol& kGameState;
-
-	ID2D1Factory* pFactory_;
-	ID2D1HwndRenderTarget* pRenderTarget_;
-	//ID2D1SolidColorBrush*	pBrush_;
+	HWND hwnd_;
+	Graphics* graphics_;
 
 	template<class Interface>
 	static inline void SafeRelease(Interface** ppInterfaceToRelease);
 
 	inline void CalculateLayout();
+	void OnMoveMouse(INT pixelX, INT pixelY);
 	void OnPaint();
 	void Resize();
-	HRESULT CreateGraphicsResources();
-	void DiscardGraphicsResources();
 
-	GUIPos GetTableCenter() const;
-	GUIPos GetTableOrigin() const;
+	PosGUI GetTableCenter() const;
+	PosGUI GetTableOrigin() const;
+	BOOL IsInsideTable(const PosGUI pos) const;
 
-	void DrawLine(const GUIPos from, const GUIPos to) const;
-	void DrawSquare(const GUIPos origin, const FLOAT width, const D2D1_COLOR_F color) const;
-	void DrawCell(const CellPos pos) const;
+	void DrawLine(const PosGUI from, const PosGUI to) const;
+	void DrawSquare(const PosGUI origin, const INT width, const Color color) const;
+	void DrawCell(const PosCell pos) const;
 	void DrawTable() const;
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -61,12 +61,12 @@ public:
 	GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 };
 
-struct Bonol::GUI::GUIPos
+struct Bonol::GUI::PosGUI
 {
-	GUICoord x, y;
+	CoordGUI x, y;
 
-	GUIPos() : x(0), y(0) {};
-	GUIPos(GUICoord x_pos, GUICoord y_pos) : x(x_pos), y(y_pos) {};
+	PosGUI() : x(0), y(0) {};
+	PosGUI(CoordGUI x_pos, CoordGUI y_pos) : x(x_pos), y(y_pos) {};
 };
 
 template<class Interface>

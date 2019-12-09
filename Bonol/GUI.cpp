@@ -12,7 +12,6 @@
 
 #include "GUI.h"
 
-
 LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     GUI* game_interface = NULL;
@@ -27,6 +26,7 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     case WM_CREATE:
     {
         SetWindowDataInfo(hwnd, lParam, game_interface);
+        game_interface->CalculateLayout();
         return 0;
     }
     case WM_CLOSE:
@@ -39,15 +39,12 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     }
     case WM_DESTROY:
     {
-        game_interface->DiscardGraphicsResources();
-        SafeRelease(&game_interface->pFactory_);
         PostQuitMessage(0);
         return 0;
     }
     case WM_PAINT:
     {
         game_interface->OnPaint();
-        ValidateRect(hwnd, NULL);
         return 0;
     }
     case WM_SIZE:
@@ -55,31 +52,45 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         game_interface->Resize();
         return 0;
     }
+    case WM_MOUSEMOVE:
+    {
+        game_interface->OnMoveMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        
+        return 0;
+    }
     case WM_GETMINMAXINFO:
     {
         LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
-        lpMMI->ptMinTrackSize.x = 400;
-        lpMMI->ptMinTrackSize.y = 400;
+        lpMMI->ptMinTrackSize.x = 480;
+        lpMMI->ptMinTrackSize.y = 480;
     }
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-Bonol::GUI::GUIPos Bonol::GUI::GetTableCenter() const
+Bonol::GUI::PosGUI Bonol::GUI::GetTableCenter() const
 {
-    return GUIPos(width_ / 2, height_ / 2);
+    return PosGUI(width_ / 2, height_ / 2);
 }
 
-Bonol::GUI::GUIPos Bonol::GUI::GetTableOrigin() const
+Bonol::GUI::PosGUI Bonol::GUI::GetTableOrigin() const
 {
-    return GUIPos((width_ - table_width_) / 2, (height_ - table_width_) / 2);
+    return PosGUI((width_ - table_width_) / 2, (height_ - table_width_) / 2);
 }
 
-void Bonol::GUI::DrawTable() const
+BOOL Bonol::GUI::IsInsideTable(const PosGUI pos) const
 {
-    for (CellCoord line = 0; line < kBoardSize; ++line)
-        for (CellCoord column = 0; column < kBoardSize; ++column)
-            DrawCell(CellPos(column, line));
+    PosGUI top_left = GetTableOrigin();
+    PosGUI bottom_right = PosGUI(top_left.x + table_width_, top_left.y + table_width_);
+    if (pos.x < top_left.x || pos.y < top_left.y)
+    {
+        return FALSE;
+    }
+    if (pos.x > bottom_right.x || pos.y > bottom_right.y)
+    {
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /// BELOW: Window setup and message loop
@@ -89,59 +100,50 @@ void Bonol::GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interfac
     CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
     game_interface = reinterpret_cast<Bonol::GUI*>(pCreate->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
-
-    if (FAILED(D2D1CreateFactory(
-        D2D1_FACTORY_TYPE_SINGLE_THREADED, &game_interface->pFactory_)))
-    {
-        // Fail CreateWindowEx.
-        /// TODO(petru): throw something
-        return;
-    }
-
-    RECT rc;
-    GetClientRect(hwnd, &rc);
 }
 
 void Bonol::GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
 {
-    // Register the window class.
-    const wchar_t CLASS_NAME[] = L"Bonol Window Class";
+    WNDCLASS            wndClass;
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR           gdiplusToken;
 
-    wc_.lpfnWndProc = WindowProc;
-    wc_.hInstance = hInstance;
-    wc_.lpszClassName = CLASS_NAME;
+    // Initialize GDI+.
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-    RegisterClass(&wc_);
+    wndClass.style = CS_HREDRAW | CS_VREDRAW;
+    wndClass.lpfnWndProc = WindowProc;
+    wndClass.cbClsExtra = 0;
+    wndClass.cbWndExtra = 0;
+    wndClass.hInstance = hInstance;
+    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    wndClass.lpszMenuName = NULL;
+    wndClass.lpszClassName = TEXT("BonolWindowClassName");
 
-    // Create the window.
-    hwnd_ = CreateWindowEx(
-        0,                              // Optional window styles.
-        CLASS_NAME,                     // Window class
-        L"Bonol",                       // Window text
-        WS_OVERLAPPEDWINDOW,            // Window style
+    RegisterClass(&wndClass);
 
-        // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        window_dimensions.x, window_dimensions.y,
-
-        NULL,       // Parent window    
-        NULL,       // Menu
-        hInstance,  // Instance handle
-        this        // Additional application data
-    );
-
-    if (hwnd_ == NULL)
-    {
-        /// TODO(petru): throw error
-        return;
-    }
+    hwnd_ = CreateWindow(
+        TEXT("BonolWindowClassName"),   // window class name
+        TEXT("Bonol"),  // window caption
+        WS_OVERLAPPEDWINDOW,      // window style
+        CW_USEDEFAULT,            // initial x position
+        CW_USEDEFAULT,            // initial y position
+        window_dimensions.x,      // initial x size
+        window_dimensions.y,      // initial y size
+        NULL,                     // parent window handle
+        NULL,                     // window menu handle
+        hInstance,                // program instance handle
+        this);                    // creation parameters
 
     ShowWindow(hwnd_, nCmdShow);
+    UpdateWindow(hwnd_);
 }
 
 void Bonol::GUI::RunMessageLoop()
 {
-    MSG msg = { };
+    MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
@@ -150,7 +152,7 @@ void Bonol::GUI::RunMessageLoop()
 }
 
 Bonol::GUI::GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-    : kGameState(*game), wc_({}), pFactory_(NULL), pRenderTarget_(NULL)//, pBrush_(NULL)
+    : kGameState(*game)
 {
     CreateInterface(window_dimensions, hInstance, nCmdShow);
 

@@ -18,13 +18,13 @@
     <ClCompile Include="Bonol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GUIDirect2D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIdraw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
