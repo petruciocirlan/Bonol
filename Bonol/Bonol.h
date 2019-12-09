@@ -26,9 +26,9 @@ private:
 	using CellValue = int;
 	using CellCoord = int;
 
-	struct	Position;
-	struct	Board;
-	class	GUI;
+	struct CellPos;
+	struct Board;
+	class GUI;
 
 	static const unsigned kBoardSize = 4;
 	enum class Piece
@@ -45,33 +45,33 @@ private:
 	};
 	enum class Player { RED, BLUE };
 
-	Board*	const	board_;
-	GUI*	const	interface_;
+	Board* const board_;
+	GUI* const interface_;
 
-	bool	isOver_;
-	Player	active_player_;
+	bool isOver_;
+	Player active_player_;
 
-	Piece&	GetCellPiece		(const Position pos)	const;
-	bool	IsValidPosition		(const Position pos)	const;
-	bool	IsPlayerPiece		(const Position pos)	const;
-	bool	IsActivePlayerPiece	(const Position pos)	const;
+	Piece& GetCellPiece(const CellPos pos) const;
+	bool IsValidPosition(const CellPos pos) const;
+	bool IsPlayerPiece(const CellPos pos) const;
+	bool IsActivePlayerPiece(const CellPos pos) const;
 
 public:
-	using Dimensions = Position;
+	using Dimensions = CellPos;
 
 	Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 
-	bool	Over()				const;
-	void	ChangePlayer();
-	Player	GetActivePlayer()	const;
+	bool Over() const;
+	void ChangePlayer();
+	Player GetActivePlayer() const;
 };
 
-struct Bonol::Position
+struct Bonol::CellPos
 {
 	CellCoord x, y;
 
-	Position() : x(0), y(0) {};
-	Position(CellCoord column, CellCoord line) : x(column), y(line) {};
+	CellPos() : x(0), y(0) {};
+	CellPos(CellCoord column, CellCoord row) : x(column), y(row) {};
 };
 
 struct Bonol::Board

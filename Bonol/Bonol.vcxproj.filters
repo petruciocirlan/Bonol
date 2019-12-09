@@ -13,33 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Bonol Game">
-      <UniqueIdentifier>{ecb76b5a-bd02-4dbd-a87c-260e9204b4df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Bonol Game">
-      <UniqueIdentifier>{bbbde3e1-f3b3-487b-9bc3-fb05c4ecb0d3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bonol.cpp">
-      <Filter>Source Files\Bonol Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Source Files\Bonol Game</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI.cpp">
-      <Filter>Source Files\Bonol Game</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GUIDirect2D.cpp">
-      <Filter>Source Files\Bonol Game</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bonol.h">
-      <Filter>Header Files\Bonol Game</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUI.h">
-      <Filter>Header Files\Bonol Game</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

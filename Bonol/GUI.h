@@ -21,44 +21,61 @@
 class Bonol::GUI
 {
 private:
-	INT	width_, height_;
-	INT	table_width_, cell_width_;
+	using GUICoord = FLOAT;
+	struct GUIPos;
 
-	WNDCLASS		wc_;
-	HWND			hwnd_;
-	const Bonol&	kGameState;
-	Position		center_, origin_;
+	GUICoord width_, height_;
+	GUICoord table_width_, cell_width_;
 
-	ID2D1Factory*			pFactory_;
-	ID2D1HwndRenderTarget*	pRenderTarget_;
+	HWND hwnd_;
+	WNDCLASS wc_;
+	const Bonol& kGameState;
+
+	ID2D1Factory* pFactory_;
+	ID2D1HwndRenderTarget* pRenderTarget_;
 	//ID2D1SolidColorBrush*	pBrush_;
 
-	template <class T> static void SafeRelease(T** ppT);
-	void    CalculateLayout();
+	template<class Interface>
+	static inline void SafeRelease(Interface** ppInterfaceToRelease);
+
+	inline void CalculateLayout();
 	HRESULT CreateGraphicsResources();
-	void    DiscardGraphicsResources();
-	void    OnPaint();
-	void    Resize();
+	void DiscardGraphicsResources();
+	void OnPaint();
+	void Resize();
 
-	void	CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
+	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface);
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	void	UpdateDimensions(const RECT& rc);
+	void CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
+	void RunMessageLoop();
 
-	void	DrawLine	(const Position from, const Position to)							const;
-	void	DrawSquare	(const Position origin, const INT width, const D2D1_COLOR_F color)	const;
-	void	DrawCell	(const Position pos)												const;
-	void	DrawTable()	const;
+	GUIPos GetTableCenter() const;
+	GUIPos GetTableOrigin() const;
+
+	void DrawLine(const GUIPos from, const GUIPos to) const;
+	void DrawSquare(const GUIPos origin, const FLOAT width, const D2D1_COLOR_F color) const;
+	void DrawCell(const CellPos pos) const;
+	void DrawTable() const;
 
 public:
 	GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 };
 
-template<class T>
-inline void Bonol::GUI::SafeRelease(T** ppT)
+struct Bonol::GUI::GUIPos
 {
-	if (*ppT)
+	GUICoord x, y;
+
+	GUIPos() : x(0), y(0) {};
+	GUIPos(GUICoord x_pos, GUICoord y_pos) : x(x_pos), y(y_pos) {};
+};
+
+template<class Interface>
+static inline void Bonol::GUI::SafeRelease(Interface** ppInterfaceToRelease)
+{
+	if (*ppInterfaceToRelease != NULL)
 	{
-		(*ppT)->Release();
-		*ppT = NULL;
+		(*ppInterfaceToRelease)->Release();
+
+		(*ppInterfaceToRelease) = NULL;
 	}
 }

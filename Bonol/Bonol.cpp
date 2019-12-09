@@ -12,24 +12,24 @@
 
 #include "Bonol.h"
 
-Bonol::Piece& Bonol::GetCellPiece(const Position pos) const
+Bonol::Piece& Bonol::GetCellPiece(const CellPos pos) const
 {
 	/// if (!validPosition(pos)) throw something
 	return (*board_).cell[pos.y][pos.x];
 }
 
-bool Bonol::IsValidPosition(const Position pos) const
+bool Bonol::IsValidPosition(const CellPos pos) const
 {
 	return ((0 <= pos.x && pos.x <= kBoardSize) &&
 			(0 <= pos.y && pos.y <= kBoardSize));
 }
 
-bool Bonol::IsPlayerPiece(const Position pos) const
+bool Bonol::IsPlayerPiece(const CellPos pos) const
 {
 	return (GetCellPiece(pos) == Piece::RED || GetCellPiece(pos) == Piece::BLUE);
 }
 
-bool Bonol::IsActivePlayerPiece(const Position pos) const
+bool Bonol::IsActivePlayerPiece(const CellPos pos) const
 {
 	return ((GetCellPiece(pos) == Piece::RED && GetActivePlayer() == Player::RED) ||
 			(GetCellPiece(pos) == Piece::BLUE && GetActivePlayer() == Player::BLUE));

@@ -11,11 +11,19 @@
 */
 
 #include "Bonol.h"
+#include <iostream>
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCmdLine, _In_ INT nCmdShow)
 {
-    const auto kWindowDimensions = Bonol::Dimensions(800, 600);
-    Bonol game(kWindowDimensions, hInstance, nCmdShow);
+	try
+	{
+		const auto kWindowDimensions = Bonol::Dimensions(800, 600);
+		Bonol game(kWindowDimensions, hInstance, nCmdShow);
+	}
+	catch (const PWSTR msg)
+	{
+		std::cerr << msg;
+	}
 
     return 0;
 }

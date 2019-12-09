@@ -12,6 +12,76 @@
 
 #include "GUI.h"
 
+void Bonol::GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
+{
+    CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+    game_interface = reinterpret_cast<Bonol::GUI*>(pCreate->lpCreateParams);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
+
+    if (FAILED(D2D1CreateFactory(
+        D2D1_FACTORY_TYPE_SINGLE_THREADED, &game_interface->pFactory_)))
+    {
+        // Fail CreateWindowEx.
+        /// TODO(petru): throw something
+        return;
+    }
+
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+}
+
+LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    GUI* game_interface = NULL;
+
+    if (uMsg != WM_CREATE)
+    {
+        game_interface = (GUI*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    }
+
+    switch (uMsg)
+    {
+    case WM_CREATE:
+    {
+        SetWindowDataInfo(hwnd, lParam, game_interface);
+        return 0;
+    }
+    case WM_CLOSE:
+    {
+        if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
+        {
+            DestroyWindow(hwnd);
+        }
+        return 0;
+    }
+    case WM_DESTROY:
+    {
+        game_interface->DiscardGraphicsResources();
+        SafeRelease(&game_interface->pFactory_);
+        PostQuitMessage(0);
+        return 0;
+    }
+    case WM_PAINT:
+    {
+        game_interface->OnPaint();
+        ValidateRect(hwnd, NULL);
+        return 0;
+    }
+    case WM_SIZE:
+    {
+        game_interface->Resize();
+        return 0;
+    }
+    case WM_GETMINMAXINFO:
+    {
+        LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+        lpMMI->ptMinTrackSize.x = 400;
+        lpMMI->ptMinTrackSize.y = 400;
+    }
+    }
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
 void Bonol::GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
 {
     // Register the window class.
@@ -49,76 +119,14 @@ void Bonol::GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE h
     ShowWindow(hwnd_, nCmdShow);
 }
 
-void Bonol::GUI::UpdateDimensions(const RECT& rc)
+void Bonol::GUI::RunMessageLoop()
 {
-    width_  = rc.right - rc.left;
-    height_ = rc.bottom - rc.top;
-
-    table_width_ = min(width_, height_) / 2;
-    cell_width_  = table_width_ / kBoardSize;
-
-    center_ = Position(width_ / 2, height_ / 2);
-    origin_ = Position((width_ - table_width_) / 2, (height_ - table_width_) / 2);
-}
-
-LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    GUI* game_interface;
-
-    if (uMsg == WM_CREATE)
+    MSG msg = { };
+    while (GetMessage(&msg, NULL, 0, 0))
     {
-        CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-        game_interface = reinterpret_cast<Bonol::GUI*>(pCreate->lpCreateParams);
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
-
-        if (FAILED(D2D1CreateFactory(
-            D2D1_FACTORY_TYPE_SINGLE_THREADED, &game_interface->pFactory_)))
-        {
-            return -1;  // Fail CreateWindowEx.
-        }
-
-        RECT rc;
-        GetClientRect(hwnd, &rc);
-        (*game_interface).UpdateDimensions(rc);
-
-        return 0;
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
-    else
-    {
-        game_interface = (GUI*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    }
-
-    switch (uMsg)
-    {
-    case WM_CLOSE:
-    {
-        if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
-        {
-            DestroyWindow(hwnd);
-        }
-
-        return 0;
-    }
-    case WM_DESTROY:
-    {
-        (*game_interface).DiscardGraphicsResources();
-        SafeRelease(&game_interface->pFactory_);
-        PostQuitMessage(0);
-        return 0;
-    }
-    case WM_PAINT:
-    {
-        (*game_interface).OnPaint();
-        ValidateRect(hwnd, NULL);
-        return 0;
-    }
-    case WM_SIZE:
-    {
-        (*game_interface).Resize();
-        return 0;
-    }
-    }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 Bonol::GUI::GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
@@ -126,11 +134,5 @@ Bonol::GUI::GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE
 {
     CreateInterface(window_dimensions, hInstance, nCmdShow);
 
-    // Run the message loop.
-    MSG msg = { };
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+    RunMessageLoop();
 }

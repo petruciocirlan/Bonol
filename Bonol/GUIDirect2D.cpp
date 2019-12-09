@@ -12,14 +12,23 @@
 
 #include "GUI.h"
 
-void Bonol::GUI::DrawLine(const Position from, const Position to) const
+Bonol::GUI::GUIPos Bonol::GUI::GetTableCenter() const
+{
+    return GUIPos(width_ / 2, height_ / 2);
+}
+
+Bonol::GUI::GUIPos Bonol::GUI::GetTableOrigin() const
+{
+    return GUIPos((width_ - table_width_) / 2, (height_ - table_width_) / 2);
+}
+
+void Bonol::GUI::DrawLine(const GUIPos from, const GUIPos to) const
 {
     //line(from.x, from.y, to.x, to.y);
 }
 
-void Bonol::GUI::DrawSquare(const Position origin, const INT width, const D2D1_COLOR_F color) const
+void Bonol::GUI::DrawSquare(const GUIPos pos, const FLOAT width, const D2D1_COLOR_F color) const
 {
-    Position pos(origin_.x + origin.x * cell_width_, origin_.y + origin.y * cell_width_);
     ID2D1SolidColorBrush* pBrush = NULL;
     pRenderTarget_->CreateSolidColorBrush(color, &pBrush);
 
@@ -27,19 +36,22 @@ void Bonol::GUI::DrawSquare(const Position origin, const INT width, const D2D1_C
     {
         pRenderTarget_->FillRectangle(
             D2D1::RectF(
-                (FLOAT)pos.x,
-                (FLOAT)pos.y,
-                (FLOAT)pos.x + width,
-                (FLOAT)pos.y + width
+                pos.x,
+                pos.y,
+                pos.x + width,
+                pos.y + width
             ),
             pBrush
         );
     }
 }
 
-void Bonol::GUI::DrawCell(const Position pos) const
+void Bonol::GUI::DrawCell(const CellPos cell) const
 {
-    auto cell_piece = kGameState.GetCellPiece(pos);
+    auto cell_piece = kGameState.GetCellPiece(cell);
+    GUIPos origin = GetTableOrigin();
+    GUIPos pos = GUIPos(origin.x + cell.x * cell_width_,
+                        origin.y + cell.y * cell_width_);
     switch (cell_piece)
     {
     case Piece::FREE:
@@ -84,7 +96,7 @@ void Bonol::GUI::DrawTable() const
 {
     for (CellCoord line = 0; line < kBoardSize; ++line)
         for (CellCoord column = 0; column < kBoardSize; ++column)
-            DrawCell(Position(column, line));
+            DrawCell(CellPos(column, line));
 }
 
 void Bonol::GUI::CalculateLayout()
@@ -92,10 +104,11 @@ void Bonol::GUI::CalculateLayout()
     if (pRenderTarget_ != NULL)
     {
         D2D1_SIZE_F size = pRenderTarget_->GetSize();
-        const FLOAT x = size.width / 2;
-        const FLOAT y = size.height / 2;
-        const FLOAT radius = min(x, y);
-        //ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
+        width_  = size.width;
+        height_ = size.height;
+
+        table_width_ = min(min(width_, height_) - 50, 400);
+        cell_width_  = table_width_ / kBoardSize;
     }
 }
 
@@ -133,9 +146,10 @@ void Bonol::GUI::OnPaint()
 
         pRenderTarget_->BeginDraw();
 
+        CalculateLayout();
+
         // All painting occurs here, between BeginPaint and EndPaint.
         pRenderTarget_->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
         DrawTable();
 
         hr = pRenderTarget_->EndDraw();
@@ -155,8 +169,8 @@ void Bonol::GUI::Resize()
         GetClientRect(hwnd_, &rc);
 
         D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-
         pRenderTarget_->Resize(size);
+
         CalculateLayout();
         InvalidateRect(hwnd_, NULL, FALSE);
     }
