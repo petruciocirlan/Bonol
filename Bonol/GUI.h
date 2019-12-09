@@ -39,15 +39,10 @@ private:
 	static inline void SafeRelease(Interface** ppInterfaceToRelease);
 
 	inline void CalculateLayout();
-	HRESULT CreateGraphicsResources();
-	void DiscardGraphicsResources();
 	void OnPaint();
 	void Resize();
-
-	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface);
-	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	void CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
-	void RunMessageLoop();
+	HRESULT CreateGraphicsResources();
+	void DiscardGraphicsResources();
 
 	GUIPos GetTableCenter() const;
 	GUIPos GetTableOrigin() const;
@@ -56,6 +51,11 @@ private:
 	void DrawSquare(const GUIPos origin, const FLOAT width, const D2D1_COLOR_F color) const;
 	void DrawCell(const CellPos pos) const;
 	void DrawTable() const;
+
+	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface);
+	void CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
+	void RunMessageLoop();
 
 public:
 	GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);

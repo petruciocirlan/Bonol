@@ -12,23 +12,6 @@
 
 #include "GUI.h"
 
-void Bonol::GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
-{
-    CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-    game_interface = reinterpret_cast<Bonol::GUI*>(pCreate->lpCreateParams);
-    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
-
-    if (FAILED(D2D1CreateFactory(
-        D2D1_FACTORY_TYPE_SINGLE_THREADED, &game_interface->pFactory_)))
-    {
-        // Fail CreateWindowEx.
-        /// TODO(petru): throw something
-        return;
-    }
-
-    RECT rc;
-    GetClientRect(hwnd, &rc);
-}
 
 LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -80,6 +63,43 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     }
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+Bonol::GUI::GUIPos Bonol::GUI::GetTableCenter() const
+{
+    return GUIPos(width_ / 2, height_ / 2);
+}
+
+Bonol::GUI::GUIPos Bonol::GUI::GetTableOrigin() const
+{
+    return GUIPos((width_ - table_width_) / 2, (height_ - table_width_) / 2);
+}
+
+void Bonol::GUI::DrawTable() const
+{
+    for (CellCoord line = 0; line < kBoardSize; ++line)
+        for (CellCoord column = 0; column < kBoardSize; ++column)
+            DrawCell(CellPos(column, line));
+}
+
+/// BELOW: Window setup and message loop
+
+void Bonol::GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
+{
+    CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+    game_interface = reinterpret_cast<Bonol::GUI*>(pCreate->lpCreateParams);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
+
+    if (FAILED(D2D1CreateFactory(
+        D2D1_FACTORY_TYPE_SINGLE_THREADED, &game_interface->pFactory_)))
+    {
+        // Fail CreateWindowEx.
+        /// TODO(petru): throw something
+        return;
+    }
+
+    RECT rc;
+    GetClientRect(hwnd, &rc);
 }
 
 void Bonol::GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)

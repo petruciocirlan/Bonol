@@ -12,16 +12,6 @@
 
 #include "GUI.h"
 
-Bonol::GUI::GUIPos Bonol::GUI::GetTableCenter() const
-{
-    return GUIPos(width_ / 2, height_ / 2);
-}
-
-Bonol::GUI::GUIPos Bonol::GUI::GetTableOrigin() const
-{
-    return GUIPos((width_ - table_width_) / 2, (height_ - table_width_) / 2);
-}
-
 void Bonol::GUI::DrawLine(const GUIPos from, const GUIPos to) const
 {
     //line(from.x, from.y, to.x, to.y);
@@ -44,6 +34,8 @@ void Bonol::GUI::DrawSquare(const GUIPos pos, const FLOAT width, const D2D1_COLO
             pBrush
         );
     }
+
+    SafeRelease(&pBrush);
 }
 
 void Bonol::GUI::DrawCell(const CellPos cell) const
@@ -92,13 +84,6 @@ void Bonol::GUI::DrawCell(const CellPos cell) const
     }
 }
 
-void Bonol::GUI::DrawTable() const
-{
-    for (CellCoord line = 0; line < kBoardSize; ++line)
-        for (CellCoord column = 0; column < kBoardSize; ++column)
-            DrawCell(CellPos(column, line));
-}
-
 void Bonol::GUI::CalculateLayout()
 {
     if (pRenderTarget_ != NULL)
@@ -110,30 +95,6 @@ void Bonol::GUI::CalculateLayout()
         table_width_ = min(min(width_, height_) - 50, 400);
         cell_width_  = table_width_ / kBoardSize;
     }
-}
-
-HRESULT Bonol::GUI::CreateGraphicsResources()
-{
-    HRESULT hr = S_OK;
-    if (pRenderTarget_ == NULL)
-    {
-        RECT rc;
-        GetClientRect(hwnd_, &rc);
-
-        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-
-        hr = pFactory_->CreateHwndRenderTarget(
-            D2D1::RenderTargetProperties(),
-            D2D1::HwndRenderTargetProperties(hwnd_, size),
-            &pRenderTarget_);
-    }
-    return hr;
-}
-
-void Bonol::GUI::DiscardGraphicsResources()
-{
-    SafeRelease(&pRenderTarget_);
-    //SafeRelease(&pBrush_);
 }
 
 void Bonol::GUI::OnPaint()
@@ -174,4 +135,27 @@ void Bonol::GUI::Resize()
         CalculateLayout();
         InvalidateRect(hwnd_, NULL, FALSE);
     }
+}
+
+HRESULT Bonol::GUI::CreateGraphicsResources()
+{
+    HRESULT hr = S_OK;
+    if (pRenderTarget_ == NULL)
+    {
+        RECT rc;
+        GetClientRect(hwnd_, &rc);
+
+        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+
+        hr = pFactory_->CreateHwndRenderTarget(
+            D2D1::RenderTargetProperties(),
+            D2D1::HwndRenderTargetProperties(hwnd_, size),
+            &pRenderTarget_);
+    }
+    return hr;
+}
+
+void Bonol::GUI::DiscardGraphicsResources()
+{
+    SafeRelease(&pRenderTarget_);
 }
