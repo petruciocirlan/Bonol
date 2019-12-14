@@ -34,6 +34,7 @@ private:
 	static const unsigned kBoardSize = 4;
 	enum class Piece
 	{
+		UNUSED,
 		FREE, RED, BLUE, BLOCKED,
 		RED_SELECTED, BLUE_SELECTED, BLOCKED_SELECTED
 	};
@@ -47,15 +48,18 @@ private:
 	enum class Player { RED, BLUE };
 
 	Board* const board_;
-	GUI* const interface_;
+	GUI* interface_;
 
-	bool isOver_;
+	bool is_over_;
 	Player active_player_;
 
 	Piece& GetCellPiece(const PosCell pos) const;
 	bool IsValidPosition(const PosCell pos) const;
 	bool IsPlayerPiece(const PosCell pos) const;
 	bool IsActivePlayerPiece(const PosCell pos) const;
+	Piece GetActivePlayerSelectedPiece() const;
+
+	void ValidateMove(Board& new_state);
 
 public:
 	using Dimensions = PosCell;
@@ -81,6 +85,8 @@ struct Bonol::Board
 
 	Board();
 	Board(const Piece copy_source[kBoardSize][kBoardSize]);
+	void Clear();
+	Piece& at(const PosCell pos);
 };
 
 #include "GUI.h"

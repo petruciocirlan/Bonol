@@ -35,16 +35,36 @@ bool Bonol::IsActivePlayerPiece(const PosCell pos) const
 			(GetCellPiece(pos) == Piece::BLUE && GetActivePlayer() == Player::BLUE));
 }
 
-Bonol::Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-	: board_(new Board(kStartingSetup)), interface_(new GUI(this, window_dimensions, hInstance, nCmdShow))
+Bonol::Piece Bonol::GetActivePlayerSelectedPiece() const
 {
-	isOver_			= false;
-	active_player_	= Player::RED;
+	if (GetActivePlayer() == Player::RED) return Piece::RED_SELECTED;
+	else /*(GetActivePlayer() == Player::BLUE)*/ return Piece::BLUE_SELECTED;
+}
+
+void Bonol::ValidateMove(Board& new_state)
+{
+	/// TODO(vali): check if new_state is a valid move
+	/// notes: check if the pieces form an L
+	/// there are only 2 pieces in new_state:
+	/// Piece::UNUSED and Piece::RED_SELECTED
+	/// (or Piece::BLUE_SELECTED depending on active player)
+
+	/// if the move is valid, update the current board state with the new one
+	/// and change the current player ( ChangePlayer() )
+
+	/// later: instead of changing the current player,
+	/// enter the "move one block" state
+}
+
+Bonol::Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
+	: board_(new Board(kStartingSetup)), is_over_(false), active_player_(Player::RED)
+{
+	interface_ = new GUI(this, window_dimensions, hInstance, nCmdShow);
 }
 
 bool Bonol::Over() const
 {
-	return isOver_;
+	return is_over_;
 }
 
 void Bonol::ChangePlayer()
@@ -63,9 +83,27 @@ Bonol::Player Bonol::GetActivePlayer() const
 Bonol::Board::Board()
 {
 	memset(cell, 0, sizeof(cell));
+	for (int line = 0; line < kBoardSize; ++line)
+		for (int column = 0; column < kBoardSize; ++column)
+			cell[line][column] = Piece::UNUSED;
 }
 
 Bonol::Board::Board(const Piece copy_source[kBoardSize][kBoardSize])
 {
-	memcpy(cell, copy_source, sizeof(cell));
+	memset(cell, 0, sizeof(cell));
+	for (int line = 0; line < kBoardSize; ++line)
+		for (int column = 0; column < kBoardSize; ++column)
+			cell[line][column] = copy_source[line][column];
+}
+
+void Bonol::Board::Clear()
+{
+	for (int line = 0; line < kBoardSize; ++line)
+		for (int column = 0; column < kBoardSize; ++column)
+			cell[line][column] = Piece::UNUSED;
+}
+
+Bonol::Piece& Bonol::Board::at(const PosCell pos)
+{
+	return cell[pos.y][pos.x];
 }

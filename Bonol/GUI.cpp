@@ -27,6 +27,8 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     {
         SetWindowDataInfo(hwnd, lParam, game_interface);
         game_interface->CalculateLayout();
+        game_interface->is_mouse_down_ = false;
+        game_interface->is_selecting_ = false;
         return 0;
     }
     case WM_CLOSE:
@@ -54,8 +56,20 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     }
     case WM_MOUSEMOVE:
     {
-        game_interface->OnMoveMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        
+        PosGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        game_interface->OnMoveMouse(mouse_pos);
+        return 0;
+    }
+    case WM_LBUTTONDOWN:
+    {
+        PosGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        game_interface->OnLeftClickPress(mouse_pos);
+        return 0;
+    }
+    case WM_LBUTTONUP:
+    {
+        PosGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        game_interface->OnLeftClickRelease(mouse_pos);
         return 0;
     }
     case WM_GETMINMAXINFO:
@@ -63,7 +77,10 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
         lpMMI->ptMinTrackSize.x = 480;
         lpMMI->ptMinTrackSize.y = 480;
+        return 0;
     }
+    case WM_ERASEBKGND:
+        return 1;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -78,10 +95,17 @@ Bonol::GUI::PosGUI Bonol::GUI::GetTableOrigin() const
     return PosGUI((width_ - table_width_) / 2, (height_ - table_width_) / 2);
 }
 
+Bonol::PosCell Bonol::GUI::GetCellFromGUI(const PosGUI pos) const
+{
+    PosGUI table_origin = GetTableOrigin();
+    PosGUI pos_mapped_to_table_origin = PosGUI(pos.x - table_origin.x, pos.y - table_origin.y);
+    return PosCell(pos_mapped_to_table_origin.x / cell_width_, pos_mapped_to_table_origin.y / cell_width_);
+}
+
 BOOL Bonol::GUI::IsInsideTable(const PosGUI pos) const
 {
     PosGUI top_left = GetTableOrigin();
-    PosGUI bottom_right = PosGUI(top_left.x + table_width_, top_left.y + table_width_);
+    PosGUI bottom_right = PosGUI(top_left.x + table_width_-1, top_left.y + table_width_-1);
     if (pos.x < top_left.x || pos.y < top_left.y)
     {
         return FALSE;
@@ -151,8 +175,8 @@ void Bonol::GUI::RunMessageLoop()
     }
 }
 
-Bonol::GUI::GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-    : kGameState(*game)
+Bonol::GUI::GUI(Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
+    : kGameState(*game), new_board_state_(new Board())
 {
     CreateInterface(window_dimensions, hInstance, nCmdShow);
 

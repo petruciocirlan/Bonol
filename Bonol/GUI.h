@@ -30,8 +30,10 @@ private:
 	CoordGUI width_, height_;
 	CoordGUI table_width_, cell_width_;
 	PosGUI* mouse_;
+	bool is_mouse_down_, is_selecting_;
+	Board* const new_board_state_;
 
-	const Bonol& kGameState;
+	Bonol& kGameState;
 	HWND hwnd_;
 	Graphics* graphics_;
 
@@ -39,18 +41,22 @@ private:
 	static inline void SafeRelease(Interface** ppInterfaceToRelease);
 
 	inline void CalculateLayout();
-	void OnMoveMouse(INT pixelX, INT pixelY);
+	void OnMoveMouse(const PosGUI mouse_pos);
+	void OnLeftClickPress(const PosGUI mouse_pos);
+	void OnLeftClickRelease(const PosGUI mouse_pos);
 	void OnPaint();
 	void Resize();
 
 	PosGUI GetTableCenter() const;
 	PosGUI GetTableOrigin() const;
+	PosCell GetCellFromGUI(const PosGUI pos) const;
 	BOOL IsInsideTable(const PosGUI pos) const;
 
 	void DrawLine(const PosGUI from, const PosGUI to) const;
 	void DrawSquare(const PosGUI origin, const INT width, const Color color) const;
 	void DrawCell(const PosCell pos) const;
 	void DrawTable() const;
+	void DrawBackground() const;
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface);
@@ -58,7 +64,7 @@ private:
 	void RunMessageLoop();
 
 public:
-	GUI(const Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
+	GUI(Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 };
 
 struct Bonol::GUI::PosGUI
