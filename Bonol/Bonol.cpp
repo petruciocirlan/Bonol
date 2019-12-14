@@ -31,13 +31,12 @@ bool Bonol::IsPlayerPiece(const PosCell pos) const
 
 bool Bonol::IsActivePlayerPiece(const PosCell pos) const
 {
-	return ((GetCellPiece(pos) == Piece::RED && GetActivePlayer() == Player::RED) ||
-			(GetCellPiece(pos) == Piece::BLUE && GetActivePlayer() == Player::BLUE));
+	return GetCellPiece(pos) == GetActivePlayer();
 }
 
 Bonol::Piece Bonol::GetActivePlayerSelectedPiece() const
 {
-	if (GetActivePlayer() == Player::RED) return Piece::RED_SELECTED;
+	if (GetActivePlayer() == Piece::RED) return Piece::RED_SELECTED;
 	else /*(GetActivePlayer() == Player::BLUE)*/ return Piece::BLUE_SELECTED;
 }
 
@@ -57,7 +56,7 @@ void Bonol::ValidateMove(Board& new_state)
 }
 
 Bonol::Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-	: board_(new Board(kStartingSetup)), is_over_(false), active_player_(Player::RED)
+	: board_(new Board(kStartingSetup)), is_over_(false), active_player_piece_(Piece::RED)
 {
 	interface_ = new GUI(this, window_dimensions, hInstance, nCmdShow);
 }
@@ -69,15 +68,15 @@ bool Bonol::Over() const
 
 void Bonol::ChangePlayer()
 {
-	if (active_player_ == Player::RED)
-		active_player_ = Player::BLUE;
+	if (active_player_piece_ == Piece::RED)
+		active_player_piece_ = Piece::BLUE;
 	else
-		active_player_ = Player::RED;
+		active_player_piece_ = Piece::RED;
 }
 
-Bonol::Player Bonol::GetActivePlayer() const
+Bonol::Piece Bonol::GetActivePlayer() const
 {
-	return active_player_;
+	return active_player_piece_;
 }
 
 Bonol::Board::Board()

@@ -45,13 +45,12 @@ private:
 		{Piece::FREE,		Piece::BLUE,	Piece::RED,		Piece::FREE},
 		{Piece::FREE,		Piece::BLUE,	Piece::BLUE,	Piece::BLOCKED}
 	};
-	enum class Player { RED, BLUE };
 
 	Board* const board_;
 	GUI* interface_;
 
 	bool is_over_;
-	Player active_player_;
+	Piece active_player_piece_;
 
 	Piece& GetCellPiece(const PosCell pos) const;
 	bool IsValidPosition(const PosCell pos) const;
@@ -68,7 +67,7 @@ public:
 
 	bool Over() const;
 	void ChangePlayer();
-	Player GetActivePlayer() const;
+	Piece GetActivePlayer() const;
 };
 
 struct Bonol::PosCell
