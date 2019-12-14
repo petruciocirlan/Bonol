@@ -34,7 +34,7 @@ private:
 	static const unsigned kBoardSize = 4;
 	enum class Piece
 	{
-		UNUSED,
+		UNUSED, FORBIDDEN,
 		FREE, RED, BLUE, BLOCKED,
 		RED_SELECTED, BLUE_SELECTED, BLOCKED_SELECTED
 	};
@@ -48,15 +48,17 @@ private:
 
 	Board* const board_;
 	GUI* interface_;
+	Piece inaccessible_;
 
 	bool is_over_;
 	Piece active_player_piece_;
 
-	Piece& GetCellPiece(const PosCell pos) const;
+	Piece& GetCellPiece(const PosCell pos);
 	bool IsValidPosition(const PosCell pos) const;
-	bool IsPlayerPiece(const PosCell pos) const;
-	bool IsActivePlayerPiece(const PosCell pos) const;
+	static bool IsPlayerPiece(const Piece piece);
+	bool IsActivePlayerPiece(const PosCell pos);
 	Piece GetActivePlayerSelectedPiece() const;
+	bool IsFreeForActivePlayer(const PosCell pos);
 
 	void ValidateMove(Board& new_state);
 

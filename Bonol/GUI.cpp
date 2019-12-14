@@ -26,9 +26,7 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     case WM_CREATE:
     {
         SetWindowDataInfo(hwnd, lParam, game_interface);
-        game_interface->CalculateLayout();
-        game_interface->is_mouse_down_ = false;
-        game_interface->is_selecting_ = false;
+        game_interface->Initialize();
         return 0;
     }
     case WM_CLOSE:
@@ -175,10 +173,16 @@ void Bonol::GUI::RunMessageLoop()
     }
 }
 
+void Bonol::GUI::Initialize()
+{
+    CalculateLayout();
+    is_mouse_down_ = false;
+    is_selecting_ = false;
+}
+
 Bonol::GUI::GUI(Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     : kGameState(*game), new_board_state_(new Board())
 {
     CreateInterface(window_dimensions, hInstance, nCmdShow);
-
     RunMessageLoop();
 }

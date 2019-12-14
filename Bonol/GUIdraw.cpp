@@ -18,16 +18,10 @@ void Bonol::GUI::DrawLine(const PosGUI from, const PosGUI to) const
     //line(from.x, from.y, to.x, to.y);
 }
 
-void Bonol::GUI::DrawSquare(const PosGUI pos, const INT width, const Color color) const
+void Bonol::GUI::DrawRect(const Rect rc, const Color color) const
 {
-    Rect rc(
-        pos.x,
-        pos.y,
-        width,
-        width);
-
-    //Pen pen(Color::Black, 5.0f);
-    //graphics_->DrawRectangle(&pen, rc);
+    Pen pen(Color::Black, 5.0f);
+    graphics_->DrawRectangle(&pen, rc);
 
     SolidBrush brush(color);
     graphics_->FillRectangle(&brush, rc);
@@ -35,7 +29,17 @@ void Bonol::GUI::DrawSquare(const PosGUI pos, const INT width, const Color color
 
 void Bonol::GUI::DrawCell(const PosCell cell) const
 {
+    const INT cool_padding = 5;
+    PosGUI origin = GetTableOrigin();
+    PosGUI pos = PosGUI(origin.x + cell.x * cell_width_,
+        origin.y + cell.y * cell_width_);
     Piece cell_piece;
+    Rect rc(
+        pos.x + cool_padding,
+        pos.y + cool_padding,
+        cell_width_ - 2 * cool_padding,
+        cell_width_ - 2 * cool_padding);
+
     if (new_board_state_->at(cell) != Piece::UNUSED)
     {
         cell_piece = new_board_state_->at(cell);
@@ -44,54 +48,56 @@ void Bonol::GUI::DrawCell(const PosCell cell) const
     {
         cell_piece = kGameState.GetCellPiece(cell);
     }
-    PosGUI origin = GetTableOrigin();
-    PosGUI pos = PosGUI(origin.x + cell.x * cell_width_,
-                        origin.y + cell.y * cell_width_);
+
     switch (cell_piece)
     {
     case Piece::FREE:
     {
-        DrawSquare(pos, cell_width_, Color::White);
+        DrawRect(rc, Color::White);
         break;
     }
     case Piece::RED:
     {
-        DrawSquare(pos, cell_width_, Color::PaleVioletRed);
+        DrawRect(rc, Color::PaleVioletRed);
         break;
     }
     case Piece::BLUE:
     {
-        DrawSquare(pos, cell_width_, Color::DodgerBlue);
+        DrawRect(rc, Color::DodgerBlue);
         break;
     }
     case Piece::BLOCKED:
     {
-        DrawSquare(pos, cell_width_, Color::LightSlateGray);
+        DrawRect(rc, Color::LightSlateGray);
         break;
     }
     case Piece::RED_SELECTED:
     {
-        DrawSquare(pos, cell_width_, Color::Red);
+        DrawRect(rc, Color::Firebrick);
         break;
     }
     case Piece::BLUE_SELECTED:
     {
-        DrawSquare(pos, cell_width_, Color::Blue);
+        DrawRect(rc, Color::RoyalBlue);
         break;
     }
     case Piece::BLOCKED_SELECTED:
     {
-        DrawSquare(pos, cell_width_, Color::Green);
+        DrawRect(rc, Color::Green);
         break;
     }
     }
 }
 
-void Bonol::GUI::DrawTable() const
+void Bonol::GUI::DrawTable()
 {
     for (CellCoord line = 0; line < kBoardSize; ++line)
         for (CellCoord column = 0; column < kBoardSize; ++column)
-            DrawCell(PosCell(column, line));
+            if (has_cell_updated_[column][line])
+            {
+                DrawCell(PosCell(column, line));
+                has_cell_updated_[column][line] = false;
+            }
 }
 
 void Bonol::GUI::DrawBackground() const
@@ -105,7 +111,13 @@ void Bonol::GUI::DrawBackground() const
         client_rect.right - client_rect.left,
         client_rect.bottom - client_rect.top
     );
-    SolidBrush brush(Color::MediumPurple);
+
+    LinearGradientBrush brush(
+        Point(client_rect.left, client_rect.top),
+        Point(client_rect.right, client_rect.right),
+        Color::RoyalBlue,
+        Color::Firebrick
+    );
     graphics_->FillRectangle(&brush, rc);
 }
 
@@ -118,6 +130,8 @@ void Bonol::GUI::CalculateLayout()
 
     table_width_ = min(min(width_, height_) - 50, 400);
     cell_width_  = table_width_ / kBoardSize;
+
+    memset(has_cell_updated_, true, sizeof(has_cell_updated_));
 }
 
 void Bonol::GUI::OnMoveMouse(const PosGUI mouse_pos)
@@ -128,7 +142,8 @@ void Bonol::GUI::OnMoveMouse(const PosGUI mouse_pos)
         if (kGameState.GetCellPiece(hovered_cell) == Piece::FREE || kGameState.IsActivePlayerPiece(hovered_cell))
         {
             new_board_state_->at(hovered_cell) = kGameState.GetActivePlayerSelectedPiece();
-            
+            has_cell_updated_[hovered_cell.x][hovered_cell.y] = true;
+
             InvalidateRect(hwnd_, 0, TRUE);
         }
     }
@@ -142,10 +157,11 @@ void Bonol::GUI::OnLeftClickPress(const PosGUI mouse_pos)
     if (IsInsideTable(mouse_pos))
     {
         PosCell clicked_cell = GetCellFromGUI(mouse_pos);
-        if (kGameState.GetCellPiece(clicked_cell) == Piece::FREE || kGameState.IsActivePlayerPiece(clicked_cell))
+        if (kGameState.IsFreeForActivePlayer(clicked_cell))
         {
             new_board_state_->Clear();
             new_board_state_->at(clicked_cell) = kGameState.GetActivePlayerSelectedPiece();
+            has_cell_updated_[clicked_cell.x][clicked_cell.y] = true;
 
             is_selecting_ = true;
 
@@ -160,6 +176,8 @@ void Bonol::GUI::OnLeftClickRelease(const PosGUI mouse_pos)
     {
         kGameState.ValidateMove(*new_board_state_);
         new_board_state_->Clear();
+        memset(has_cell_updated_, true, sizeof(has_cell_updated_));
+
         InvalidateRect(hwnd_, 0, TRUE);
         is_selecting_ = false;
     }

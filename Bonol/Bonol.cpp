@@ -12,10 +12,16 @@
 
 #include "Bonol.h"
 
-Bonol::Piece& Bonol::GetCellPiece(const PosCell pos) const
+Bonol::Piece& Bonol::GetCellPiece(const PosCell pos)
 {
-	/// if (!validPosition(pos)) throw something
-	return (*board_).cell[pos.y][pos.x];
+	if (IsValidPosition(pos))
+	{
+		return board_->at(pos);
+	}
+	else
+	{
+		return inaccessible_;
+	}
 }
 
 bool Bonol::IsValidPosition(const PosCell pos) const
@@ -24,12 +30,13 @@ bool Bonol::IsValidPosition(const PosCell pos) const
 			(0 <= pos.y && pos.y <= kBoardSize));
 }
 
-bool Bonol::IsPlayerPiece(const PosCell pos) const
+bool Bonol::IsPlayerPiece(const Piece piece)
 {
-	return (GetCellPiece(pos) == Piece::RED || GetCellPiece(pos) == Piece::BLUE);
+	return (piece == Piece::RED || piece == Piece::RED_SELECTED ||
+		    piece == Piece::BLUE || piece == Piece::BLUE_SELECTED);
 }
 
-bool Bonol::IsActivePlayerPiece(const PosCell pos) const
+bool Bonol::IsActivePlayerPiece(const PosCell pos)
 {
 	return GetCellPiece(pos) == GetActivePlayer();
 }
@@ -38,6 +45,11 @@ Bonol::Piece Bonol::GetActivePlayerSelectedPiece() const
 {
 	if (GetActivePlayer() == Piece::RED) return Piece::RED_SELECTED;
 	else /*(GetActivePlayer() == Player::BLUE)*/ return Piece::BLUE_SELECTED;
+}
+
+bool Bonol::IsFreeForActivePlayer(const PosCell pos)
+{
+	return GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos);
 }
 
 void Bonol::ValidateMove(Board& new_state)
@@ -56,8 +68,11 @@ void Bonol::ValidateMove(Board& new_state)
 }
 
 Bonol::Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-	: board_(new Board(kStartingSetup)), is_over_(false), active_player_piece_(Piece::RED)
+	: board_(new Board(kStartingSetup))
 {
+	inaccessible_ = Piece::FORBIDDEN;
+	is_over_ = false;
+	active_player_piece_ = Piece::RED;
 	interface_ = new GUI(this, window_dimensions, hInstance, nCmdShow);
 }
 

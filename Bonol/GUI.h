@@ -30,8 +30,10 @@ private:
 	CoordGUI width_, height_;
 	CoordGUI table_width_, cell_width_;
 	PosGUI* mouse_;
+
 	bool is_mouse_down_, is_selecting_;
 	Board* const new_board_state_;
+	bool has_cell_updated_[kBoardSize][kBoardSize];
 
 	Bonol& kGameState;
 	HWND hwnd_;
@@ -53,15 +55,16 @@ private:
 	BOOL IsInsideTable(const PosGUI pos) const;
 
 	void DrawLine(const PosGUI from, const PosGUI to) const;
-	void DrawSquare(const PosGUI origin, const INT width, const Color color) const;
+	void DrawRect(const Rect rc, const Color color) const;
 	void DrawCell(const PosCell pos) const;
-	void DrawTable() const;
+	void DrawTable();
 	void DrawBackground() const;
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface);
 	void CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
 	void RunMessageLoop();
+	void Initialize();
 
 public:
 	GUI(Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
