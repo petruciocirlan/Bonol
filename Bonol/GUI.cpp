@@ -54,19 +54,19 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_MOUSEMOVE:
     {
-        PosGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         game_interface->OnMoveMouse(mouse_pos);
         return 0;
     }
     case WM_LBUTTONDOWN:
     {
-        PosGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         game_interface->OnLeftClickPress(mouse_pos);
         return 0;
     }
     case WM_LBUTTONUP:
     {
-        PosGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         game_interface->OnLeftClickRelease(mouse_pos);
         return 0;
     }
@@ -86,7 +86,7 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
         lpMMI->ptMinTrackSize.x = 480;
-        lpMMI->ptMinTrackSize.y = 480;
+        lpMMI->ptMinTrackSize.y = 600;
         return 0;
     }
     case WM_ERASEBKGND:
@@ -95,29 +95,19 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-GUI::PosGUI GUI::GetTableCenter() const
+GUI::PointGUI GUI::GetTableCenter() const
 {
-    return PosGUI(width_ / 2, height_ / 2);
+    return PointGUI(window_.Width / 2, window_.Height / 2);
 }
 
-GUI::PosGUI GUI::GetTableOrigin() const
+GUI::PointGUI GUI::GetTableOrigin() const
 {
-    return PosGUI((width_ - table_width_) / 2, (height_ - table_width_) / 2);
+    return PointGUI(table_.X, table_.Y);
 }
 
-BOOL GUI::IsInsideTable(const PosGUI pos) const
+BOOL GUI::IsInsideTable(const PointGUI pos) const
 {
-    PosGUI top_left = GetTableOrigin();
-    PosGUI bottom_right = PosGUI(top_left.x + table_width_-1, top_left.y + table_width_-1);
-    if (pos.x < top_left.x || pos.y < top_left.y)
-    {
-        return FALSE;
-    }
-    if (pos.x > bottom_right.x || pos.y > bottom_right.y)
-    {
-        return FALSE;
-    }
-    return TRUE;
+    return table_.Contains(pos.x, pos.y);
 }
 
 /// BELOW: Window setup and message loop
@@ -129,7 +119,26 @@ void GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
     SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
 }
 
-void GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
+void GUI::RunMessageLoop()
+{
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}
+
+void GUI::Initialize()
+{
+    game_state_ = new Bonol(*this);
+    CalculateLayout();
+    is_mouse_down_ = false;
+    is_selecting_ = false;
+    is_moving_block_ = false;
+}
+
+GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
 {
     WNDCLASS            wndClass;
     GdiplusStartupInput gdiplusStartupInput;
@@ -169,28 +178,8 @@ void GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstanc
 
     ShowWindow(hwnd_, nCmdShow);
     UpdateWindow(hwnd_);
-}
 
-void GUI::RunMessageLoop()
-{
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-}
-
-void GUI::Initialize()
-{
-    kGameState = new Bonol(*this);
-    CalculateLayout();
-    is_mouse_down_ = false;
-    is_selecting_ = false;
-}
-
-GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-{
-    CreateInterface(window_dimensions, hInstance, nCmdShow);
     RunMessageLoop();
+
+    GdiplusShutdown(gdiplusToken);
 }

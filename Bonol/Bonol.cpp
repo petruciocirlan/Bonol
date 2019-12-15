@@ -15,7 +15,7 @@
 bool GUI::Bonol::IsValidPosition(const PosCell pos) const
 {
 	return ((0 <= pos.x && pos.x <= kBoardSize) &&
-			(0 <= pos.y && pos.y <= kBoardSize));
+	        (0 <= pos.y && pos.y <= kBoardSize));
 }
 
 bool GUI::Bonol::IsPlayerPiece(const Piece piece)
@@ -32,16 +32,16 @@ bool GUI::Bonol::IsActivePlayerPiece(const PosCell pos) const
 void GUI::Bonol::DrawCell(const PosCell cell) const
 {
 	const GUI& gui = interface_;
-	const INT cool_padding = 5;
-	PosGUI origin = gui.GetTableOrigin();
-	PosGUI pos = PosGUI(origin.x + cell.x * gui.cell_width_,
-	                    origin.y + cell.y * gui.cell_width_);
+	PointGUI origin = gui.GetTableOrigin();
+	PointGUI pos = PointGUI(origin.x + cell.x * gui.cell_size_,
+	                        origin.y + cell.y * gui.cell_size_);
 	Piece cell_piece;
+	const INT cool_padding = 5;
 	Rect rc(
 		pos.x + cool_padding,
 		pos.y + cool_padding,
-		gui.cell_width_ - 2 * cool_padding,
-		gui.cell_width_ - 2 * cool_padding);
+		gui.cell_size_ - 2 * cool_padding,
+		gui.cell_size_ - 2 * cool_padding);
 
 	Board& new_board = *update_board_;
 	if (new_board.at(cell) != Piece::UNUSED)
@@ -57,37 +57,50 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	{
 	case Piece::FREE:
 	{
-		gui.DrawRect(rc, Color::White);
+		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.FillRect(rc, Color::White);
 		break;
 	}
 	case Piece::RED:
 	{
-		gui.DrawRect(rc, Color::PaleVioletRed);
+		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.FillRect(rc, Color::PaleVioletRed);
 		break;
 	}
 	case Piece::BLUE:
 	{
-		gui.DrawRect(rc, Color::DodgerBlue);
+		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.FillRect(rc, Color::DodgerBlue);
 		break;
 	}
 	case Piece::BLOCKED:
 	{
-		gui.DrawRect(rc, Color::LightSlateGray);
+		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.FillRect(rc, Color::LightSlateGray);
 		break;
 	}
 	case Piece::RED_SELECTED:
 	{
-		gui.DrawRect(rc, Color::Firebrick);
+		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.FillRect(rc, Color::Firebrick);
 		break;
 	}
 	case Piece::BLUE_SELECTED:
 	{
-		gui.DrawRect(rc, Color::RoyalBlue);
+		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.FillRect(rc, Color::RoyalBlue);
 		break;
 	}
 	case Piece::BLOCKED_SELECTED:
 	{
-		gui.DrawRect(rc, Color::Green);
+		gui.DrawRect(rc, Color::White, 5.0f);
+		gui.FillRect(rc, Color::LightSlateGray);
+		break;
+	}
+	case Piece::BLOCKED_HIGHLIGHTED:
+	{
+		gui.DrawRect(rc, Color::Black, 5.0f);
+		gui.FillRect(rc, Color::DarkGray);
 		break;
 	}
 	}
@@ -117,8 +130,8 @@ void GUI::Bonol::ChangePlayer()
 
 void GUI::Bonol::DrawTable()
 {
-	for (CellCoord line = 0; line < kBoardSize; ++line)
-		for (CellCoord column = 0; column < kBoardSize; ++column)
+	for (CoordCell line = 0; line < kBoardSize; ++line)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
 			if (has_cell_updated_[line][column])
 			{
 				DrawCell(PosCell(line, column));
@@ -142,8 +155,8 @@ void GUI::Bonol::ValidateMove()
 	/// and change the current player
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
-	for (CellCoord row = 0; row < kBoardSize; ++row)
-		for (CellCoord column = 0; column < kBoardSize; ++column)
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
 		{
 			PosCell pos = PosCell(column, row);
 			if (IsActivePlayerPiece(pos))
@@ -171,7 +184,7 @@ GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
 
 bool GUI::Bonol::IsFreeForActivePlayer(const PosCell pos) const
 {
-	return GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos);
+	return (GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos));
 }
 
 GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell pos) const
@@ -186,12 +199,12 @@ GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell pos) const
 	}
 }
 
-GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PosGUI pos) const
+GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
 {
-	PosGUI table_origin = interface_.GetTableOrigin();
-	PosGUI pos_mapped_to_table_origin = PosGUI(pos.x - table_origin.x, pos.y - table_origin.y);
-	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_width_,
-	               pos_mapped_to_table_origin.y / interface_.cell_width_);
+	PointGUI table_origin = interface_.GetTableOrigin();
+	PointGUI pos_mapped_to_table_origin = PointGUI(pos.x - table_origin.x, pos.y - table_origin.y);
+	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_size_,
+	               pos_mapped_to_table_origin.y / interface_.cell_size_);
 }
 
 void GUI::Bonol::InvalidateTable()

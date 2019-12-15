@@ -20,8 +20,7 @@
 class GUI::Bonol
 {
 public:
-	using CellValue = int;
-	using CellCoord = int;
+	using CoordCell = INT;
 
 	struct PosCell;
 	struct Board;
@@ -31,7 +30,8 @@ public:
 	{
 		UNUSED, FORBIDDEN,
 		FREE, RED, BLUE, BLOCKED,
-		RED_SELECTED, BLUE_SELECTED, BLOCKED_SELECTED
+		RED_SELECTED, BLUE_SELECTED, BLOCKED_SELECTED,
+		BLOCKED_HIGHLIGHTED
 	};
 
 private:
@@ -71,7 +71,7 @@ public:
 	bool IsFreeForActivePlayer(const PosCell pos) const;
 
 	Piece GetCellPiece(const PosCell pos) const;
-	PosCell GetCellFromGUI(const PosGUI pos) const;
+	PosCell GetCellFromGUI(const PointGUI pos) const;
 
 	void InvalidateTable();
 	void InvalidateCell(const PosCell pos);
@@ -81,10 +81,10 @@ public:
 
 struct GUI::Bonol::PosCell
 {
-	CellCoord x, y;
+	CoordCell x, y;
 
 	PosCell() : x(0), y(0) {};
-	PosCell(CellCoord column, CellCoord row) : x(column), y(row) {};
+	PosCell(CoordCell column, CoordCell row) : x(column), y(row) {};
 };
 
 struct GUI::Bonol::Board
