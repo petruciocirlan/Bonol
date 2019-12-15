@@ -12,7 +12,7 @@
 
 #include "GUI.h"
 
-LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     GUI* game_interface = NULL;
 
@@ -70,6 +70,18 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         game_interface->OnLeftClickRelease(mouse_pos);
         return 0;
     }
+    case WM_KEYDOWN:
+    {
+        if (GetKeyState(VK_ESCAPE) & 0x8000)
+        {
+            if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
+            {
+                DestroyWindow(hwnd);
+            }
+            return 0;
+        }
+        break;
+    }
     case WM_GETMINMAXINFO:
     {
         LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
@@ -83,24 +95,17 @@ LRESULT Bonol::GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-Bonol::GUI::PosGUI Bonol::GUI::GetTableCenter() const
+GUI::PosGUI GUI::GetTableCenter() const
 {
     return PosGUI(width_ / 2, height_ / 2);
 }
 
-Bonol::GUI::PosGUI Bonol::GUI::GetTableOrigin() const
+GUI::PosGUI GUI::GetTableOrigin() const
 {
     return PosGUI((width_ - table_width_) / 2, (height_ - table_width_) / 2);
 }
 
-Bonol::PosCell Bonol::GUI::GetCellFromGUI(const PosGUI pos) const
-{
-    PosGUI table_origin = GetTableOrigin();
-    PosGUI pos_mapped_to_table_origin = PosGUI(pos.x - table_origin.x, pos.y - table_origin.y);
-    return PosCell(pos_mapped_to_table_origin.x / cell_width_, pos_mapped_to_table_origin.y / cell_width_);
-}
-
-BOOL Bonol::GUI::IsInsideTable(const PosGUI pos) const
+BOOL GUI::IsInsideTable(const PosGUI pos) const
 {
     PosGUI top_left = GetTableOrigin();
     PosGUI bottom_right = PosGUI(top_left.x + table_width_-1, top_left.y + table_width_-1);
@@ -117,14 +122,14 @@ BOOL Bonol::GUI::IsInsideTable(const PosGUI pos) const
 
 /// BELOW: Window setup and message loop
 
-void Bonol::GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
+void GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
 {
     CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-    game_interface = reinterpret_cast<Bonol::GUI*>(pCreate->lpCreateParams);
+    game_interface = reinterpret_cast<GUI*>(pCreate->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
 }
 
-void Bonol::GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
+void GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
 {
     WNDCLASS            wndClass;
     GdiplusStartupInput gdiplusStartupInput;
@@ -146,24 +151,27 @@ void Bonol::GUI::CreateInterface(const Dimensions window_dimensions, HINSTANCE h
 
     RegisterClass(&wndClass);
 
+    INT window_position_x = (GetSystemMetrics(SM_CXSCREEN) - window_dimensions.x) / 2;
+    INT window_position_y = (GetSystemMetrics(SM_CYSCREEN) - window_dimensions.y) / 2;
+
     hwnd_ = CreateWindow(
         TEXT("BonolWindowClassName"),   // window class name
-        TEXT("Bonol"),  // window caption
-        WS_OVERLAPPEDWINDOW,      // window style
-        CW_USEDEFAULT,            // initial x position
-        CW_USEDEFAULT,            // initial y position
-        window_dimensions.x,      // initial x size
-        window_dimensions.y,      // initial y size
-        NULL,                     // parent window handle
-        NULL,                     // window menu handle
-        hInstance,                // program instance handle
-        this);                    // creation parameters
+        TEXT("Bonol"),                  // window caption
+        WS_OVERLAPPEDWINDOW,            // window style
+        window_position_x,              // initial x position
+        window_position_y,              // initial y position
+        window_dimensions.x,            // initial x size
+        window_dimensions.y,            // initial y size
+        NULL,                           // parent window handle
+        NULL,                           // window menu handle
+        hInstance,                      // program instance handle
+        this);                          // creation parameters
 
     ShowWindow(hwnd_, nCmdShow);
     UpdateWindow(hwnd_);
 }
 
-void Bonol::GUI::RunMessageLoop()
+void GUI::RunMessageLoop()
 {
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
@@ -173,15 +181,15 @@ void Bonol::GUI::RunMessageLoop()
     }
 }
 
-void Bonol::GUI::Initialize()
+void GUI::Initialize()
 {
+    kGameState = new Bonol(*this);
     CalculateLayout();
     is_mouse_down_ = false;
     is_selecting_ = false;
 }
 
-Bonol::GUI::GUI(Bonol* game, const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-    : kGameState(*game), new_board_state_(new Board())
+GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
 {
     CreateInterface(window_dimensions, hInstance, nCmdShow);
     RunMessageLoop();

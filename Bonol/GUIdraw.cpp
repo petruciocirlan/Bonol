@@ -13,12 +13,12 @@
 
 #include "GUI.h"
 
-void Bonol::GUI::DrawLine(const PosGUI from, const PosGUI to) const
+void GUI::DrawLine(const PosGUI from, const PosGUI to) const
 {
     //line(from.x, from.y, to.x, to.y);
 }
 
-void Bonol::GUI::DrawRect(const Rect rc, const Color color) const
+void GUI::DrawRect(const Rect rc, const Color color) const
 {
     Pen pen(Color::Black, 5.0f);
     graphics_->DrawRectangle(&pen, rc);
@@ -27,80 +27,7 @@ void Bonol::GUI::DrawRect(const Rect rc, const Color color) const
     graphics_->FillRectangle(&brush, rc);
 }
 
-void Bonol::GUI::DrawCell(const PosCell cell) const
-{
-    const INT cool_padding = 5;
-    PosGUI origin = GetTableOrigin();
-    PosGUI pos = PosGUI(origin.x + cell.x * cell_width_,
-        origin.y + cell.y * cell_width_);
-    Piece cell_piece;
-    Rect rc(
-        pos.x + cool_padding,
-        pos.y + cool_padding,
-        cell_width_ - 2 * cool_padding,
-        cell_width_ - 2 * cool_padding);
-
-    if (new_board_state_->at(cell) != Piece::UNUSED)
-    {
-        cell_piece = new_board_state_->at(cell);
-    }
-    else
-    {
-        cell_piece = kGameState.GetCellPiece(cell);
-    }
-
-    switch (cell_piece)
-    {
-    case Piece::FREE:
-    {
-        DrawRect(rc, Color::White);
-        break;
-    }
-    case Piece::RED:
-    {
-        DrawRect(rc, Color::PaleVioletRed);
-        break;
-    }
-    case Piece::BLUE:
-    {
-        DrawRect(rc, Color::DodgerBlue);
-        break;
-    }
-    case Piece::BLOCKED:
-    {
-        DrawRect(rc, Color::LightSlateGray);
-        break;
-    }
-    case Piece::RED_SELECTED:
-    {
-        DrawRect(rc, Color::Firebrick);
-        break;
-    }
-    case Piece::BLUE_SELECTED:
-    {
-        DrawRect(rc, Color::RoyalBlue);
-        break;
-    }
-    case Piece::BLOCKED_SELECTED:
-    {
-        DrawRect(rc, Color::Green);
-        break;
-    }
-    }
-}
-
-void Bonol::GUI::DrawTable()
-{
-    for (CellCoord line = 0; line < kBoardSize; ++line)
-        for (CellCoord column = 0; column < kBoardSize; ++column)
-            if (has_cell_updated_[column][line])
-            {
-                DrawCell(PosCell(column, line));
-                has_cell_updated_[column][line] = false;
-            }
-}
-
-void Bonol::GUI::DrawBackground() const
+void GUI::DrawBackground() const
 {
     RECT client_rect;
     GetClientRect(hwnd_, &client_rect);
@@ -121,7 +48,7 @@ void Bonol::GUI::DrawBackground() const
     graphics_->FillRectangle(&brush, rc);
 }
 
-void Bonol::GUI::CalculateLayout()
+void GUI::CalculateLayout()
 {
     RECT window;
     GetClientRect(hwnd_, &window);
@@ -129,39 +56,38 @@ void Bonol::GUI::CalculateLayout()
     height_ = window.bottom - window.top;
 
     table_width_ = min(min(width_, height_) - 50, 400);
-    cell_width_  = table_width_ / kBoardSize;
+    cell_width_  = table_width_ / Bonol::kBoardSize;
 
-    memset(has_cell_updated_, true, sizeof(has_cell_updated_));
+    kGameState->InvalidateTable();
 }
 
-void Bonol::GUI::OnMoveMouse(const PosGUI mouse_pos)
+void GUI::OnMoveMouse(const PosGUI mouse_pos)
 {
     if (is_selecting_ && IsInsideTable(mouse_pos))
     {
-        PosCell hovered_cell = GetCellFromGUI(mouse_pos);
-        if (kGameState.GetCellPiece(hovered_cell) == Piece::FREE || kGameState.IsActivePlayerPiece(hovered_cell))
+        Bonol::PosCell hovered_cell = kGameState->GetCellFromGUI(mouse_pos);
+        if (kGameState->GetCellPiece(hovered_cell) == Bonol::Piece::FREE ||
+            kGameState->GetCellPiece(hovered_cell) == kGameState->GetActivePlayer())
         {
-            new_board_state_->at(hovered_cell) = kGameState.GetActivePlayerSelectedPiece();
-            has_cell_updated_[hovered_cell.x][hovered_cell.y] = true;
+            kGameState->UpdateCell(hovered_cell, kGameState->GetActivePlayerSelected());
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
     }
 }
 
-void Bonol::GUI::OnLeftClickPress(const PosGUI mouse_pos)
+void GUI::OnLeftClickPress(const PosGUI mouse_pos)
 {
     SetCapture(hwnd_);
     is_mouse_down_ = true;
 
     if (IsInsideTable(mouse_pos))
     {
-        PosCell clicked_cell = GetCellFromGUI(mouse_pos);
-        if (kGameState.IsFreeForActivePlayer(clicked_cell))
+        Bonol::PosCell clicked_cell = kGameState->GetCellFromGUI(mouse_pos);
+        if (kGameState->IsFreeForActivePlayer(clicked_cell))
         {
-            new_board_state_->Clear();
-            new_board_state_->at(clicked_cell) = kGameState.GetActivePlayerSelectedPiece();
-            has_cell_updated_[clicked_cell.x][clicked_cell.y] = true;
+            kGameState->InitiateUpdate();
+            kGameState->UpdateCell(clicked_cell, kGameState->GetActivePlayerSelected());
 
             is_selecting_ = true;
 
@@ -170,13 +96,12 @@ void Bonol::GUI::OnLeftClickPress(const PosGUI mouse_pos)
     }
 }
 
-void Bonol::GUI::OnLeftClickRelease(const PosGUI mouse_pos)
+void GUI::OnLeftClickRelease(const PosGUI mouse_pos)
 {
     if (is_selecting_)
     {
-        kGameState.ValidateMove(*new_board_state_);
-        new_board_state_->Clear();
-        memset(has_cell_updated_, true, sizeof(has_cell_updated_));
+        kGameState->ValidateMove();
+        kGameState->InvalidateTable();
 
         InvalidateRect(hwnd_, 0, TRUE);
         is_selecting_ = false;
@@ -186,19 +111,19 @@ void Bonol::GUI::OnLeftClickRelease(const PosGUI mouse_pos)
     ReleaseCapture();
 }
 
-void Bonol::GUI::OnPaint()
+void GUI::OnPaint()
 {
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hwnd_, &ps);
     graphics_ = new Graphics(hdc);
 
-    DrawTable();
+    kGameState->DrawTable();
 
     delete graphics_;
     EndPaint(hwnd_, &ps);
 }
 
-void Bonol::GUI::Resize()
+void GUI::Resize()
 {
     CalculateLayout();
 
@@ -207,7 +132,7 @@ void Bonol::GUI::Resize()
     graphics_ = new Graphics(hdc);
 
     DrawBackground();
-    DrawTable();
+    kGameState->DrawTable();
 
     delete graphics_;
     EndPaint(hwnd_, &ps);

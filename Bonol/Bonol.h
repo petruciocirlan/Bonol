@@ -12,24 +12,19 @@
 
 #pragma once
 
-#ifndef UNICODE
-#define UNICODE
-#endif
+#include "GUI.h"
 
-#include <windows.h>
-#include <windowsx.h>
 /// memset & memcpy
 #include <cstring>
 
-class Bonol
+class GUI::Bonol
 {
-private:
+public:
 	using CellValue = int;
 	using CellCoord = int;
 
 	struct PosCell;
 	struct Board;
-	class GUI;
 
 	static const unsigned kBoardSize = 4;
 	enum class Piece
@@ -38,6 +33,8 @@ private:
 		FREE, RED, BLUE, BLOCKED,
 		RED_SELECTED, BLUE_SELECTED, BLOCKED_SELECTED
 	};
+
+private:
 	const Piece kStartingSetup[kBoardSize][kBoardSize] =
 	{
 		{Piece::BLOCKED,	Piece::RED,		Piece::RED,		Piece::FREE},
@@ -46,33 +43,43 @@ private:
 		{Piece::FREE,		Piece::BLUE,	Piece::BLUE,	Piece::BLOCKED}
 	};
 
-	Board* const board_;
-	GUI* interface_;
+	const GUI& interface_;
+
 	Piece inaccessible_;
+	Board* const old_board_;
+	Board* const update_board_;
+	bool has_cell_updated_[kBoardSize][kBoardSize];
 
 	bool is_over_;
 	Piece active_player_piece_;
 
-	Piece& GetCellPiece(const PosCell pos);
 	bool IsValidPosition(const PosCell pos) const;
 	static bool IsPlayerPiece(const Piece piece);
-	bool IsActivePlayerPiece(const PosCell pos);
-	Piece GetActivePlayerSelectedPiece() const;
-	bool IsFreeForActivePlayer(const PosCell pos);
+	bool IsActivePlayerPiece(const PosCell pos) const;
 
-	void ValidateMove(Board& new_state);
-
+	void DrawCell(const PosCell pos) const;
 public:
-	using Dimensions = PosCell;
-
-	Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
+	Bonol(const GUI& gui);
 
 	bool Over() const;
 	void ChangePlayer();
+	void ValidateMove();
+	void DrawTable();
+
 	Piece GetActivePlayer() const;
+	Piece GetActivePlayerSelected() const;
+	bool IsFreeForActivePlayer(const PosCell pos) const;
+
+	Piece GetCellPiece(const PosCell pos) const;
+	PosCell GetCellFromGUI(const PosGUI pos) const;
+
+	void InvalidateTable();
+	void InvalidateCell(const PosCell pos);
+	void InitiateUpdate();
+	void UpdateCell(const PosCell pos, const Piece piece);
 };
 
-struct Bonol::PosCell
+struct GUI::Bonol::PosCell
 {
 	CellCoord x, y;
 
@@ -80,7 +87,7 @@ struct Bonol::PosCell
 	PosCell(CellCoord column, CellCoord row) : x(column), y(row) {};
 };
 
-struct Bonol::Board
+struct GUI::Bonol::Board
 {
 	Piece cell[kBoardSize][kBoardSize];
 
@@ -89,5 +96,3 @@ struct Bonol::Board
 	void Clear();
 	Piece& at(const PosCell pos);
 };
-
-#include "GUI.h"

@@ -12,76 +12,102 @@
 
 #include "Bonol.h"
 
-Bonol::Piece& Bonol::GetCellPiece(const PosCell pos)
-{
-	if (IsValidPosition(pos))
-	{
-		return board_->at(pos);
-	}
-	else
-	{
-		return inaccessible_;
-	}
-}
-
-bool Bonol::IsValidPosition(const PosCell pos) const
+bool GUI::Bonol::IsValidPosition(const PosCell pos) const
 {
 	return ((0 <= pos.x && pos.x <= kBoardSize) &&
 			(0 <= pos.y && pos.y <= kBoardSize));
 }
 
-bool Bonol::IsPlayerPiece(const Piece piece)
+bool GUI::Bonol::IsPlayerPiece(const Piece piece)
 {
 	return (piece == Piece::RED || piece == Piece::RED_SELECTED ||
 		    piece == Piece::BLUE || piece == Piece::BLUE_SELECTED);
 }
 
-bool Bonol::IsActivePlayerPiece(const PosCell pos)
+bool GUI::Bonol::IsActivePlayerPiece(const PosCell pos) const
 {
 	return GetCellPiece(pos) == GetActivePlayer();
 }
 
-Bonol::Piece Bonol::GetActivePlayerSelectedPiece() const
+void GUI::Bonol::DrawCell(const PosCell cell) const
 {
-	if (GetActivePlayer() == Piece::RED) return Piece::RED_SELECTED;
-	else /*(GetActivePlayer() == Player::BLUE)*/ return Piece::BLUE_SELECTED;
+	const GUI& gui = interface_;
+	const INT cool_padding = 5;
+	PosGUI origin = gui.GetTableOrigin();
+	PosGUI pos = PosGUI(origin.x + cell.x * gui.cell_width_,
+	                    origin.y + cell.y * gui.cell_width_);
+	Piece cell_piece;
+	Rect rc(
+		pos.x + cool_padding,
+		pos.y + cool_padding,
+		gui.cell_width_ - 2 * cool_padding,
+		gui.cell_width_ - 2 * cool_padding);
+
+	Board& new_board = *update_board_;
+	if (new_board.at(cell) != Piece::UNUSED)
+	{
+		cell_piece = new_board.at(cell);
+	}
+	else
+	{
+		cell_piece = GetCellPiece(cell);
+	}
+
+	switch (cell_piece)
+	{
+	case Piece::FREE:
+	{
+		gui.DrawRect(rc, Color::White);
+		break;
+	}
+	case Piece::RED:
+	{
+		gui.DrawRect(rc, Color::PaleVioletRed);
+		break;
+	}
+	case Piece::BLUE:
+	{
+		gui.DrawRect(rc, Color::DodgerBlue);
+		break;
+	}
+	case Piece::BLOCKED:
+	{
+		gui.DrawRect(rc, Color::LightSlateGray);
+		break;
+	}
+	case Piece::RED_SELECTED:
+	{
+		gui.DrawRect(rc, Color::Firebrick);
+		break;
+	}
+	case Piece::BLUE_SELECTED:
+	{
+		gui.DrawRect(rc, Color::RoyalBlue);
+		break;
+	}
+	case Piece::BLOCKED_SELECTED:
+	{
+		gui.DrawRect(rc, Color::Green);
+		break;
+	}
+	}
 }
 
-bool Bonol::IsFreeForActivePlayer(const PosCell pos)
+GUI::Bonol::Bonol(const GUI& gui)
+	: old_board_(new Board(kStartingSetup)), update_board_(new Board()), interface_(gui)
 {
-	return GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos);
-}
-
-void Bonol::ValidateMove(Board& new_state)
-{
-	/// TODO(vali): check if new_state is a valid move
-	/// notes: check if the pieces form an L
-	/// there are only 2 pieces in new_state:
-	/// Piece::UNUSED and Piece::RED_SELECTED
-	/// (or Piece::BLUE_SELECTED depending on active player)
-
-	/// if the move is valid, update the current board state with the new one
-	/// and change the current player ( ChangePlayer() )
-
-	/// later: instead of changing the current player,
-	/// enter the "move one block" state
-}
-
-Bonol::Bonol(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-	: board_(new Board(kStartingSetup))
-{
+	memset(has_cell_updated_, false, sizeof(has_cell_updated_));
+	active_player_piece_ = Piece::RED;
 	inaccessible_ = Piece::FORBIDDEN;
 	is_over_ = false;
-	active_player_piece_ = Piece::RED;
-	interface_ = new GUI(this, window_dimensions, hInstance, nCmdShow);
 }
 
-bool Bonol::Over() const
+bool GUI::Bonol::Over() const
 {
 	return is_over_;
 }
 
-void Bonol::ChangePlayer()
+void GUI::Bonol::ChangePlayer()
 {
 	if (active_player_piece_ == Piece::RED)
 		active_player_piece_ = Piece::BLUE;
@@ -89,12 +115,107 @@ void Bonol::ChangePlayer()
 		active_player_piece_ = Piece::RED;
 }
 
-Bonol::Piece Bonol::GetActivePlayer() const
+void GUI::Bonol::DrawTable()
+{
+	for (CellCoord line = 0; line < kBoardSize; ++line)
+		for (CellCoord column = 0; column < kBoardSize; ++column)
+			if (has_cell_updated_[line][column])
+			{
+				DrawCell(PosCell(line, column));
+				has_cell_updated_[line][column] = false;
+			}
+}
+
+void GUI::Bonol::ValidateMove()
+{
+	/// TODO(@vali): check if new_state is a valid move
+
+	/// NOTES: check if the pieces form an L
+	/// there are only 2 pieces in new_state:
+	/// Piece::UNUSED and Piece::RED_SELECTED
+	/// (or Piece::BLUE_SELECTED depending on active player)
+	/// ALL 'Board's are [0...kBoardSize-1, 0...kBoardSize-1]
+	/// access each cell with new_state(pos) or board_(pos),
+	/// where pos is a PosCell and constructor is PosCell(column, line)
+
+	/// ACTION: if the move is valid, update the current board state with the new one
+	/// and change the current player
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+	for (CellCoord row = 0; row < kBoardSize; ++row)
+		for (CellCoord column = 0; column < kBoardSize; ++column)
+		{
+			PosCell pos = PosCell(column, row);
+			if (IsActivePlayerPiece(pos))
+				old_state.at(pos) = Piece::FREE;
+			if (IsPlayerPiece(update.at(pos)))
+				old_state.at(pos) = GetActivePlayer();
+		}
+	ChangePlayer();
+	update.Clear();
+
+	/// LATER: instead of changing the current player,
+	/// enter the "move one block" state
+}
+
+GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
 {
 	return active_player_piece_;
 }
 
-Bonol::Board::Board()
+GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
+{
+	if (GetActivePlayer() == Piece::RED) return Piece::RED_SELECTED;
+	else /*(GetActivePlayer() == Player::BLUE)*/ return Piece::BLUE_SELECTED;
+}
+
+bool GUI::Bonol::IsFreeForActivePlayer(const PosCell pos) const
+{
+	return GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos);
+}
+
+GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell pos) const
+{
+	if (IsValidPosition(pos))
+	{
+		return old_board_->at(pos);
+	}
+	else
+	{
+		return inaccessible_;
+	}
+}
+
+GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PosGUI pos) const
+{
+	PosGUI table_origin = interface_.GetTableOrigin();
+	PosGUI pos_mapped_to_table_origin = PosGUI(pos.x - table_origin.x, pos.y - table_origin.y);
+	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_width_,
+	               pos_mapped_to_table_origin.y / interface_.cell_width_);
+}
+
+void GUI::Bonol::InvalidateTable()
+{
+	memset(has_cell_updated_, true, sizeof(has_cell_updated_));
+}
+
+void GUI::Bonol::InvalidateCell(const PosCell pos)
+{
+	has_cell_updated_[pos.x][pos.y] = true;
+}
+
+void GUI::Bonol::InitiateUpdate()
+{
+	update_board_->Clear();
+}
+
+void GUI::Bonol::UpdateCell(const PosCell pos, const Piece piece)
+{
+	update_board_->at(pos) = piece;
+	InvalidateCell(pos);
+}
+
+GUI::Bonol::Board::Board()
 {
 	memset(cell, 0, sizeof(cell));
 	for (int line = 0; line < kBoardSize; ++line)
@@ -102,7 +223,7 @@ Bonol::Board::Board()
 			cell[line][column] = Piece::UNUSED;
 }
 
-Bonol::Board::Board(const Piece copy_source[kBoardSize][kBoardSize])
+GUI::Bonol::Board::Board(const Piece copy_source[kBoardSize][kBoardSize])
 {
 	memset(cell, 0, sizeof(cell));
 	for (int line = 0; line < kBoardSize; ++line)
@@ -110,14 +231,14 @@ Bonol::Board::Board(const Piece copy_source[kBoardSize][kBoardSize])
 			cell[line][column] = copy_source[line][column];
 }
 
-void Bonol::Board::Clear()
+void GUI::Bonol::Board::Clear()
 {
 	for (int line = 0; line < kBoardSize; ++line)
 		for (int column = 0; column < kBoardSize; ++column)
 			cell[line][column] = Piece::UNUSED;
 }
 
-Bonol::Piece& Bonol::Board::at(const PosCell pos)
+GUI::Bonol::Piece& GUI::Bonol::Board::at(const PosCell pos)
 {
 	return cell[pos.y][pos.x];
 }
