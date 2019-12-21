@@ -100,6 +100,13 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
+    else if (reset_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        FreePointers();
+        Initialize();
+
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
 }
 
 void GUI::OnLeftClickRelease(const PointGUI mouse_pos)

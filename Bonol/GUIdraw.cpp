@@ -66,6 +66,18 @@ void GUI::DrawSkipButton() const
     }
 }
 
+void GUI::DrawResetButton() const
+{
+    TextBox& box = *reset_button_;
+    FillRect(box.rect, kBackgroundColor);
+
+    std::basic_string<TCHAR> drawString = TEXT("RESET?");
+    Font drawFont(TEXT("Arial"), 10);
+    PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
+    SolidBrush drawBrush(Color::White);
+    graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
+}
+
 void GUI::DrawTextBoxes()
 {
     if (current_player_->updated)
@@ -77,6 +89,11 @@ void GUI::DrawTextBoxes()
     {
         DrawSkipButton();
         skip_button_->updated = false;
+    }
+    if (reset_button_->updated)
+    {
+        DrawResetButton();
+        reset_button_->updated = false;
     }
 }
 
@@ -128,6 +145,10 @@ void GUI::CalculateLayout()
     text_box_origin = PointGUI((window_.Width - text_box_dimensions.x) / 2, table_.Y + table_.Height + 10);
     skip_button_->rect = MakeRect(text_box_origin, text_box_dimensions);
 
+    text_box_dimensions = PointGUI(100, 25);
+    text_box_origin = PointGUI(10, 10);
+    reset_button_->rect = MakeRect(text_box_origin, text_box_dimensions);
+
     game_state_->InvalidateTable();
 }
 
@@ -135,4 +156,5 @@ void GUI::InvalidateTextBoxes()
 {
     current_player_->updated = true;
     skip_button_->updated = true;
+    reset_button_->updated = true;
 }

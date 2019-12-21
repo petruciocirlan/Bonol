@@ -41,7 +41,7 @@ private:
 	const Color kBackgroundColor = Color::Purple;
 
 	Rect table_, window_;
-	TextBox *current_player_, *skip_button_;
+	TextBox *current_player_, *skip_button_, *reset_button_;
 	INT cell_size_;
 	//PosGUI* mouse_;
 
@@ -72,6 +72,7 @@ private:
 
 	void DrawCurrentPlayer() const;
 	void DrawSkipButton() const;
+	void DrawResetButton() const;
 
 	void DrawTextBoxes();
 	void DrawBackground() const;
@@ -81,6 +82,7 @@ private:
 	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI *&game_interface);
 	void RunMessageLoop();
 	void Initialize();
+	void FreePointers();
 
 public:
 	GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);

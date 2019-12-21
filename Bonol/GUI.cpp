@@ -139,6 +139,7 @@ void GUI::Initialize()
     game_state_ = new Bonol(*this);
     current_player_ = new TextBox();
     skip_button_ = new TextBox();
+    reset_button_ = new TextBox();
 
     CalculateLayout();
 
@@ -150,6 +151,12 @@ void GUI::Initialize()
     is_moving_block_ = false;
 
     show_skip_ = false;
+}
+
+void GUI::FreePointers()
+{
+    delete game_state_;
+    delete current_player_, skip_button_, reset_button_;
 }
 
 GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)

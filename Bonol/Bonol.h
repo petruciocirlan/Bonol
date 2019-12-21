@@ -58,6 +58,7 @@ private:
 	bool IsActivePlayerPiece(const PosCell pos) const;
 
 	void DrawCell(const PosCell pos) const;
+
 public:
 	Bonol(const GUI& gui);
 
