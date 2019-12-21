@@ -22,6 +22,7 @@
     <ClCompile Include="Bonol.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="GUIdraw.cpp" />
+    <ClCompile Include="GUIevents.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
