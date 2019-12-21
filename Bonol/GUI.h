@@ -30,29 +30,36 @@ class GUI
 private:
 	using CoordGUI = INT;
 	struct PointGUI;
+	struct TextBox;
 	class Bonol;
 
 public:
 	using Dimensions = PointGUI;
 
 private:
-	Rect table_, window_, skip_button_, current_player_text_box_;
+	const Color kBackgroundColor = Color::Purple;
+
+	Rect table_, window_;
+	TextBox *current_player_, *skip_button_;
 	INT cell_size_;
 	//PosGUI* mouse_;
 
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
+	bool show_skip_;
 
 	Graphics* graphics_;
 	Bonol* game_state_;
 	HWND hwnd_;
 
-	inline void CalculateLayout();
+	void CalculateLayout();
+	void InvalidateTextBoxes();
 	void OnMoveMouse(const PointGUI mouse_pos);
 	void OnLeftClickPress(const PointGUI mouse_pos);
 	void OnLeftClickRelease(const PointGUI mouse_pos);
 	void OnPaint();
 	void Resize();
 
+	Rect MakeRect(PointGUI origin, PointGUI dimensions) const;
 	PointGUI GetTableCenter() const;
 	PointGUI GetTableOrigin() const;
 	BOOL IsInsideTable(const PointGUI pos) const;
@@ -60,11 +67,16 @@ private:
 	void DrawLine(const PointGUI from, const PointGUI to) const;
 	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
 	void FillRect(const Rect rc, const Color color) const;
+
+	void DrawCurrentPlayer() const;
+	void DrawSkipButton() const;
+
+	void DrawTextBoxes();
 	void DrawBackground() const;
-	void DrawCurrentPlayerTextBox() const;
+	void DrawForeground();
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface);
+	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI *&game_interface);
 	void RunMessageLoop();
 	void Initialize();
 
@@ -78,6 +90,20 @@ struct GUI::PointGUI
 
 	PointGUI() : x(0), y(0) {};
 	PointGUI(CoordGUI x_pos, CoordGUI y_pos) : x(x_pos), y(y_pos) {};
+};
+
+struct GUI::TextBox
+{
+	union
+	{
+		struct { INT x, y, width, height; };
+		struct { Rect rect; };
+	};
+	bool updated;
+
+	TextBox() : rect(Rect()), updated(true) {};
+	TextBox(PointGUI top_left, PointGUI dimensions)
+		: rect(Rect(top_left.x, top_left.y, dimensions.x, dimensions.y)), updated(true) {};
 };
 
 #include "Bonol.h"

@@ -30,22 +30,12 @@ void GUI::FillRect(const Rect rc, const Color color) const
     graphics_->FillRectangle(&brush, rc);
 }
 
-void GUI::DrawBackground() const
+void GUI::DrawCurrentPlayer() const
 {
-    LinearGradientBrush brush(
-        Point(window_.X, window_.Y),
-        Point(window_.X + window_.Width, window_.Y + window_.Height),
-        Color::RoyalBlue,
-        Color::Firebrick
-    );
-    graphics_->FillRectangle(&brush, window_);
-}
+    TextBox& box = *current_player_;
+    FillRect(box.rect, kBackgroundColor);
 
-void GUI::DrawCurrentPlayerTextBox() const
-{
-    FillRect(current_player_text_box_, Color::Black);
-
-    std::basic_string<TCHAR> drawString = TEXT("Your turn: ");
+    std::basic_string<TCHAR> drawString = TEXT("Your turn, ");
     if (game_state_->GetActivePlayer() == Bonol::Piece::RED)
     {
         drawString += TEXT("RED!");
@@ -54,12 +44,55 @@ void GUI::DrawCurrentPlayerTextBox() const
     {
         drawString += TEXT("BLUE!");
     }
-    
+
     Font drawFont(TEXT("Arial"), 16);
-    PointF drawOrigin((FLOAT)current_player_text_box_.X,
-                      (FLOAT)current_player_text_box_.Y);
+    PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
     SolidBrush drawBrush(Color::White);
     graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
+}
+
+void GUI::DrawSkipButton() const
+{
+    TextBox& box = *skip_button_;
+    FillRect(box.rect, kBackgroundColor);
+
+    std::basic_string<TCHAR> drawString = TEXT("SKIP?");
+    Font drawFont(TEXT("Arial"), 16);
+    PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
+    SolidBrush drawBrush(Color::White);
+    graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
+}
+
+void GUI::DrawTextBoxes()
+{
+    if (current_player_->updated)
+    {
+        DrawCurrentPlayer();
+        current_player_->updated = false;
+    }
+    if (skip_button_->updated)
+    {
+        DrawSkipButton();
+        skip_button_->updated = false;
+    }
+}
+
+void GUI::DrawBackground() const
+{
+    //LinearGradientBrush brush(
+    //    Point(window_.X, window_.Y),
+    //    Point(window_.X + window_.Width, window_.Y + window_.Height),
+    //    Color::RoyalBlue,
+    //    Color::Firebrick
+    //);
+    SolidBrush brush(kBackgroundColor);
+    graphics_->FillRectangle(&brush, window_);
+}
+
+void GUI::DrawForeground()
+{
+    game_state_->DrawTable();
+    DrawTextBoxes();
 }
 
 void GUI::CalculateLayout()
@@ -82,15 +115,23 @@ void GUI::CalculateLayout()
     );
     cell_size_  = table_.Width / Bonol::kBoardSize;
 
-    Point player_text_box_dimensions(250, 50);
-    current_player_text_box_ = Rect(
-        (window_.Width - player_text_box_dimensions.X) / 2,
-        table_.Y - 50,
-        player_text_box_dimensions.X,
-        player_text_box_dimensions.Y
-    );
+    PointGUI text_box_dimensions, text_box_origin;
+
+    text_box_dimensions = PointGUI(225, 35);
+    text_box_origin = PointGUI((window_.Width - text_box_dimensions.x) / 2, table_.Y - 50);
+    current_player_->rect = MakeRect(text_box_origin, text_box_dimensions);
+
+    text_box_dimensions = PointGUI(85, 35);
+    text_box_origin = PointGUI((window_.Width - text_box_dimensions.x) / 2, table_.Y + table_.Height + 10);
+    skip_button_->rect = MakeRect(text_box_origin, text_box_dimensions);
 
     game_state_->InvalidateTable();
+}
+
+void GUI::InvalidateTextBoxes()
+{
+    current_player_->updated = true;
+    skip_button_->updated = true;
 }
 
 void GUI::OnMoveMouse(const PointGUI mouse_pos)
@@ -148,8 +189,7 @@ void GUI::OnPaint()
     HDC hdc = BeginPaint(hwnd_, &ps);
     graphics_ = new Graphics(hdc);
 
-    game_state_->DrawTable();
-    //DrawCurrentPlayerTextBox();
+    DrawForeground();
 
     delete graphics_;
     EndPaint(hwnd_, &ps);
@@ -158,14 +198,14 @@ void GUI::OnPaint()
 void GUI::Resize()
 {
     CalculateLayout();
+    InvalidateTextBoxes();
 
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hwnd_, &ps);
     graphics_ = new Graphics(hdc);
 
     DrawBackground();
-    game_state_->DrawTable();
-    //DrawCurrentPlayerTextBox();
+    DrawForeground();
 
     delete graphics_;
     EndPaint(hwnd_, &ps);

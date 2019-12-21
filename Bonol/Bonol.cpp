@@ -123,9 +123,14 @@ bool GUI::Bonol::Over() const
 void GUI::Bonol::ChangePlayer()
 {
 	if (active_player_piece_ == Piece::RED)
+	{
 		active_player_piece_ = Piece::BLUE;
+	}
 	else
+	{
 		active_player_piece_ = Piece::RED;
+	}
+	interface_.current_player_->updated = true;
 }
 
 void GUI::Bonol::DrawTable()
@@ -160,9 +165,13 @@ void GUI::Bonol::ValidateMove()
 		{
 			PosCell pos = PosCell(column, row);
 			if (IsActivePlayerPiece(pos))
+			{
 				old_state.at(pos) = Piece::FREE;
+			}
 			if (IsPlayerPiece(update.at(pos)))
+			{
 				old_state.at(pos) = GetActivePlayer();
+			}
 		}
 	ChangePlayer();
 	update.Clear();
@@ -178,8 +187,14 @@ GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
 
 GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
 {
-	if (GetActivePlayer() == Piece::RED) return Piece::RED_SELECTED;
-	else /*(GetActivePlayer() == Player::BLUE)*/ return Piece::BLUE_SELECTED;
+	if (GetActivePlayer() == Piece::RED)
+	{
+		return Piece::RED_SELECTED;
+	}
+	else /*(GetActivePlayer() == Player::BLUE)*/
+	{
+		return Piece::BLUE_SELECTED;
+	}
 }
 
 bool GUI::Bonol::IsFreeForActivePlayer(const PosCell pos) const

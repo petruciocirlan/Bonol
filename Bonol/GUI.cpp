@@ -95,6 +95,11 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
+{
+    return Rect(origin.x, origin.y, dimensions.x, dimensions.y);
+}
+
 GUI::PointGUI GUI::GetTableCenter() const
 {
     return PointGUI(window_.Width / 2, window_.Height / 2);
@@ -132,6 +137,8 @@ void GUI::RunMessageLoop()
 void GUI::Initialize()
 {
     game_state_ = new Bonol(*this);
+    current_player_ = new TextBox();
+    skip_button_ = new TextBox();
     CalculateLayout();
     is_mouse_down_ = false;
     is_selecting_ = false;
