@@ -28,7 +28,7 @@ public:
 	static const unsigned kBoardSize = 4;
 	enum class Piece
 	{
-		UNUSED, FORBIDDEN,
+		UNUSED,
 		FREE, RED, BLUE, BLOCKED,
 		RED_SELECTED, BLUE_SELECTED, BLOCKED_SELECTED,
 		BLOCKED_HIGHLIGHTED
@@ -45,7 +45,6 @@ private:
 
 	const GUI& interface_;
 
-	Piece inaccessible_;
 	Board *const old_board_;
 	Board *const update_board_;
 	bool has_cell_updated_[kBoardSize][kBoardSize];

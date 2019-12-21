@@ -18,6 +18,7 @@
 
 #include <string>
 #include <cassert>
+#include <iostream>
 //#include <stdafx.h>
 #include <windows.h>
 #include <windowsx.h>

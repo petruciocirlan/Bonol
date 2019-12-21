@@ -111,7 +111,6 @@ GUI::Bonol::Bonol(const GUI& gui)
 {
 	memset(has_cell_updated_, false, sizeof(has_cell_updated_));
 	active_player_piece_ = Piece::RED;
-	inaccessible_ = Piece::FORBIDDEN;
 	is_over_ = false;
 }
 
@@ -131,6 +130,7 @@ void GUI::Bonol::ChangePlayer()
 		active_player_piece_ = Piece::RED;
 	}
 	interface_.current_player_->updated = true;
+	std::cout << "Changed player\n";
 }
 
 void GUI::Bonol::DrawTable()
