@@ -28,21 +28,77 @@ void GUI::OnMoveMouse(const PointGUI mouse_pos)
 
 void GUI::OnLeftClickPress(const PointGUI mouse_pos)
 {
+    static Bonol::PosCell selected_blocked_piece(-1, -1);
+
     SetCapture(hwnd_);
     is_mouse_down_ = true;
 
     if (IsInsideTable(mouse_pos))
     {
         Bonol::PosCell clicked_cell = game_state_->GetCellFromGUI(mouse_pos);
-        if (game_state_->IsFreeForActivePlayer(clicked_cell))
+        Bonol::Piece clicked_piece = game_state_->GetCellPiece(clicked_cell);
+        if (turn_move_piece_ && game_state_->IsFreeForActivePlayer(clicked_cell))
         {
             game_state_->InitiateUpdate();
             game_state_->UpdateCell(clicked_cell, game_state_->GetActivePlayerSelected());
-
             is_selecting_ = true;
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
+        else if (turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED)
+        {   /// TODO(@petru): check for BLOCKED_HIGHLIGHTED instead
+            game_state_->InitiateUpdate();
+            game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED_SELECTED);
+            is_moving_block_ = true;
+
+            selected_blocked_piece = clicked_cell;
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
+        else if (is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_SELECTED)
+        {
+            assert(is_moving_block_ == true);
+            game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED);
+            is_moving_block_ = false;
+
+            selected_blocked_piece = Bonol::PosCell(-1, -1);
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
+        else if (is_moving_block_ && clicked_piece == Bonol::Piece::FREE)
+        {
+            is_moving_block_ = false;
+            game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED);
+
+            assert(!(selected_blocked_piece == Bonol::PosCell(-1, -1)));
+            game_state_->SetCellPiece(selected_blocked_piece, Bonol::Piece::FREE);
+
+            selected_blocked_piece = Bonol::PosCell(-1, -1);
+
+            show_skip_ = false;
+            skip_button_->updated = true;
+
+            turn_move_piece_ = true;
+            turn_move_block_ = false;
+            game_state_->ChangePlayer();
+
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
+    }
+    else if (turn_move_block_ && skip_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        show_skip_ = false;
+        skip_button_->updated = true;
+
+        turn_move_piece_ = true;
+        is_moving_block_ = false;
+        game_state_->ChangePlayer();
+
+        if (is_moving_block_)
+        {
+            game_state_->SetCellPiece(selected_blocked_piece, Bonol::Piece::BLOCKED);
+            selected_blocked_piece = Bonol::PosCell(-1, -1);
+        }
+
+        InvalidateRect(hwnd_, 0, TRUE);
     }
 }
 
@@ -53,12 +109,24 @@ void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
         game_state_->ValidateMove();
         game_state_->InvalidateTable();
 
-        InvalidateRect(hwnd_, 0, TRUE);
+        show_skip_ = true;
+        skip_button_->updated = true;
+
+        turn_move_piece_ = false;
+        turn_move_block_ = true;
+
         is_selecting_ = false;
+        InvalidateRect(hwnd_, 0, TRUE);
     }
 
     is_mouse_down_ = false;
     ReleaseCapture();
+
+    if (game_state_->Over())
+    {
+        /// TODO(@petru): add "player has won" popup
+        // InvalidateRect(hwnd_, 0, TRUE);
+    }
 }
 
 void GUI::OnPaint()

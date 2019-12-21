@@ -46,8 +46,8 @@ private:
 	const GUI& interface_;
 
 	Piece inaccessible_;
-	Board* const old_board_;
-	Board* const update_board_;
+	Board *const old_board_;
+	Board *const update_board_;
 	bool has_cell_updated_[kBoardSize][kBoardSize];
 
 	bool is_over_;
@@ -77,6 +77,8 @@ public:
 	void InvalidateCell(const PosCell pos);
 	void InitiateUpdate();
 	void UpdateCell(const PosCell pos, const Piece piece);
+
+	void SetCellPiece(const PosCell pos, const Piece piece);
 };
 
 struct GUI::Bonol::PosCell
@@ -85,6 +87,7 @@ struct GUI::Bonol::PosCell
 
 	PosCell() : x(0), y(0) {};
 	PosCell(CoordCell column, CoordCell row) : x(column), y(row) {};
+	bool operator==(const PosCell& operand) const;
 };
 
 struct GUI::Bonol::Board

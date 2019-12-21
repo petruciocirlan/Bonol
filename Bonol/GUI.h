@@ -17,6 +17,7 @@
 #endif
 
 #include <string>
+#include <cassert>
 //#include <stdafx.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -44,6 +45,7 @@ private:
 	INT cell_size_;
 	//PosGUI* mouse_;
 
+	bool turn_move_piece_, turn_move_block_;
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
 	bool show_skip_;
 

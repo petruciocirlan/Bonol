@@ -56,11 +56,14 @@ void GUI::DrawSkipButton() const
     TextBox& box = *skip_button_;
     FillRect(box.rect, kBackgroundColor);
 
-    std::basic_string<TCHAR> drawString = TEXT("SKIP?");
-    Font drawFont(TEXT("Arial"), 16);
-    PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
-    SolidBrush drawBrush(Color::White);
-    graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
+    if (show_skip_)
+    {
+        std::basic_string<TCHAR> drawString = TEXT("SKIP?");
+        Font drawFont(TEXT("Arial"), 16);
+        PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
+        SolidBrush drawBrush(Color::White);
+        graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
+    }
 }
 
 void GUI::DrawTextBoxes()

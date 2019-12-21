@@ -139,10 +139,17 @@ void GUI::Initialize()
     game_state_ = new Bonol(*this);
     current_player_ = new TextBox();
     skip_button_ = new TextBox();
+
     CalculateLayout();
+
+    turn_move_piece_ = true;
+    turn_move_block_ = false;
+
     is_mouse_down_ = false;
     is_selecting_ = false;
     is_moving_block_ = false;
+
+    show_skip_ = false;
 }
 
 GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)

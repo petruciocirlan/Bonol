@@ -93,8 +93,8 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	}
 	case Piece::BLOCKED_SELECTED:
 	{
-		gui.DrawRect(rc, Color::White, 5.0f);
-		gui.FillRect(rc, Color::LightSlateGray);
+		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.FillRect(rc, Color::DarkSlateGray);
 		break;
 	}
 	case Piece::BLOCKED_HIGHLIGHTED:
@@ -146,18 +146,17 @@ void GUI::Bonol::DrawTable()
 
 void GUI::Bonol::ValidateMove()
 {
-	/// TODO(@vali): check if new_state is a valid move
+	/// TODO(@vali): check if update_board_ is a valid move
 
 	/// NOTES: check if the pieces form an L
-	/// there are only 2 pieces in new_state:
-	/// Piece::UNUSED and Piece::RED_SELECTED
+	/// there are 5 pieces in updated_board_:
+	/// Piece::UNUSED, Piece::FREE, Piece::BLOCKED and Piece::RED_SELECTED
 	/// (or Piece::BLUE_SELECTED depending on active player)
 	/// ALL 'Board's are [0...kBoardSize-1, 0...kBoardSize-1]
 	/// access each cell with new_state(pos) or board_(pos),
 	/// where pos is a PosCell and constructor is PosCell(column, line)
 
 	/// ACTION: if the move is valid, update the current board state with the new one
-	/// and change the current player
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
 	for (CoordCell row = 0; row < kBoardSize; ++row)
@@ -173,11 +172,7 @@ void GUI::Bonol::ValidateMove()
 				old_state.at(pos) = GetActivePlayer();
 			}
 		}
-	ChangePlayer();
 	update.Clear();
-
-	/// LATER: instead of changing the current player,
-	/// enter the "move one block" state
 }
 
 GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
@@ -204,14 +199,7 @@ bool GUI::Bonol::IsFreeForActivePlayer(const PosCell pos) const
 
 GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell pos) const
 {
-	if (IsValidPosition(pos))
-	{
-		return old_board_->at(pos);
-	}
-	else
-	{
-		return inaccessible_;
-	}
+	return old_board_->at(pos);
 }
 
 GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
@@ -243,6 +231,12 @@ void GUI::Bonol::UpdateCell(const PosCell pos, const Piece piece)
 	InvalidateCell(pos);
 }
 
+void GUI::Bonol::SetCellPiece(const PosCell pos, const Piece piece)
+{
+	old_board_->at(pos) = piece;
+	InvalidateCell(pos);
+}
+
 GUI::Bonol::Board::Board()
 {
 	memset(cell, 0, sizeof(cell));
@@ -269,4 +263,9 @@ void GUI::Bonol::Board::Clear()
 GUI::Bonol::Piece& GUI::Bonol::Board::at(const PosCell pos)
 {
 	return cell[pos.y][pos.x];
+}
+
+bool GUI::Bonol::PosCell::operator==(const PosCell& operand) const
+{
+	return (this->x == operand.x && this->y == operand.y);
 }
