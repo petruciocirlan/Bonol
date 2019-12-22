@@ -135,6 +135,9 @@ void GUI::Bonol::ChangePlayer()
 
 void GUI::Bonol::DrawTable()
 {
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+
 	for (CoordCell line = 0; line < kBoardSize; ++line)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
 			if (has_cell_updated_[line][column])
@@ -142,11 +145,6 @@ void GUI::Bonol::DrawTable()
 				DrawCell(PosCell(line, column));
 				has_cell_updated_[line][column] = false;
 			}
-}
-
-bool GUI::Bonol::ValidateL()
-{
-	return true;
 }
 
 bool GUI::Bonol::ValidateMove()
@@ -162,29 +160,16 @@ bool GUI::Bonol::ValidateMove()
 	/// where pos is a PosCell and constructor is PosCell(column, line)
 
 	/// ACTION: if the move is valid, update the current board state with the new one
+
+	//old_board_->at(PosCell(3, 2)) e echivalent cu matrice[2][3]
+	//if (update_board_->at(PosCell(0, 0)) == Piece::UNUSED)
+	//std::cout << "YESSS";
+
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
 	std::cout << "Show the move\n";
-	
-	//old_board_->at(PosCell(3, 2)) e echivalent cu matrice[2][3]
 
-    //if (update_board_->at(PosCell(0, 0)) == Piece::UNUSED)
-	//std::cout << "YESSS";
-
-	//Hardcore coding
-	short int HowManySelectedSquares = 0;
-	for (CoordCell row = 0; row < kBoardSize; ++row)
-		for (CoordCell column = 0; column < kBoardSize; ++column)
-		{
-			PosCell pos = PosCell(column, row);
-			if (IsPlayerPiece(update.at(pos)))
-			{
-				HowManySelectedSquares++;
-				std::cout << column << " " << row << "\n";
-			}
-		}
-
-	if (HowManySelectedSquares == 4 && ValidateL())
+	if ( ValidateL() )
 	{
 		for (CoordCell row = 0; row < kBoardSize; ++row)
 			for (CoordCell column = 0; column < kBoardSize; ++column)
@@ -209,6 +194,38 @@ bool GUI::Bonol::ValidateMove()
 
 	update.Clear();
 	return true;
+}
+
+bool GUI::Bonol::ValidateL()
+{
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+
+	short unsigned HowManySelectedSquares = 0, HowManyTheSame=0;
+
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			PosCell pos = PosCell(column, row);
+			if (IsPlayerPiece(update.at(pos)))
+			{
+				if (update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED 
+					||	update_board_->at(PosCell(column, row))== Piece::RED_SELECTED)
+				std::cout << row << " " << column << "\n";
+
+				if ((update_board_->at(PosCell(column, row)) == Piece::RED_SELECTED ||
+					update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED)
+					&& old_board_->at(PosCell(column, row)) != Piece::FREE)
+						HowManyTheSame++;
+						
+				HowManySelectedSquares++;
+			}
+		}
+	//std::cout << "There are " << HowManyTheSame << " the same.\n";
+
+	if (HowManySelectedSquares == 4 && HowManyTheSame < 4)
+		return true;
+	return false;
 }
 
 GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
