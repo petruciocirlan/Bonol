@@ -63,8 +63,9 @@ public:
 
 	bool Over() const;
 	void ChangePlayer();
-	void ValidateMove();
+	bool ValidateMove();
 	void DrawTable();
+	bool ValidateL();
 
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
