@@ -201,7 +201,9 @@ bool GUI::Bonol::ValidateL()
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
 
-	short unsigned HowManySelectedSquares = 0, HowManyTheSame=0;
+	short unsigned HowManySelectedSquares = 0, HowManyTheSame=0,i=0;
+	short unsigned CoordOfValues[4] = {0,0,0,0};
+
 
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
@@ -213,6 +215,13 @@ bool GUI::Bonol::ValidateL()
 				if (update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED 
 					||	update_board_->at(PosCell(column, row))== Piece::RED_SELECTED)
 				std::cout << row << " " << column << "\n";
+
+				//Store the squares coordonates 
+				if (i<4)
+				{
+					CoordOfValues[i] = row * 10 + column;
+					i++;
+				}
 
 				//Check how many squares are teh same w the ones from old_board_
 				if ((update_board_->at(PosCell(column, row)) == Piece::RED_SELECTED ||
@@ -226,7 +235,23 @@ bool GUI::Bonol::ValidateL()
 		}
 	//std::cout << "There are " << HowManyTheSame << " the same.\n";
 
+	for (i = 0; i <= 3; i++)
+	{
+	  std::cout << CoordOfValues[i] << " ";
+	}
+
+	short unsigned Good=0;
+
+	for (i = 0; i <= 3; i++)
+		for (int k = 0; k <= 3; k++)
+			if (CoordOfValues[i] == CoordOfValues[k] + 1 || CoordOfValues[i] == CoordOfValues[k] + 10)
+				 Good++;
+
+	
+	//std::cout << "\n" << GreaterByOne << " " << GreaterByTen;
+	
 	if (HowManySelectedSquares == 4 && HowManyTheSame < 4)
+		if(Good==3 /*&& GreaterByOne && GreaterByTen*/)
 		return true;
 	return false;
 }

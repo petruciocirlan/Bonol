@@ -66,7 +66,6 @@ public:
 	bool ValidateMove();
 	void DrawTable();
 	bool ValidateL();
-
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
 	bool IsFreeForActivePlayer(const PosCell pos) const;
