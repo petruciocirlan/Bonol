@@ -149,7 +149,6 @@ bool GUI::Bonol::ValidateL()
 	return true;
 }
 
-
 bool GUI::Bonol::ValidateMove()
 {
 	/// TODO(@vali): check if update_board_ is a valid move

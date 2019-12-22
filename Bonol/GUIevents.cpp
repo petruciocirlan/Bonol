@@ -116,15 +116,16 @@ void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
 {
     if (is_selecting_)
     {
-        game_state_->ValidateMove();
         game_state_->InvalidateTable();
+        if (game_state_->ValidateMove())
+        {
+            show_skip_ = true;
+            skip_button_->updated = true;
 
-        show_skip_ = true;
-        skip_button_->updated = true;
-
-        turn_move_piece_ = false;
-        turn_move_block_ = true;
-        game_state_->HighlightBlockedPieces();
+            turn_move_piece_ = false;
+            turn_move_block_ = true;
+            game_state_->HighlightBlockedPieces();
+        }
 
         is_selecting_ = false;
         InvalidateRect(hwnd_, 0, TRUE);
