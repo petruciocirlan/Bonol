@@ -209,15 +209,18 @@ bool GUI::Bonol::ValidateL()
 			PosCell pos = PosCell(column, row);
 			if (IsPlayerPiece(update.at(pos)))
 			{
+				//Show the squares on console
 				if (update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED 
 					||	update_board_->at(PosCell(column, row))== Piece::RED_SELECTED)
 				std::cout << row << " " << column << "\n";
 
+				//Check how many squares are teh same w the ones from old_board_
 				if ((update_board_->at(PosCell(column, row)) == Piece::RED_SELECTED ||
-					update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED)
+					update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED)	
 					&& old_board_->at(PosCell(column, row)) != Piece::FREE)
 						HowManyTheSame++;
-						
+				
+				//Count how many squares we've selected
 				HowManySelectedSquares++;
 			}
 		}
