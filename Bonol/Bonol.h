@@ -78,6 +78,9 @@ public:
 	void InitiateUpdate();
 	void UpdateCell(const PosCell pos, const Piece piece);
 
+	void HighlightBlockedPieces();
+	void DeHighlightBlockedPieces();
+
 	void SetCellPiece(const PosCell pos, const Piece piece);
 };
 

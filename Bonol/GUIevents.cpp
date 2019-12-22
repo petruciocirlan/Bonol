@@ -45,7 +45,7 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
-        else if (turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED)
+        else if (turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_HIGHLIGHTED)
         {   /// TODO(@petru): check for BLOCKED_HIGHLIGHTED instead
             game_state_->InitiateUpdate();
             game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED_SELECTED);
@@ -57,7 +57,7 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
         else if (is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_SELECTED)
         {
             assert(is_moving_block_ == true);
-            game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED);
+            game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED_HIGHLIGHTED);
             is_moving_block_ = false;
 
             selected_blocked_piece = Bonol::PosCell(-1, -1);
@@ -79,6 +79,7 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
             turn_move_piece_ = true;
             turn_move_block_ = false;
             game_state_->ChangePlayer();
+            game_state_->DeHighlightBlockedPieces();
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
@@ -89,8 +90,10 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
         skip_button_->updated = true;
 
         turn_move_piece_ = true;
+        turn_move_block_ = false;
         is_moving_block_ = false;
         game_state_->ChangePlayer();
+        game_state_->DeHighlightBlockedPieces();
 
         if (is_moving_block_)
         {
@@ -121,6 +124,7 @@ void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
 
         turn_move_piece_ = false;
         turn_move_block_ = true;
+        game_state_->HighlightBlockedPieces();
 
         is_selecting_ = false;
         InvalidateRect(hwnd_, 0, TRUE);
@@ -140,9 +144,14 @@ void GUI::OnPaint()
 {
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hwnd_, &ps);
-    graphics_ = new Graphics(hdc);
+
+    Bitmap buffer(window_.Width, window_.Height);
+    graphics_ = new Graphics(&buffer);
+    Graphics graphics(hdc);
 
     DrawForeground();
+
+    graphics.DrawImage(&buffer, 0, 0);
 
     delete graphics_;
     EndPaint(hwnd_, &ps);
@@ -155,11 +164,99 @@ void GUI::Resize()
 
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hwnd_, &ps);
-    graphics_ = new Graphics(hdc);
+
+    Bitmap buffer(window_.Width, window_.Height);
+    graphics_ = new Graphics(&buffer);
+    Graphics graphics(hdc);
 
     DrawBackground();
     DrawForeground();
 
+    graphics.DrawImage(&buffer, 0, 0);
+
     delete graphics_;
     EndPaint(hwnd_, &ps);
+}
+
+LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    GUI* game_interface = NULL;
+
+    if (uMsg != WM_CREATE)
+    {
+        game_interface = (GUI*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    }
+
+    switch (uMsg)
+    {
+    case WM_CREATE:
+    {
+        SetWindowDataInfo(hwnd, lParam, game_interface);
+        game_interface->Initialize();
+        return 0;
+    }
+    case WM_CLOSE:
+    {
+        if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
+        {
+            DestroyWindow(hwnd);
+        }
+        return 0;
+    }
+    case WM_DESTROY:
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
+    case WM_PAINT:
+    {
+        game_interface->OnPaint();
+        return 0;
+    }
+    case WM_SIZE:
+    {
+        game_interface->Resize();
+        return 0;
+    }
+    case WM_MOUSEMOVE:
+    {
+        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        game_interface->OnMoveMouse(mouse_pos);
+        return 0;
+    }
+    case WM_LBUTTONDOWN:
+    {
+        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        game_interface->OnLeftClickPress(mouse_pos);
+        return 0;
+    }
+    case WM_LBUTTONUP:
+    {
+        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        game_interface->OnLeftClickRelease(mouse_pos);
+        return 0;
+    }
+    case WM_KEYDOWN:
+    {
+        if (GetKeyState(VK_ESCAPE) & 0x8000)
+        {
+            if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
+            {
+                DestroyWindow(hwnd);
+            }
+            return 0;
+        }
+        break;
+    }
+    case WM_GETMINMAXINFO:
+    {
+        LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+        lpMMI->ptMinTrackSize.x = 480;
+        lpMMI->ptMinTrackSize.y = 600;
+        return 0;
+    }
+    case WM_ERASEBKGND:
+        return 1;
+    }
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }

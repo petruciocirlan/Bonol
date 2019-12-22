@@ -99,7 +99,7 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	}
 	case Piece::BLOCKED_HIGHLIGHTED:
 	{
-		gui.DrawRect(rc, Color::Black, 5.0f);
+		gui.DrawRect(rc, Color::Black, 1.0f);
 		gui.FillRect(rc, Color::DarkGray);
 		break;
 	}
@@ -229,6 +229,36 @@ void GUI::Bonol::UpdateCell(const PosCell pos, const Piece piece)
 {
 	update_board_->at(pos) = piece;
 	InvalidateCell(pos);
+}
+
+void GUI::Bonol::HighlightBlockedPieces()
+{
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			PosCell current_cell(column, row);
+			Piece piece = GetCellPiece(current_cell);
+			if (piece == Piece::BLOCKED)
+			{
+				SetCellPiece(current_cell, Piece::BLOCKED_HIGHLIGHTED);
+				InvalidateCell(current_cell);
+			}
+		}
+}
+
+void GUI::Bonol::DeHighlightBlockedPieces()
+{
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			PosCell current_cell(column, row);
+			Piece piece = GetCellPiece(current_cell);
+			if (piece == Piece::BLOCKED_HIGHLIGHTED)
+			{
+				SetCellPiece(current_cell, Piece::BLOCKED);
+				InvalidateCell(current_cell);
+			}
+		}
 }
 
 void GUI::Bonol::SetCellPiece(const PosCell pos, const Piece piece)

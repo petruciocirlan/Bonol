@@ -40,6 +40,7 @@ public:
 
 private:
 	const Color kBackgroundColor = Color::Purple;
+	const Color kTextColor = Color::White;
 
 	Rect table_, window_;
 	TextBox *current_player_, *skip_button_, *reset_button_;
@@ -48,7 +49,7 @@ private:
 
 	bool turn_move_piece_, turn_move_block_;
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
-	bool show_skip_;
+	bool show_game_, show_skip_;
 
 	Graphics* graphics_;
 	Bonol* game_state_;

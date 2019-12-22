@@ -12,89 +12,6 @@
 
 #include "GUI.h"
 
-LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    GUI* game_interface = NULL;
-
-    if (uMsg != WM_CREATE)
-    {
-        game_interface = (GUI*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    }
-
-    switch (uMsg)
-    {
-    case WM_CREATE:
-    {
-        SetWindowDataInfo(hwnd, lParam, game_interface);
-        game_interface->Initialize();
-        return 0;
-    }
-    case WM_CLOSE:
-    {
-        if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
-        {
-            DestroyWindow(hwnd);
-        }
-        return 0;
-    }
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
-    case WM_PAINT:
-    {
-        game_interface->OnPaint();
-        return 0;
-    }
-    case WM_SIZE:
-    {
-        game_interface->Resize();
-        return 0;
-    }
-    case WM_MOUSEMOVE:
-    {
-        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        game_interface->OnMoveMouse(mouse_pos);
-        return 0;
-    }
-    case WM_LBUTTONDOWN:
-    {
-        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        game_interface->OnLeftClickPress(mouse_pos);
-        return 0;
-    }
-    case WM_LBUTTONUP:
-    {
-        PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        game_interface->OnLeftClickRelease(mouse_pos);
-        return 0;
-    }
-    case WM_KEYDOWN:
-    {
-        if (GetKeyState(VK_ESCAPE) & 0x8000)
-        {
-            if (MessageBox(hwnd, L"Really quit?", L"Bonol", MB_OKCANCEL) == IDOK)
-            {
-                DestroyWindow(hwnd);
-            }
-            return 0;
-        }
-        break;
-    }
-    case WM_GETMINMAXINFO:
-    {
-        LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
-        lpMMI->ptMinTrackSize.x = 480;
-        lpMMI->ptMinTrackSize.y = 600;
-        return 0;
-    }
-    case WM_ERASEBKGND:
-        return 1;
-    }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-
 Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
 {
     return Rect(origin.x, origin.y, dimensions.x, dimensions.y);
@@ -151,6 +68,7 @@ void GUI::Initialize()
     is_moving_block_ = false;
 
     show_skip_ = false;
+    show_game_ = true;
 }
 
 void GUI::FreePointers()

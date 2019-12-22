@@ -47,7 +47,7 @@ void GUI::DrawCurrentPlayer() const
 
     Font drawFont(TEXT("Arial"), 16);
     PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
-    SolidBrush drawBrush(Color::White);
+    SolidBrush drawBrush(kTextColor);
     graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
 }
 
@@ -61,7 +61,7 @@ void GUI::DrawSkipButton() const
         std::basic_string<TCHAR> drawString = TEXT("SKIP?");
         Font drawFont(TEXT("Arial"), 16);
         PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
-        SolidBrush drawBrush(Color::White);
+        SolidBrush drawBrush(kTextColor);
         graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
     }
 }
@@ -74,7 +74,7 @@ void GUI::DrawResetButton() const
     std::basic_string<TCHAR> drawString = TEXT("RESET?");
     Font drawFont(TEXT("Arial"), 10);
     PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
-    SolidBrush drawBrush(Color::White);
+    SolidBrush drawBrush(kTextColor);
     graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
 }
 
@@ -111,8 +111,11 @@ void GUI::DrawBackground() const
 
 void GUI::DrawForeground()
 {
-    game_state_->DrawTable();
-    DrawTextBoxes();
+    if (show_game_)
+    {
+        game_state_->DrawTable();
+        DrawTextBoxes();
+    }
 }
 
 void GUI::CalculateLayout()
