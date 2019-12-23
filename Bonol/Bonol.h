@@ -69,6 +69,9 @@ public:
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
 	bool IsFreeForActivePlayer(const PosCell pos) const;
+	short SearchOnRows();
+	short SearchOnColumns();
+	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
 
 	Piece GetCellPiece(const PosCell pos) const;
 	PosCell GetCellFromGUI(const PointGUI pos) const;

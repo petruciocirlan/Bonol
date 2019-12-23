@@ -201,9 +201,7 @@ bool GUI::Bonol::ValidateL()
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
 
-	short unsigned HowManySelectedSquares = 0, HowManyTheSame=0,i=0;
-	short unsigned CoordOfValues[4] = {0,0,0,0};
-
+	short unsigned HowManySelectedSquares = 0, HowManyTheSame=0, i=0, CoordOfValues[4] = { 0,0,0,0 };
 
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
@@ -217,7 +215,7 @@ bool GUI::Bonol::ValidateL()
 				std::cout << row << " " << column << "\n";
 
 				//Store the squares coordonates 
-				if (i<4)
+				if (i < 4)
 				{
 					CoordOfValues[i] = row * 10 + column;
 					i++;
@@ -233,26 +231,170 @@ bool GUI::Bonol::ValidateL()
 				HowManySelectedSquares++;
 			}
 		}
-	//std::cout << "There are " << HowManyTheSame << " the same.\n";
 
-	for (i = 0; i <= 3; i++)
+	for (int i = 0; i <=3 ; i++)
+		std::cout << CoordOfValues[i]<<" ";
+
+	std::cout << "\n";
+	bool GoodForm = true;
+
+	//From there until the end of the of the big if we are checking if the L is valid
+
+	if (SearchOnRows() != -1)
 	{
-	  std::cout << CoordOfValues[i] << " ";
+		short unsigned SearchNextTo = SearchOnRows();
+
+		if(SearchNextTo - 1 != -1)
+		{
+			//std::cout << "Searching on row " << SearchNextTo - 1 << "\n";
+			for (CoordCell col = 0; col < kBoardSize; ++col)
+			{
+				if (update_board_->at(PosCell(col, SearchNextTo - 1)) == Piece::BLUE_SELECTED
+					|| update_board_->at(PosCell(col, SearchNextTo - 1)) == Piece::RED_SELECTED)
+					{
+						short unsigned CheckGoodSquare = (SearchNextTo - 1) * 10 + col;
+						if (CheckGoodForm(CheckGoodSquare,CoordOfValues)==false)
+							{
+								GoodForm=false;
+							}
+					}
+					
+			}
+		}
+
+		if (SearchNextTo + 1 != 4)
+		{
+			//std::cout<< "Searching on row " << SearchNextTo+1 << "\n";
+			for (CoordCell col = 0; col < kBoardSize; ++col)
+			{
+				if (update_board_->at(PosCell(col, SearchNextTo + 1)) == Piece::BLUE_SELECTED
+					|| update_board_->at(PosCell(col, SearchNextTo + 1)) == Piece::RED_SELECTED)
+					{
+						short unsigned CheckGoodSquare = (SearchNextTo + 1) * 10 + col;
+						if (CheckGoodForm(CheckGoodSquare, CoordOfValues)==false)
+							{
+								GoodForm = false;
+							}
+					}
+			}
+
+		}
 	}
 
-	short unsigned Good=0;
+	if (SearchOnColumns() != -1)
+	{
+		short unsigned SearchNextTo = SearchOnColumns();
 
-	for (i = 0; i <= 3; i++)
-		for (int k = 0; k <= 3; k++)
-			if (CoordOfValues[i] == CoordOfValues[k] + 1 || CoordOfValues[i] == CoordOfValues[k] + 10)
-				 Good++;
+		if (SearchNextTo - 1 != -1)
+		{
+			//std::cout <<"Searching on column "<< SearchNextTo - 1 << "\n";
+			for (CoordCell row = 0; row < kBoardSize; ++row)
+			{
+				if (update_board_->at(PosCell(SearchNextTo -1,row)) == Piece::BLUE_SELECTED
+					|| update_board_->at(PosCell(SearchNextTo - 1,row)) == Piece::RED_SELECTED)
+					{
+						short unsigned CheckGoodSquare = row * 10 + (SearchNextTo - 1);
+						if (CheckGoodForm(CheckGoodSquare, CoordOfValues)==false)
+							{
+								GoodForm = false;
+							}
+					}
+			}
+		}	
 
-	
-	//std::cout << "\n" << GreaterByOne << " " << GreaterByTen;
+		if (SearchNextTo + 1 != 4)
+		{
+			//std::cout << "Searching on column " << SearchNextTo + 1 << "\n";
+			for (CoordCell row = 0; row < kBoardSize; ++row)
+			{
+				if (update_board_->at(PosCell(SearchNextTo + 1, row)) == Piece::BLUE_SELECTED
+					|| update_board_->at(PosCell(SearchNextTo + 1, row)) == Piece::RED_SELECTED)
+					{
+						short unsigned CheckGoodSquare = row * 10 + (SearchNextTo + 1);
+						if (CheckGoodForm(CheckGoodSquare, CoordOfValues)==false)
+							{
+								GoodForm = false;
+							}
+				}
+			}
+		}
+		
+	}
 	
 	if (HowManySelectedSquares == 4 && HowManyTheSame < 4)
-		if(Good==3 /*&& GreaterByOne && GreaterByTen*/)
-		return true;
+		if(SearchOnRows()!=-1 || SearchOnColumns()!=-1)	
+			if(GoodForm)
+				return true;
+	return false	;
+}
+
+short GUI::Bonol::SearchOnRows()
+{
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+	{
+		int CountConsecutives = 0;
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			if (update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED
+				|| update_board_->at(PosCell(column, row)) == Piece::RED_SELECTED)
+				CountConsecutives++;
+		}
+		
+		if (CountConsecutives == 3)
+			return row;
+	}
+
+	return -1;
+}
+
+short GUI::Bonol::SearchOnColumns()
+{
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+	{
+		int CountConsecutives = 0;
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			if (update_board_->at(PosCell(row,column)) == Piece::BLUE_SELECTED
+				|| update_board_->at(PosCell(row,column)) == Piece::RED_SELECTED)
+				CountConsecutives++;
+		}
+
+		if (CountConsecutives == 3)
+			return row;
+	}
+
+	return -1;
+}
+
+bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSearch[4])
+{
+	//std::cout << " ( " << ToCheck << " ) ";
+
+	for (int i = 0; i <= 3; i++)
+		if (ArrayToSearch[i] == ToCheck)
+			while (i < 3)
+			{
+				ArrayToSearch[i] = ArrayToSearch[i + 1];
+				i++;
+			}
+
+	for (int i = 0; i <= 2; i++)
+		if (i != 1)
+			{
+				if (ToCheck == ArrayToSearch[i] + 1 || ToCheck == ArrayToSearch[i] + 10
+				|| ToCheck == ArrayToSearch[i] - 1 || ToCheck == ArrayToSearch[i] - 10)
+					{
+						return true;
+					}
+			}
+
+	std::cout << "Wrong move\n";
 	return false;
 }
 
