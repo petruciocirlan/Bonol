@@ -76,7 +76,7 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	case Piece::BLOCKED:
 	{
 		gui.DrawRect(rc, Color::Black, 1.0f);
-		gui.FillRect(rc, Color::LightSlateGray);
+		gui.FillRect(rc, Color::DarkGray);
 		break;
 	}
 	case Piece::RED_SELECTED:
@@ -94,13 +94,13 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	case Piece::BLOCKED_SELECTED:
 	{
 		gui.DrawRect(rc, Color::Black, 1.0f);
-		gui.FillRect(rc, Color::DarkSlateGray);
+		gui.FillRect(rc, Color::Yellow);
 		break;
 	}
 	case Piece::BLOCKED_HIGHLIGHTED:
 	{
 		gui.DrawRect(rc, Color::Black, 1.0f);
-		gui.FillRect(rc, Color::DarkGray);
+		gui.FillRect(rc, Color::LightSlateGray);
 		break;
 	}
 	}
