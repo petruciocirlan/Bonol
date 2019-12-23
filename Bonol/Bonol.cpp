@@ -236,7 +236,7 @@ bool GUI::Bonol::ValidateL()
 		std::cout << CoordOfValues[i]<<" ";
 
 	std::cout << "\n";
-	bool GoodForm = true;
+	bool GoodForm = false;
 
 	//From there until the end of the of the big if we are checking if the L is valid
 
@@ -253,9 +253,9 @@ bool GUI::Bonol::ValidateL()
 					|| update_board_->at(PosCell(col, SearchNextTo - 1)) == Piece::RED_SELECTED)
 					{
 						short unsigned CheckGoodSquare = (SearchNextTo - 1) * 10 + col;
-						if (CheckGoodForm(CheckGoodSquare,CoordOfValues)==false)
+						if (CheckGoodForm(CheckGoodSquare,CoordOfValues))
 							{
-								GoodForm=false;
+								GoodForm=true;
 							}
 					}
 					
@@ -271,9 +271,9 @@ bool GUI::Bonol::ValidateL()
 					|| update_board_->at(PosCell(col, SearchNextTo + 1)) == Piece::RED_SELECTED)
 					{
 						short unsigned CheckGoodSquare = (SearchNextTo + 1) * 10 + col;
-						if (CheckGoodForm(CheckGoodSquare, CoordOfValues)==false)
+						if (CheckGoodForm(CheckGoodSquare, CoordOfValues))
 							{
-								GoodForm = false;
+								GoodForm = true;
 							}
 					}
 			}
@@ -294,11 +294,11 @@ bool GUI::Bonol::ValidateL()
 					|| update_board_->at(PosCell(SearchNextTo - 1,row)) == Piece::RED_SELECTED)
 					{
 						short unsigned CheckGoodSquare = row * 10 + (SearchNextTo - 1);
-						if (CheckGoodForm(CheckGoodSquare, CoordOfValues)==false)
+						if (CheckGoodForm(CheckGoodSquare, CoordOfValues))
 							{
-								GoodForm = false;
+								GoodForm = true;
 							}
-					}
+					}	
 			}
 		}	
 
@@ -311,9 +311,9 @@ bool GUI::Bonol::ValidateL()
 					|| update_board_->at(PosCell(SearchNextTo + 1, row)) == Piece::RED_SELECTED)
 					{
 						short unsigned CheckGoodSquare = row * 10 + (SearchNextTo + 1);
-						if (CheckGoodForm(CheckGoodSquare, CoordOfValues)==false)
+						if (CheckGoodForm(CheckGoodSquare, CoordOfValues))
 							{
-								GoodForm = false;
+								GoodForm = true;
 							}
 				}
 			}
@@ -390,6 +390,7 @@ bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSea
 				if (ToCheck == ArrayToSearch[i] + 1 || ToCheck == ArrayToSearch[i] + 10
 				|| ToCheck == ArrayToSearch[i] - 1 || ToCheck == ArrayToSearch[i] - 10)
 					{
+						//std::cout << ArrayToSearch[i]<<" ";
 						return true;
 					}
 			}
