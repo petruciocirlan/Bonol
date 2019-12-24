@@ -12,7 +12,21 @@
 
 #include "GUI.h"
 
-void GUI::OnMoveMouse(const PointGUI mouse_pos)
+void GUI::OnMouseMove(const PointGUI mouse_pos)
+{
+    switch (current_screen_)
+    {
+    case Screen::MENU: OnMouseMoveMenu(mouse_pos); break;
+    case Screen::GAME: OnMouseMoveGame(mouse_pos); break;
+    }
+}
+
+void GUI::OnMouseMoveMenu(const PointGUI mouse_pos)
+{
+    /// TODO(@petru): Menu - mouse move
+}
+
+void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
 {
     if (is_selecting_ && IsInsideTable(mouse_pos))
     {
@@ -28,10 +42,34 @@ void GUI::OnMoveMouse(const PointGUI mouse_pos)
 
 void GUI::OnLeftClickPress(const PointGUI mouse_pos)
 {
-    static Bonol::PosCell selected_blocked_piece(-1, -1);
-
     SetCapture(hwnd_);
     is_mouse_down_ = true;
+
+    switch (current_screen_)
+    {
+    case Screen::GAME: OnLeftClickPressGame(mouse_pos); break;
+    case Screen::MENU: OnLeftClickPressMenu(mouse_pos); break;
+    }
+}
+
+void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
+{
+    if (title_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        std::cout << "TITLE\n";
+    }
+    else if (play_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        DestroyMenu();
+        current_screen_ = Screen::GAME;
+        CreateGame();
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+}
+
+void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
+{
+    static Bonol::PosCell selected_blocked_piece(-1, -1);
 
     if (IsInsideTable(mouse_pos))
     {
@@ -73,7 +111,7 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
 
             selected_blocked_piece = Bonol::PosCell(-1, -1);
 
-            show_skip_ = false;
+            skip_button_->visible = false;
             skip_button_->updated = true;
 
             turn_move_piece_ = true;
@@ -86,7 +124,7 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
     }
     else if (turn_move_block_ && skip_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        show_skip_ = false;
+        skip_button_->visible = false;
         skip_button_->updated = true;
 
         turn_move_piece_ = true;
@@ -105,8 +143,16 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
     }
     else if (reset_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        FreePointers();
-        Initialize();
+        DestroyGame();
+        CreateGame();
+
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+    else if (menu_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        DestroyGame();
+        CreateMenu();
+        current_screen_ = Screen::MENU;
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -114,35 +160,51 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
 
 void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
 {
+    switch (current_screen_)
+    {
+    case Screen::GAME: OnLeftClickReleaseGame(mouse_pos); break;
+    case Screen::MENU: OnLeftClickReleaseMenu(mouse_pos); break;
+    }
+
+    is_mouse_down_ = false;
+    ReleaseCapture();
+}
+
+void GUI::OnLeftClickReleaseMenu(const PointGUI mouse_pos)
+{
+    /// TODO(@petru): Menu - left click release
+}
+
+void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
+{
     if (is_selecting_)
     {
         game_state_->InvalidateTable();
         if (game_state_->ValidateMove())
         {
-            show_skip_ = true;
+            skip_button_->visible = true;
             skip_button_->updated = true;
 
             turn_move_piece_ = false;
             turn_move_block_ = true;
             game_state_->HighlightBlockedPieces();
+
+            if (game_state_->Over())
+            {
+                /// TODO(@petru): add "player has won" popup
+                // InvalidateRect(hwnd_, 0, TRUE);
+            }
         }
 
         is_selecting_ = false;
         InvalidateRect(hwnd_, 0, TRUE);
     }
-
-    is_mouse_down_ = false;
-    ReleaseCapture();
-
-    if (game_state_->Over())
-    {
-        /// TODO(@petru): add "player has won" popup
-        // InvalidateRect(hwnd_, 0, TRUE);
-    }
 }
 
 void GUI::OnPaint()
 {
+    CalculateLayout();
+
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hwnd_, &ps);
 
@@ -150,6 +212,11 @@ void GUI::OnPaint()
     graphics_ = new Graphics(&buffer);
     Graphics graphics(hdc);
 
+    if (repaint_background_)
+    {
+        DrawBackground();
+        repaint_background_ = false;
+    }
     DrawForeground();
 
     graphics.DrawImage(&buffer, 0, 0);
@@ -193,7 +260,11 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
     {
         SetWindowDataInfo(hwnd, lParam, game_interface);
-        game_interface->Initialize();
+        switch (game_interface->current_screen_)
+        {
+        case Screen::MENU: game_interface->CreateMenu();
+        case Screen::GAME: game_interface->CreateGame();
+        }
         return 0;
     }
     case WM_CLOSE:
@@ -222,7 +293,7 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEMOVE:
     {
         PointGUI mouse_pos(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        game_interface->OnMoveMouse(mouse_pos);
+        game_interface->OnMouseMove(mouse_pos);
         return 0;
     }
     case WM_LBUTTONDOWN:

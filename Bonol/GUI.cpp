@@ -51,12 +51,30 @@ void GUI::RunMessageLoop()
     }
 }
 
-void GUI::Initialize()
+void GUI::CreateGame()
 {
     game_state_ = new Bonol(*this);
-    current_player_ = new TextBox();
-    skip_button_ = new TextBox();
-    reset_button_ = new TextBox();
+    
+    current_player_ = new TextBox(
+        TEXT("Your turn, RED!"),
+        new Font(TEXT("Arial"), 16),
+        new SolidBrush(kTextColor)
+    );
+    skip_button_ = new TextBox(
+        TEXT("SKIP?"),
+        new Font(TEXT("Arial"), 16),
+        new SolidBrush(kTextColor)
+    );
+    reset_button_ = new TextBox(
+        TEXT("RESET?"),
+        new Font(TEXT("Arial"), 10),
+        new SolidBrush(kTextColor)
+    );
+    menu_button_ = new TextBox(
+        TEXT("MENU"),
+        new Font(TEXT("Arial"), 10),
+        new SolidBrush(kTextColor)
+    );
 
     CalculateLayout();
 
@@ -67,17 +85,41 @@ void GUI::Initialize()
     is_selecting_ = false;
     is_moving_block_ = false;
 
-    show_skip_ = false;
-    show_game_ = true;
+    skip_button_->visible = false;
+    repaint_background_ = true;
 }
 
-void GUI::FreePointers()
+void GUI::DestroyGame()
 {
     delete game_state_;
     delete current_player_, skip_button_, reset_button_;
 }
 
+void GUI::CreateMenu()
+{
+    /// TODO(@petru): init menu
+    title_ = new TextBox(
+        TEXT("BONOL GAME"),
+        new Font(TEXT("Arial"), 32),
+        new SolidBrush(kTextColor)
+    );
+    play_button_ = new TextBox(
+        TEXT("Play!"),
+        new Font(TEXT("Arial"), 24),
+        new SolidBrush(kTextColor)
+    );
+
+    repaint_background_ = true;
+}
+
+void GUI::DestroyMenu()
+{
+    /// TODO(@petru): free all allocated memory of menu
+    delete title_, play_button_;
+}
+
 GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
+    : current_screen_(Screen::MENU)
 {
     WNDCLASS            wndClass;
     GdiplusStartupInput gdiplusStartupInput;
@@ -121,4 +163,9 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     RunMessageLoop();
 
     GdiplusShutdown(gdiplusToken);
+}
+
+GUI::TextBox::~TextBox()
+{
+    delete font, color;
 }

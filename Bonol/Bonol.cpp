@@ -56,7 +56,7 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	switch (cell_piece)
 	{
 	case Piece::FREE:
-	{
+	{	/// TODO(@petru): inflate 1 pixel?
 		gui.DrawRect(rc, Color::Black, 1.0f);
 		gui.FillRect(rc, Color::White);
 		break;
@@ -124,10 +124,12 @@ void GUI::Bonol::ChangePlayer()
 	if (active_player_piece_ == Piece::RED)
 	{
 		active_player_piece_ = Piece::BLUE;
+		interface_.current_player_->text = TEXT("Your turn, BLUE!");
 	}
 	else
 	{
 		active_player_piece_ = Piece::RED;
+		interface_.current_player_->text = TEXT("Your turn, RED!");
 	}
 	interface_.current_player_->updated = true;
 	std::cout << "Changed player\n";

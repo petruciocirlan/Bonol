@@ -30,70 +30,58 @@ void GUI::FillRect(const Rect rc, const Color color) const
     graphics_->FillRectangle(&brush, rc);
 }
 
-void GUI::DrawCurrentPlayer() const
+void GUI::DrawTextBox(TextBox &box)
 {
-    TextBox& box = *current_player_;
-    FillRect(box.rect, kBackgroundColor);
+    CalculateTextBoxPosition(box);
 
-    std::basic_string<TCHAR> drawString = TEXT("Your turn, ");
-    if (game_state_->GetActivePlayer() == Bonol::Piece::RED)
+    Rect box_padded_LR(box.rect);
+    INT padding = 5;
+    box_padded_LR.X -= padding;
+    box_padded_LR.Width += 2 * padding;
+    FillRect(box_padded_LR, kBackgroundColor);
+
+    if (box.visible)
     {
-        drawString += TEXT("RED!");
-    }
-    else
-    {
-        drawString += TEXT("BLUE!");
-    }
-
-    Font drawFont(TEXT("Arial"), 16);
-    PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
-    SolidBrush drawBrush(kTextColor);
-    graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
-}
-
-void GUI::DrawSkipButton() const
-{
-    TextBox& box = *skip_button_;
-    FillRect(box.rect, kBackgroundColor);
-
-    if (show_skip_)
-    {
-        std::basic_string<TCHAR> drawString = TEXT("SKIP?");
-        Font drawFont(TEXT("Arial"), 16);
-        PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
-        SolidBrush drawBrush(kTextColor);
-        graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
+        PointF drawOrigin((REAL)box.rect.X, (REAL)box.rect.Y);
+        graphics_->DrawString(box.text.data(), -1, box.font, drawOrigin, box.color);
     }
 }
 
-void GUI::DrawResetButton() const
+void GUI::DrawTextBoxesMenu()
 {
-    TextBox& box = *reset_button_;
-    FillRect(box.rect, kBackgroundColor);
-
-    std::basic_string<TCHAR> drawString = TEXT("RESET?");
-    Font drawFont(TEXT("Arial"), 10);
-    PointF drawOrigin((FLOAT)box.x, (FLOAT)box.y);
-    SolidBrush drawBrush(kTextColor);
-    graphics_->DrawString(drawString.data(), -1, &drawFont, drawOrigin, &drawBrush);
+    if (title_->updated)
+    {
+        DrawTextBox(*title_);
+        title_->updated = false;
+    }
+    if (play_button_->updated)
+    {
+        DrawTextBox(*play_button_);
+        play_button_->updated = false;
+    }
 }
 
-void GUI::DrawTextBoxes()
+void GUI::DrawTextBoxesGame()
 {
     if (current_player_->updated)
     {
-        DrawCurrentPlayer();
+        DrawTextBox(*current_player_);
         current_player_->updated = false;
     }
     if (skip_button_->updated)
     {
-        DrawSkipButton();
+        DrawTextBox(*skip_button_);
         skip_button_->updated = false;
     }
     if (reset_button_->updated)
     {
-        DrawResetButton();
+        DrawTextBox(*reset_button_);
         reset_button_->updated = false;
+    }
+    if (menu_button_->updated)
+    {
+        DrawTextBox(*menu_button_);
+        menu_button_->updated = false;
     }
 }
 
@@ -111,11 +99,31 @@ void GUI::DrawBackground() const
 
 void GUI::DrawForeground()
 {
-    if (show_game_)
+    switch (current_screen_)
+    {
+    case Screen::MENU:
+    {
+        DrawTextBoxesMenu();
+
+        break;
+    }
+    case Screen::GAME:
     {
         game_state_->DrawTable();
-        DrawTextBoxes();
+        DrawTextBoxesGame();
+
+        break;
     }
+    }
+}
+
+void GUI::CalculateTextBoxPosition(TextBox& box)
+{
+    RectF bounds;
+    graphics_->MeasureString(box.text.data(), -1, box.font, PointF(0, 0), &bounds);
+    PointGUI text_box_dimensions((INT)bounds.Width, (INT)bounds.Height);
+    PointGUI text_box_origin(box.center.x - (INT)bounds.Width / 2, box.center.y - (INT)bounds.Height / 2);
+    box.rect = MakeRect(text_box_origin, text_box_dimensions);
 }
 
 void GUI::CalculateLayout()
@@ -128,7 +136,22 @@ void GUI::CalculateLayout()
         window.right - window.left,
         window.bottom - window.top
     );
+    switch (current_screen_)
+    {
+    case Screen::MENU: CalculateLayoutMenu(); break;
+    case Screen::GAME: CalculateLayoutGame(); break;
+    }
+}
 
+void GUI::CalculateLayoutMenu()
+{
+    /// TODO(@petru): calculate menu layout
+    title_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 200);
+    play_button_->center = PointGUI(window_.Width / 2, window_.Height / 2);
+}
+
+void GUI::CalculateLayoutGame()
+{
     INT table_size = 400;
     table_ = Rect(
         (window_.Width - table_size) / 2,
@@ -138,26 +161,34 @@ void GUI::CalculateLayout()
     );
     cell_size_  = table_.Width / Bonol::kBoardSize;
 
-    PointGUI text_box_dimensions, text_box_origin;
+    current_player_->center = PointGUI(window_.Width / 2, table_.Y - 60);
+    skip_button_->center = PointGUI(window_.Width / 2, table_.Y + table_.Height + 20);
+    reset_button_->center = PointGUI(window_.Width / 2 - 40, table_.Y - 20);
+    menu_button_->center = PointGUI(window_.Width / 2 + 40, table_.Y - 20);
 
-    text_box_dimensions = PointGUI(225, 35);
-    text_box_origin = PointGUI((window_.Width - text_box_dimensions.x) / 2, table_.Y - 50);
-    current_player_->rect = MakeRect(text_box_origin, text_box_dimensions);
-
-    text_box_dimensions = PointGUI(85, 35);
-    text_box_origin = PointGUI((window_.Width - text_box_dimensions.x) / 2, table_.Y + table_.Height + 10);
-    skip_button_->rect = MakeRect(text_box_origin, text_box_dimensions);
-
-    text_box_dimensions = PointGUI(100, 25);
-    text_box_origin = PointGUI(10, 10);
-    reset_button_->rect = MakeRect(text_box_origin, text_box_dimensions);
-
+    //InvalidateTextBoxes();
     game_state_->InvalidateTable();
 }
 
 void GUI::InvalidateTextBoxes()
 {
-    current_player_->updated = true;
-    skip_button_->updated = true;
-    reset_button_->updated = true;
+    switch (current_screen_)
+    {
+    case Screen::MENU:
+    {
+        title_->updated = true;
+        play_button_->updated = true;
+
+        break;
+    }
+    case Screen::GAME:
+    {
+        current_player_->updated = true;
+        skip_button_->updated = true;
+        reset_button_->updated = true;
+        menu_button_->updated = true;
+        
+        break;
+    }
+    }
 }

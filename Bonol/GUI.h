@@ -42,24 +42,45 @@ private:
 	const Color kBackgroundColor = Color::Purple;
 	const Color kTextColor = Color::White;
 
+	enum class Screen
+	{
+		MENU, GAME//, SETTINGS
+	};
+	Screen current_screen_;
+
 	Rect table_, window_;
 	TextBox *current_player_, *skip_button_, *reset_button_;
+	TextBox *title_, *play_button_;
+	TextBox *menu_button_;
 	INT cell_size_;
 	//PosGUI* mouse_;
 
 	bool turn_move_piece_, turn_move_block_;
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
-	bool show_game_, show_skip_;
+	bool repaint_background_;
 
-	Graphics* graphics_;
-	Bonol* game_state_;
+	Graphics *graphics_;
+	Bonol *game_state_;
 	HWND hwnd_;
 
+	void CalculateTextBoxPosition(TextBox &box);
 	void CalculateLayout();
+	void CalculateLayoutMenu();
+	void CalculateLayoutGame();
 	void InvalidateTextBoxes();
-	void OnMoveMouse(const PointGUI mouse_pos);
+
+	void OnMouseMove(const PointGUI mouse_pos);
+	void OnMouseMoveMenu(const PointGUI mouse_pos);
+	void OnMouseMoveGame(const PointGUI mouse_pos);
+
 	void OnLeftClickPress(const PointGUI mouse_pos);
+	void OnLeftClickPressMenu(const PointGUI mouse_pos);
+	void OnLeftClickPressGame(const PointGUI mouse_pos);
+
 	void OnLeftClickRelease(const PointGUI mouse_pos);
+	void OnLeftClickReleaseMenu(const PointGUI mouse_pos);
+	void OnLeftClickReleaseGame(const PointGUI mouse_pos);
+
 	void OnPaint();
 	void Resize();
 
@@ -72,19 +93,22 @@ private:
 	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
 	void FillRect(const Rect rc, const Color color) const;
 
-	void DrawCurrentPlayer() const;
-	void DrawSkipButton() const;
-	void DrawResetButton() const;
+	void DrawTextBox(TextBox &text_box);
 
-	void DrawTextBoxes();
+	void DrawTextBoxesMenu();
+	void DrawTextBoxesGame();
 	void DrawBackground() const;
 	void DrawForeground();
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI *&game_interface);
 	void RunMessageLoop();
-	void Initialize();
-	void FreePointers();
+
+	void CreateGame();
+	void DestroyGame();
+
+	void CreateMenu();
+	void DestroyMenu();
 
 public:
 	GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);
@@ -100,16 +124,17 @@ struct GUI::PointGUI
 
 struct GUI::TextBox
 {
-	union
-	{
-		struct { INT x, y, width, height; };
-		struct { Rect rect; };
-	};
-	bool updated;
+	std::basic_string<TCHAR> text;
+	Font *font;
+	Brush *color;
+	PointGUI center;
+	bool updated, visible;
+	Rect rect;
 
-	TextBox() : rect(Rect()), updated(true) {};
-	TextBox(PointGUI top_left, PointGUI dimensions)
-		: rect(Rect(top_left.x, top_left.y, dimensions.x, dimensions.y)), updated(true) {};
+	//TextBox() : updated(true), visible(true) {};
+	TextBox(const std::basic_string<TCHAR> TEXT, Font *FONT, Brush *COLOR)
+		: text(TEXT), font(FONT), color(COLOR), updated(true), visible(true) {};
+	~TextBox();
 };
 
 #include "Bonol.h"
