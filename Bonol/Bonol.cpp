@@ -343,7 +343,8 @@ short GUI::Bonol::SearchOnRows()
 				CountConsecutives++;
 		}
 		
-		if (CountConsecutives == 3)
+		if (CountConsecutives == 3 && update_board_->at(PosCell(1,row)) != Piece::UNUSED
+			&& update_board_->at(PosCell(2,row)) != Piece::UNUSED)
 			return row;
 	}
 
@@ -365,7 +366,8 @@ short GUI::Bonol::SearchOnColumns()
 				CountConsecutives++;
 		}
 
-		if (CountConsecutives == 3)
+		if (CountConsecutives == 3 && update_board_->at(PosCell(row,1)) != Piece::UNUSED 
+			&& update_board_->at(PosCell(row,2)) != Piece::UNUSED)
 			return row;
 	}
 
