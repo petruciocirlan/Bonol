@@ -57,49 +57,49 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	{
 	case Piece::FREE:
 	{	/// TODO(@petru): inflate 1 pixel?
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::White);
 		break;
 	}
 	case Piece::RED:
 	{
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::PaleVioletRed);
 		break;
 	}
 	case Piece::BLUE:
 	{
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::DodgerBlue);
 		break;
 	}
 	case Piece::BLOCKED:
 	{
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::DarkGray);
 		break;
 	}
 	case Piece::RED_SELECTED:
 	{
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::Firebrick);
 		break;
 	}
 	case Piece::BLUE_SELECTED:
 	{
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::RoyalBlue);
 		break;
 	}
 	case Piece::BLOCKED_SELECTED:
 	{
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::Yellow);
 		break;
 	}
 	case Piece::BLOCKED_HIGHLIGHTED:
 	{
-		gui.DrawRect(rc, Color::Black, 1.0f);
+		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::LightSlateGray);
 		break;
 	}

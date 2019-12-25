@@ -1,4 +1,4 @@
-/*
+﻿/*
     File: GUI.cpp
     Written by:
         Petru Ciocirlan		(petru.ciocirlan@info.uaic.ro)
@@ -7,7 +7,7 @@
     Faculty of Computer Science, UAIC, WINTER 2019
 
     ABOUT THIS FILE:
-    Implementation of the GUI of the Bonol (L game).
+    Logistics, running of the window.
 */
 
 #include "GUI.h"
@@ -15,6 +15,16 @@
 Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
 {
     return Rect(origin.x, origin.y, dimensions.x, dimensions.y);
+}
+
+Rect GUI::InflateRect(Rect rect, INT padding) const
+{
+    return Rect(
+        rect.X - padding,
+        rect.Y - padding,
+        rect.Width + padding,
+        rect.Height + padding
+    );
 }
 
 GUI::PointGUI GUI::GetTableCenter() const
@@ -32,24 +42,82 @@ BOOL GUI::IsInsideTable(const PointGUI pos) const
     return table_.Contains(pos.x, pos.y);
 }
 
-/// BELOW: Window setup and message loop
-
-void GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
+void GUI::CalculateTextBoxPosition(TextBox& box)
 {
-    CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-    game_interface = reinterpret_cast<GUI*>(pCreate->lpCreateParams);
-    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
+    RectF bounds;
+    graphics_->MeasureString(box.text.data(), -1, box.font, PointF(0, 0), &bounds);
+    PointGUI text_box_dimensions((INT)bounds.Width, (INT)bounds.Height);
+    PointGUI text_box_origin(box.center.x - (INT)bounds.Width / 2, box.center.y - (INT)bounds.Height / 2);
+    box.rect = MakeRect(text_box_origin, text_box_dimensions);
 }
 
-void GUI::RunMessageLoop()
+void GUI::CalculateLayout()
 {
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
+    RECT window;
+    GetClientRect(hwnd_, &window);
+    window_ = Rect(
+        window.left,
+        window.top,
+        window.right - window.left,
+        window.bottom - window.top
+    );
+    switch (current_screen_)
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+    case Screen::MENU: CalculateLayoutMenu(); break;
+    case Screen::GAME: CalculateLayoutGame(); break;
     }
 }
+
+void GUI::CalculateLayoutMenu()
+{
+    title_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 200);
+    play_button_->center = PointGUI(window_.Width / 2, window_.Height / 2);
+}
+
+void GUI::CalculateLayoutGame()
+{
+    INT table_size = 400;
+    table_ = Rect(
+        (window_.Width - table_size) / 2,
+        (window_.Height - table_size) / 2,
+        table_size,
+        table_size
+    );
+    cell_size_ = table_.Width / Bonol::kBoardSize;
+
+    current_player_->center = PointGUI(window_.Width / 2, table_.Y - 60);
+    skip_button_->center = PointGUI(window_.Width / 2, table_.Y + table_.Height + 20);
+    reset_button_->center = PointGUI(window_.Width / 2 - 40, table_.Y - 20);
+    menu_button_->center = PointGUI(window_.Width / 2 + 40, table_.Y - 20);
+
+    //InvalidateTextBoxes();
+    game_state_->InvalidateTable();
+}
+
+void GUI::InvalidateTextBoxes()
+{
+    switch (current_screen_)
+    {
+    case Screen::MENU:
+    {
+        title_->updated = true;
+        play_button_->updated = true;
+
+        break;
+    }
+    case Screen::GAME:
+    {
+        current_player_->updated = true;
+        skip_button_->updated = true;
+        reset_button_->updated = true;
+        menu_button_->updated = true;
+
+        break;
+    }
+    }
+}
+
+/// BELOW: Window setup and message loop
 
 void GUI::CreateGame()
 {
@@ -97,7 +165,6 @@ void GUI::DestroyGame()
 
 void GUI::CreateMenu()
 {
-    /// TODO(@petru): init menu
     title_ = new TextBox(
         TEXT("BONOL GAME"),
         new Font(TEXT("Arial"), 32),
@@ -114,8 +181,24 @@ void GUI::CreateMenu()
 
 void GUI::DestroyMenu()
 {
-    /// TODO(@petru): free all allocated memory of menu
     delete title_, play_button_;
+}
+
+void GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
+{
+    CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+    game_interface = reinterpret_cast<GUI*>(pCreate->lpCreateParams);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game_interface);
+}
+
+void GUI::RunMessageLoop()
+{
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 }
 
 GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)

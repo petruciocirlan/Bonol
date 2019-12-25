@@ -7,8 +7,8 @@
     Faculty of Computer Science, UAIC, WINTER 2019
 
     ABOUT THIS FILE:
-    Draw the Bonol game state to screen.
-    (using GDI+ Win32 API)
+    Screen drawing.
+    (graphics library: GDI+ Win32 API)
 */
 
 #include "GUI.h"
@@ -112,82 +112,6 @@ void GUI::DrawForeground()
         game_state_->DrawTable();
         DrawTextBoxesGame();
 
-        break;
-    }
-    }
-}
-
-void GUI::CalculateTextBoxPosition(TextBox& box)
-{
-    RectF bounds;
-    graphics_->MeasureString(box.text.data(), -1, box.font, PointF(0, 0), &bounds);
-    PointGUI text_box_dimensions((INT)bounds.Width, (INT)bounds.Height);
-    PointGUI text_box_origin(box.center.x - (INT)bounds.Width / 2, box.center.y - (INT)bounds.Height / 2);
-    box.rect = MakeRect(text_box_origin, text_box_dimensions);
-}
-
-void GUI::CalculateLayout()
-{
-    RECT window;
-    GetClientRect(hwnd_, &window);
-    window_ = Rect(
-        window.left,
-        window.top,
-        window.right - window.left,
-        window.bottom - window.top
-    );
-    switch (current_screen_)
-    {
-    case Screen::MENU: CalculateLayoutMenu(); break;
-    case Screen::GAME: CalculateLayoutGame(); break;
-    }
-}
-
-void GUI::CalculateLayoutMenu()
-{
-    /// TODO(@petru): calculate menu layout
-    title_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 200);
-    play_button_->center = PointGUI(window_.Width / 2, window_.Height / 2);
-}
-
-void GUI::CalculateLayoutGame()
-{
-    INT table_size = 400;
-    table_ = Rect(
-        (window_.Width - table_size) / 2,
-        (window_.Height - table_size) / 2,
-        table_size,
-        table_size
-    );
-    cell_size_  = table_.Width / Bonol::kBoardSize;
-
-    current_player_->center = PointGUI(window_.Width / 2, table_.Y - 60);
-    skip_button_->center = PointGUI(window_.Width / 2, table_.Y + table_.Height + 20);
-    reset_button_->center = PointGUI(window_.Width / 2 - 40, table_.Y - 20);
-    menu_button_->center = PointGUI(window_.Width / 2 + 40, table_.Y - 20);
-
-    //InvalidateTextBoxes();
-    game_state_->InvalidateTable();
-}
-
-void GUI::InvalidateTextBoxes()
-{
-    switch (current_screen_)
-    {
-    case Screen::MENU:
-    {
-        title_->updated = true;
-        play_button_->updated = true;
-
-        break;
-    }
-    case Screen::GAME:
-    {
-        current_player_->updated = true;
-        skip_button_->updated = true;
-        reset_button_->updated = true;
-        menu_button_->updated = true;
-        
         break;
     }
     }

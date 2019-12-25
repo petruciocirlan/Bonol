@@ -39,8 +39,8 @@ public:
 	using Dimensions = PointGUI;
 
 private:
-	const Color kBackgroundColor = Color::Purple;
-	const Color kTextColor = Color::White;
+	const Color kBackgroundColor = Color::White;
+	const Color kTextColor = Color::Black;
 
 	enum class Screen
 	{
@@ -63,11 +63,8 @@ private:
 	Bonol *game_state_;
 	HWND hwnd_;
 
-	void CalculateTextBoxPosition(TextBox &box);
-	void CalculateLayout();
-	void CalculateLayoutMenu();
-	void CalculateLayoutGame();
-	void InvalidateTextBoxes();
+	/// events
+	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void OnMouseMove(const PointGUI mouse_pos);
 	void OnMouseMoveMenu(const PointGUI mouse_pos);
@@ -84,31 +81,38 @@ private:
 	void OnPaint();
 	void Resize();
 
-	Rect MakeRect(PointGUI origin, PointGUI dimensions) const;
-	PointGUI GetTableCenter() const;
-	PointGUI GetTableOrigin() const;
-	BOOL IsInsideTable(const PointGUI pos) const;
-
+	/// drawing
 	void DrawLine(const PointGUI from, const PointGUI to) const;
 	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
 	void FillRect(const Rect rc, const Color color) const;
 
 	void DrawTextBox(TextBox &text_box);
-
 	void DrawTextBoxesMenu();
 	void DrawTextBoxesGame();
 	void DrawBackground() const;
 	void DrawForeground();
 
-	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI *&game_interface);
-	void RunMessageLoop();
+	/// logic
+	Rect MakeRect(PointGUI origin, PointGUI dimensions) const;
+	Rect InflateRect(Rect rect, INT padding) const;
+	PointGUI GetTableCenter() const;
+	PointGUI GetTableOrigin() const;
+	BOOL IsInsideTable(const PointGUI pos) const;
+
+	void CalculateTextBoxPosition(TextBox& box);
+	void CalculateLayout();
+	void CalculateLayoutMenu();
+	void CalculateLayoutGame();
+	void InvalidateTextBoxes();
 
 	void CreateGame();
 	void DestroyGame();
 
 	void CreateMenu();
 	void DestroyMenu();
+
+	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI *&game_interface);
+	void RunMessageLoop();
 
 public:
 	GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);

@@ -7,7 +7,7 @@
     Faculty of Computer Science, UAIC, WINTER 2019
 
     ABOUT THIS FILE:
-    React to the window-client events.
+    Event listeners.
 */
 
 #include "GUI.h"
@@ -84,7 +84,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
             InvalidateRect(hwnd_, 0, TRUE);
         }
         else if (turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_HIGHLIGHTED)
-        {   /// TODO(@petru): check for BLOCKED_HIGHLIGHTED instead
+        {
             game_state_->InitiateUpdate();
             game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED_SELECTED);
             is_moving_block_ = true;
