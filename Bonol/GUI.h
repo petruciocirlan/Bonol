@@ -49,9 +49,21 @@ private:
 	Screen current_screen_;
 
 	Rect table_, window_;
-	TextBox *current_player_, *skip_button_, *reset_button_;
-	TextBox *title_, *play_button_;
-	TextBox *menu_button_;
+
+	static const INT kTextBoxesGameCount = 4;
+	union
+	{
+		struct { TextBox *text_boxes_game_[kTextBoxesGameCount]; };
+		struct { TextBox *current_player_, *skip_button_, *reset_button_, *menu_button_; };
+	};
+
+	static const INT kTextBoxesMenuCount = 2;
+	union
+	{
+		struct { TextBox *text_boxes_menu_[kTextBoxesMenuCount]; };
+		struct { TextBox *title_, *play_button_; };
+	};
+
 	INT cell_size_;
 	//PosGUI* mouse_;
 
@@ -94,7 +106,7 @@ private:
 
 	/// logic
 	Rect MakeRect(PointGUI origin, PointGUI dimensions) const;
-	Rect InflateRect(Rect rect, INT padding) const;
+	Rect InflateRect(const Rect rect, INT padding) const;
 	PointGUI GetTableCenter() const;
 	PointGUI GetTableOrigin() const;
 	BOOL IsInsideTable(const PointGUI pos) const;

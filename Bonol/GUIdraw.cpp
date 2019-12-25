@@ -33,12 +33,7 @@ void GUI::FillRect(const Rect rc, const Color color) const
 void GUI::DrawTextBox(TextBox &box)
 {
     CalculateTextBoxPosition(box);
-
-    Rect box_padded_LR(box.rect);
-    INT padding = 5;
-    box_padded_LR.X -= padding;
-    box_padded_LR.Width += 2 * padding;
-    FillRect(box_padded_LR, kBackgroundColor);
+    FillRect(InflateRect(box.rect, 5), kBackgroundColor);
 
     if (box.visible)
     {
@@ -49,40 +44,22 @@ void GUI::DrawTextBox(TextBox &box)
 
 void GUI::DrawTextBoxesMenu()
 {
-    if (title_->updated)
-    {
-        DrawTextBox(*title_);
-        title_->updated = false;
-    }
-    if (play_button_->updated)
-    {
-        DrawTextBox(*play_button_);
-        play_button_->updated = false;
-    }
+    for (INT counter = 0; counter < kTextBoxesMenuCount; ++counter)
+        if (text_boxes_menu_[counter]->updated)
+        {
+            DrawTextBox(*text_boxes_menu_[counter]);
+            text_boxes_menu_[counter]->updated = false;
+        }
 }
 
 void GUI::DrawTextBoxesGame()
 {
-    if (current_player_->updated)
-    {
-        DrawTextBox(*current_player_);
-        current_player_->updated = false;
-    }
-    if (skip_button_->updated)
-    {
-        DrawTextBox(*skip_button_);
-        skip_button_->updated = false;
-    }
-    if (reset_button_->updated)
-    {
-        DrawTextBox(*reset_button_);
-        reset_button_->updated = false;
-    }
-    if (menu_button_->updated)
-    {
-        DrawTextBox(*menu_button_);
-        menu_button_->updated = false;
-    }
+    for (INT counter = 0; counter < kTextBoxesGameCount; ++counter)
+        if (text_boxes_game_[counter]->updated)
+        {
+            DrawTextBox(*text_boxes_game_[counter]);
+            text_boxes_game_[counter]->updated = false;
+        }
 }
 
 void GUI::DrawBackground() const

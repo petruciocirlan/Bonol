@@ -56,7 +56,7 @@ void GUI::Bonol::DrawCell(const PosCell cell) const
 	switch (cell_piece)
 	{
 	case Piece::FREE:
-	{	/// TODO(@petru): inflate 1 pixel?
+	{
 		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
 		gui.FillRect(rc, Color::White);
 		break;

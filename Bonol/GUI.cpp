@@ -17,13 +17,14 @@ Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
     return Rect(origin.x, origin.y, dimensions.x, dimensions.y);
 }
 
-Rect GUI::InflateRect(Rect rect, INT padding) const
+Rect GUI::InflateRect(const Rect rect, INT padding) const
 {
+    /// TODO(@petru): make sure this is fine
     return Rect(
         rect.X - padding,
         rect.Y - padding,
-        rect.Width + padding,
-        rect.Height + padding
+        rect.Width + 2 * padding - 1,
+        rect.Height + 2 * padding - 1
     );
 }
 
@@ -100,18 +101,14 @@ void GUI::InvalidateTextBoxes()
     {
     case Screen::MENU:
     {
-        title_->updated = true;
-        play_button_->updated = true;
-
+        for (INT counter = 0; counter < kTextBoxesMenuCount; ++counter)
+            text_boxes_menu_[counter]->updated = true;
         break;
     }
     case Screen::GAME:
     {
-        current_player_->updated = true;
-        skip_button_->updated = true;
-        reset_button_->updated = true;
-        menu_button_->updated = true;
-
+        for (INT counter = 0; counter < kTextBoxesGameCount; ++counter)
+            text_boxes_game_[counter]->updated = true;
         break;
     }
     }
@@ -134,7 +131,7 @@ void GUI::CreateGame()
         new SolidBrush(kTextColor)
     );
     reset_button_ = new TextBox(
-        TEXT("RESET?"),
+        TEXT("RESET"),
         new Font(TEXT("Arial"), 10),
         new SolidBrush(kTextColor)
     );
@@ -160,7 +157,7 @@ void GUI::CreateGame()
 void GUI::DestroyGame()
 {
     delete game_state_;
-    delete current_player_, skip_button_, reset_button_;
+    delete current_player_, skip_button_, reset_button_, menu_button_;
 }
 
 void GUI::CreateMenu()
