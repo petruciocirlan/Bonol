@@ -195,6 +195,8 @@ bool GUI::Bonol::ValidateL()
 	std::cout << "\n";
 	bool GoodForm = false;
 
+	CountMoves(3,3	);
+
 	//From there until the end of the of the big if we are checking if the L is valid
 
 	if (SearchOnRows() != -1)
@@ -367,8 +369,17 @@ short unsigned GUI::Bonol::CountMoves(short unsigned row, short unsigned column)
 	// and thene remember to make another if to check if the line can be an L
 	// Also remember to make a function that has 3 parameters, column, upper bound, lower bound and returns how
 	// many posible L's we can do w that line
-
 	
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+	
+	/*PosCell pos = PosCell(column, row);
+
+	if (IsActivePlayerPiece(PosCell)) 
+	{
+		std::cout << "It's player piece";
+	}
+	*/
 
 	return 0;
 }
