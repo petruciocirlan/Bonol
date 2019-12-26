@@ -403,6 +403,20 @@ bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSea
 	return false;
 }
 
+short GUI::Bonol::CountMoves()
+{
+	// Good ideea from second day of Christmas
+	// 2 for and go over all positions
+	// check first if the position is an empty space
+	// add some aditional if to check if you can go 2 more squares lower, upper , etc 
+	// and thene remember to make another if to check if the line can be an L
+	// Also remember to make a function that has 3 parameters, column, upper bound, lower bound and returns how
+	// many posible L's we can do w that line
+
+	return 0;
+}
+
+
 GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
 {
 	return active_player_piece_;

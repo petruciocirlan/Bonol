@@ -71,6 +71,7 @@ public:
 	bool IsFreeForActivePlayer(const PosCell pos) const;
 	short SearchOnRows();
 	short SearchOnColumns();
+	short CountMoves();
 	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
 
 	Piece GetCellPiece(const PosCell pos) const;
