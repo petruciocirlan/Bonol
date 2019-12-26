@@ -52,39 +52,43 @@ private:
 	bool is_over_;
 	Piece active_player_piece_;
 
-	bool IsValidPosition(const PosCell pos) const;
-	static bool IsPlayerPiece(const Piece piece);
-	bool IsActivePlayerPiece(const PosCell pos) const;
-
-	void DrawCell(const PosCell pos) const;
-
 public:
 	Bonol(const GUI& gui);
 
+	/// checks
 	bool Over() const;
-	void ChangePlayer();
-	bool ValidateMove();
-	void DrawTable();
-	bool ValidateL();
+	bool IsValidPosition(const PosCell pos) const;
+	bool IsPlayerPiece(const Piece piece) const;
+	bool IsActivePlayerPiece(const PosCell pos) const;
+	bool IsFreeForActivePlayer(const PosCell cell) const;
+
+	/// data access
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
-	bool IsFreeForActivePlayer(const PosCell pos) const;
+	Piece GetCellPiece(const PosCell cell) const;
+	Piece GetUpdateCellPiece(const PosCell cell) const;
+	PosCell GetCellFromGUI(const PointGUI pos) const;
+	PointGUI GetGUIFromCell(const PosCell cell) const;
+
+	/// validate turn
+	bool ValidateMove();
+	bool ValidateL();
 	short SearchOnRows();
 	short SearchOnColumns();
-	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
+	bool CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSearch[4]);
 
-	Piece GetCellPiece(const PosCell pos) const;
-	PosCell GetCellFromGUI(const PointGUI pos) const;
-
+	/// update state for GUI interaction
 	void InvalidateTable();
-	void InvalidateCell(const PosCell pos);
+	void InvalidateCell(const PosCell cell);
 	void InitiateUpdate();
-	void UpdateCell(const PosCell pos, const Piece piece);
+	void UpdateCell(const PosCell cell, const Piece piece);
 
 	void HighlightBlockedPieces();
 	void DeHighlightBlockedPieces();
 
-	void SetCellPiece(const PosCell pos, const Piece piece);
+	void DrawTable();
+	void SetCellPiece(const PosCell cell, const Piece piece);
+	void ChangePlayer();
 };
 
 struct GUI::Bonol::PosCell

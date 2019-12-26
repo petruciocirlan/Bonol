@@ -30,6 +30,70 @@ void GUI::FillRect(const Rect rc, const Color color) const
     graphics_->FillRectangle(&brush, rc);
 }
 
+void GUI::DrawCell(const PointGUI pos) const
+{
+	const INT cool_padding = 5;
+	Rect rc(
+		pos.x + cool_padding,
+		pos.y + cool_padding,
+		cell_size_ - 2 * cool_padding,
+		cell_size_ - 2 * cool_padding);
+	
+	Bonol::Piece cell_piece = game_state_->GetUpdateCellPiece(game_state_->GetCellFromGUI(pos));
+
+	switch (cell_piece)
+	{
+	case Bonol::Piece::FREE:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::White);
+		break;
+	}
+	case Bonol::Piece::RED:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::PaleVioletRed);
+		break;
+	}
+	case Bonol::Piece::BLUE:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::DodgerBlue);
+		break;
+	}
+	case Bonol::Piece::BLOCKED:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::DarkGray);
+		break;
+	}
+	case Bonol::Piece::RED_SELECTED:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::Firebrick);
+		break;
+	}
+	case Bonol::Piece::BLUE_SELECTED:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::RoyalBlue);
+		break;
+	}
+	case Bonol::Piece::BLOCKED_SELECTED:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::Yellow);
+		break;
+	}
+	case Bonol::Piece::BLOCKED_HIGHLIGHTED:
+	{
+		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
+		FillRect(rc, Color::LightSlateGray);
+		break;
+	}
+	}
+}
+
 void GUI::DrawTextBox(TextBox &box)
 {
     CalculateTextBoxPosition(box);

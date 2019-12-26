@@ -49,6 +49,8 @@ private:
 	Screen current_screen_;
 
 	Rect table_, window_;
+	INT cell_size_;
+	//PosGUI* mouse_;
 
 	static const INT kTextBoxesGameCount = 4;
 	union
@@ -64,9 +66,7 @@ private:
 		struct { TextBox *title_, *play_button_; };
 	};
 
-	INT cell_size_;
-	//PosGUI* mouse_;
-
+	/// TODO(@petru): merge turn_move_* flags
 	bool turn_move_piece_, turn_move_block_;
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
 	bool repaint_background_;
@@ -98,6 +98,7 @@ private:
 	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
 	void FillRect(const Rect rc, const Color color) const;
 
+	void DrawCell(const PointGUI pos) const;
 	void DrawTextBox(TextBox &text_box);
 	void DrawTextBoxesMenu();
 	void DrawTextBoxesGame();

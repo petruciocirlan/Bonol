@@ -12,100 +12,6 @@
 
 #include "Bonol.h"
 
-bool GUI::Bonol::IsValidPosition(const PosCell pos) const
-{
-	return ((0 <= pos.x && pos.x <= kBoardSize) &&
-	        (0 <= pos.y && pos.y <= kBoardSize));
-}
-
-bool GUI::Bonol::IsPlayerPiece(const Piece piece)
-{
-	return (piece == Piece::RED || piece == Piece::RED_SELECTED ||
-		    piece == Piece::BLUE || piece == Piece::BLUE_SELECTED);
-}
-
-bool GUI::Bonol::IsActivePlayerPiece(const PosCell pos) const
-{
-	return GetCellPiece(pos) == GetActivePlayer();
-}
-
-void GUI::Bonol::DrawCell(const PosCell cell) const
-{
-	const GUI& gui = interface_;
-	PointGUI origin = gui.GetTableOrigin();
-	PointGUI pos = PointGUI(origin.x + cell.x * gui.cell_size_,
-	                        origin.y + cell.y * gui.cell_size_);
-	Piece cell_piece;
-	const INT cool_padding = 5;
-	Rect rc(
-		pos.x + cool_padding,
-		pos.y + cool_padding,
-		gui.cell_size_ - 2 * cool_padding,
-		gui.cell_size_ - 2 * cool_padding);
-
-	Board& new_board = *update_board_;
-	if (new_board.at(cell) != Piece::UNUSED)
-	{
-		cell_piece = new_board.at(cell);
-	}
-	else
-	{
-		cell_piece = GetCellPiece(cell);
-	}
-
-	switch (cell_piece)
-	{
-	case Piece::FREE:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::White);
-		break;
-	}
-	case Piece::RED:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::PaleVioletRed);
-		break;
-	}
-	case Piece::BLUE:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::DodgerBlue);
-		break;
-	}
-	case Piece::BLOCKED:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::DarkGray);
-		break;
-	}
-	case Piece::RED_SELECTED:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::Firebrick);
-		break;
-	}
-	case Piece::BLUE_SELECTED:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::RoyalBlue);
-		break;
-	}
-	case Piece::BLOCKED_SELECTED:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::Yellow);
-		break;
-	}
-	case Piece::BLOCKED_HIGHLIGHTED:
-	{
-		gui.DrawRect(gui.InflateRect(rc, 1), Color::Black, 1.0f);
-		gui.FillRect(rc, Color::LightSlateGray);
-		break;
-	}
-	}
-}
-
 GUI::Bonol::Bonol(const GUI& gui)
 	: old_board_(new Board(kStartingSetup)), update_board_(new Board()), interface_(gui)
 {
@@ -114,40 +20,89 @@ GUI::Bonol::Bonol(const GUI& gui)
 	is_over_ = false;
 }
 
+/// checks
+
 bool GUI::Bonol::Over() const
 {
 	return is_over_;
 }
 
-void GUI::Bonol::ChangePlayer()
+bool GUI::Bonol::IsValidPosition(const PosCell pos) const
 {
-	if (active_player_piece_ == Piece::RED)
+	return ((0 <= pos.x && pos.x <= kBoardSize) &&
+		(0 <= pos.y && pos.y <= kBoardSize));
+}
+
+bool GUI::Bonol::IsPlayerPiece(const Piece piece) const
+{
+	return (piece == Piece::RED || piece == Piece::RED_SELECTED ||
+            piece == Piece::BLUE || piece == Piece::BLUE_SELECTED);
+}
+
+bool GUI::Bonol::IsActivePlayerPiece(const PosCell pos) const
+{
+	return GetCellPiece(pos) == GetActivePlayer();
+}
+
+bool GUI::Bonol::IsFreeForActivePlayer(const PosCell cell) const
+{
+	return (GetCellPiece(cell) == Piece::FREE || IsActivePlayerPiece(cell));
+}
+
+/// data access
+
+GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
+{
+	return active_player_piece_;
+}
+
+GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
+{
+	if (GetActivePlayer() == Piece::RED)
 	{
-		active_player_piece_ = Piece::BLUE;
-		interface_.current_player_->text = TEXT("Your turn, BLUE!");
+		return Piece::RED_SELECTED;
+	}
+	else /*(GetActivePlayer() == Player::BLUE)*/
+	{
+		return Piece::BLUE_SELECTED;
+	}
+}
+
+GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell cell) const
+{
+	return old_board_->at(cell);
+}
+
+GUI::Bonol::Piece GUI::Bonol::GetUpdateCellPiece(const PosCell cell) const
+{
+	if (update_board_->at(cell) != Piece::UNUSED)
+	{
+		return update_board_->at(cell);
 	}
 	else
 	{
-		active_player_piece_ = Piece::RED;
-		interface_.current_player_->text = TEXT("Your turn, RED!");
+		return GetCellPiece(cell);
 	}
-	interface_.current_player_->updated = true;
-	std::cout << "Changed player\n";
+	return Piece();
 }
 
-void GUI::Bonol::DrawTable()
+GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
 {
-	Board& old_state = *old_board_;
-	Board& update = *update_board_;
-
-	for (CoordCell line = 0; line < kBoardSize; ++line)
-		for (CoordCell column = 0; column < kBoardSize; ++column)
-			if (has_cell_updated_[line][column])
-			{
-				DrawCell(PosCell(line, column));
-				has_cell_updated_[line][column] = false;
-			}
+	PointGUI table_origin = interface_.GetTableOrigin();
+	PointGUI pos_mapped_to_table_origin = PointGUI(pos.x - table_origin.x, pos.y - table_origin.y);
+	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_size_,
+		pos_mapped_to_table_origin.y / interface_.cell_size_);
 }
+
+GUI::PointGUI GUI::Bonol::GetGUIFromCell(const PosCell cell) const
+{
+	PointGUI origin = interface_.GetTableOrigin();
+	PointGUI pos = PointGUI(origin.x + cell.x * interface_.cell_size_,
+		origin.y + cell.y * interface_.cell_size_);
+	return pos;
+}
+
+/// validate turn
 
 bool GUI::Bonol::ValidateMove()
 {
@@ -403,49 +358,16 @@ bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSea
 	return false;
 }
 
-GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
-{
-	return active_player_piece_;
-}
-
-GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
-{
-	if (GetActivePlayer() == Piece::RED)
-	{
-		return Piece::RED_SELECTED;
-	}
-	else /*(GetActivePlayer() == Player::BLUE)*/
-	{
-		return Piece::BLUE_SELECTED;
-	}
-}
-
-bool GUI::Bonol::IsFreeForActivePlayer(const PosCell pos) const
-{
-	return (GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos));
-}
-
-GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell pos) const
-{
-	return old_board_->at(pos);
-}
-
-GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
-{
-	PointGUI table_origin = interface_.GetTableOrigin();
-	PointGUI pos_mapped_to_table_origin = PointGUI(pos.x - table_origin.x, pos.y - table_origin.y);
-	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_size_,
-	               pos_mapped_to_table_origin.y / interface_.cell_size_);
-}
+/// update state for GUI interaction
 
 void GUI::Bonol::InvalidateTable()
 {
 	memset(has_cell_updated_, true, sizeof(has_cell_updated_));
 }
 
-void GUI::Bonol::InvalidateCell(const PosCell pos)
+void GUI::Bonol::InvalidateCell(const PosCell cell)
 {
-	has_cell_updated_[pos.x][pos.y] = true;
+	has_cell_updated_[cell.x][cell.y] = true;
 }
 
 void GUI::Bonol::InitiateUpdate()
@@ -453,10 +375,10 @@ void GUI::Bonol::InitiateUpdate()
 	update_board_->Clear();
 }
 
-void GUI::Bonol::UpdateCell(const PosCell pos, const Piece piece)
+void GUI::Bonol::UpdateCell(const PosCell cell, const Piece piece)
 {
-	update_board_->at(pos) = piece;
-	InvalidateCell(pos);
+	update_board_->at(cell) = piece;
+	InvalidateCell(cell);
 }
 
 void GUI::Bonol::HighlightBlockedPieces()
@@ -489,11 +411,43 @@ void GUI::Bonol::DeHighlightBlockedPieces()
 		}
 }
 
-void GUI::Bonol::SetCellPiece(const PosCell pos, const Piece piece)
+void GUI::Bonol::DrawTable()
 {
-	old_board_->at(pos) = piece;
-	InvalidateCell(pos);
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+
+	for (CoordCell line = 0; line < kBoardSize; ++line)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+			if (has_cell_updated_[line][column])
+			{
+				interface_.DrawCell(GetGUIFromCell(PosCell(line, column)));
+				has_cell_updated_[line][column] = false;
+			}
 }
+
+void GUI::Bonol::SetCellPiece(const PosCell cell, const Piece piece)
+{
+	old_board_->at(cell) = piece;
+	InvalidateCell(cell);
+}
+
+void GUI::Bonol::ChangePlayer()
+{
+	if (active_player_piece_ == Piece::RED)
+	{
+		active_player_piece_ = Piece::BLUE;
+		interface_.current_player_->text = TEXT("Your turn, BLUE!");
+	}
+	else
+	{
+		active_player_piece_ = Piece::RED;
+		interface_.current_player_->text = TEXT("Your turn, RED!");
+	}
+	interface_.current_player_->updated = true;
+	std::cout << "Changed player\n";
+}
+
+/// Board struct
 
 GUI::Bonol::Board::Board()
 {
