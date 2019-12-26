@@ -358,7 +358,7 @@ bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSea
 	return false;
 }
 
-short GUI::Bonol::CountMoves()
+short unsigned GUI::Bonol::CountMoves(short unsigned row, short unsigned column)
 {
 	// Good ideea from second day of Christmas
 	// 2 for and go over all positions
@@ -367,6 +367,8 @@ short GUI::Bonol::CountMoves()
 	// and thene remember to make another if to check if the line can be an L
 	// Also remember to make a function that has 3 parameters, column, upper bound, lower bound and returns how
 	// many posible L's we can do w that line
+
+	
 
 	return 0;
 }

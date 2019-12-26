@@ -75,8 +75,8 @@ public:
 	bool ValidateL();
 	short SearchOnRows();
 	short SearchOnColumns();
+	short unsigned CountMoves(short unsigned row, short unsigned column);
 	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
-	short CountMoves();
 
 	/// update state for GUI interaction
 	void InvalidateTable();
