@@ -23,7 +23,7 @@ void GUI::OnMouseMove(const PointGUI mouse_pos)
 
 void GUI::OnMouseMoveMenu(const PointGUI mouse_pos)
 {
-    /// TODO(@petru): Menu - mouse move
+    /// TODO(@petru): menu - mouse move
 }
 
 void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
@@ -129,7 +129,6 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
 
         turn_move_piece_ = true;
         turn_move_block_ = false;
-        is_moving_block_ = false;
         game_state_->ChangePlayer();
         game_state_->DeHighlightBlockedPieces();
 
@@ -137,6 +136,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
         {
             game_state_->SetCellPiece(selected_blocked_piece, Bonol::Piece::BLOCKED);
             selected_blocked_piece = Bonol::PosCell(-1, -1);
+            is_moving_block_ = false;
         }
 
         InvalidateRect(hwnd_, 0, TRUE);
@@ -172,7 +172,7 @@ void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
 
 void GUI::OnLeftClickReleaseMenu(const PointGUI mouse_pos)
 {
-    /// TODO(@petru): Menu - left click release
+    /// TODO(@petru): menu - left click release
 }
 
 void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)

@@ -19,7 +19,7 @@ Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
 
 Rect GUI::InflateRect(const Rect rect, INT padding) const
 {
-    /// TODO(@petru): make sure this is fine
+    /// TODO(@petru): test this
     return Rect(
         rect.X - padding,
         rect.Y - padding,

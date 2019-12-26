@@ -152,6 +152,7 @@ struct GUI::TextBox
 	TextBox(const std::basic_string<TCHAR> TEXT, Font *FONT, Brush *COLOR)
 		: text(TEXT), font(FONT), color(COLOR), updated(true), visible(true) {};
 	~TextBox();
+	/// TODO(@petru): suggestion - attach click events to struct
 };
 
 #include "Bonol.h"
