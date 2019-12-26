@@ -75,7 +75,11 @@ public:
 	bool ValidateL();
 	short SearchOnRows();
 	short SearchOnColumns();
-	bool CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSearch[4]);
+	short CountMoves();
+	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
+
+	Piece GetCellPiece(const PosCell pos) const;
+	PosCell GetCellFromGUI(const PointGUI pos) const;
 
 	/// update state for GUI interaction
 	void InvalidateTable();

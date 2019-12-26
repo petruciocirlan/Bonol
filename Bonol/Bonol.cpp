@@ -358,7 +358,54 @@ bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSea
 	return false;
 }
 
-/// update state for GUI interaction
+short GUI::Bonol::CountMoves()
+{
+	// Good ideea from second day of Christmas
+	// 2 for and go over all positions
+	// check first if the position is an empty space
+	// add some aditional if to check if you can go 2 more squares lower, upper , etc 
+	// and thene remember to make another if to check if the line can be an L
+	// Also remember to make a function that has 3 parameters, column, upper bound, lower bound and returns how
+	// many posible L's we can do w that line
+
+	return 0;
+}
+
+
+GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
+{
+	return active_player_piece_;
+}
+
+GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
+{
+	if (GetActivePlayer() == Piece::RED)
+	{
+		return Piece::RED_SELECTED;
+	}
+	else /*(GetActivePlayer() == Player::BLUE)*/
+	{
+		return Piece::BLUE_SELECTED;
+	}
+}
+
+bool GUI::Bonol::IsFreeForActivePlayer(const PosCell pos) const
+{
+	return (GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos));
+}
+
+GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell pos) const
+{
+	return old_board_->at(pos);
+}
+
+GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
+{
+	PointGUI table_origin = interface_.GetTableOrigin();
+	PointGUI pos_mapped_to_table_origin = PointGUI(pos.x - table_origin.x, pos.y - table_origin.y);
+	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_size_,
+	               pos_mapped_to_table_origin.y / interface_.cell_size_);
+}
 
 void GUI::Bonol::InvalidateTable()
 {
