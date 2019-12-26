@@ -30,13 +30,13 @@ bool GUI::Bonol::Over() const
 bool GUI::Bonol::IsValidPosition(const PosCell pos) const
 {
 	return ((0 <= pos.x && pos.x <= kBoardSize) &&
-		(0 <= pos.y && pos.y <= kBoardSize));
+	        (0 <= pos.y && pos.y <= kBoardSize));
 }
 
 bool GUI::Bonol::IsPlayerPiece(const Piece piece) const
 {
 	return (piece == Piece::RED || piece == Piece::RED_SELECTED ||
-            piece == Piece::BLUE || piece == Piece::BLUE_SELECTED);
+	        piece == Piece::BLUE || piece == Piece::BLUE_SELECTED);
 }
 
 bool GUI::Bonol::IsActivePlayerPiece(const PosCell pos) const
@@ -91,7 +91,7 @@ GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
 	PointGUI table_origin = interface_.GetTableOrigin();
 	PointGUI pos_mapped_to_table_origin = PointGUI(pos.x - table_origin.x, pos.y - table_origin.y);
 	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_size_,
-		pos_mapped_to_table_origin.y / interface_.cell_size_);
+	               pos_mapped_to_table_origin.y / interface_.cell_size_);
 }
 
 GUI::PointGUI GUI::Bonol::GetGUIFromCell(const PosCell cell) const
@@ -371,41 +371,7 @@ short GUI::Bonol::CountMoves()
 	return 0;
 }
 
-
-GUI::Bonol::Piece GUI::Bonol::GetActivePlayer() const
-{
-	return active_player_piece_;
-}
-
-GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
-{
-	if (GetActivePlayer() == Piece::RED)
-	{
-		return Piece::RED_SELECTED;
-	}
-	else /*(GetActivePlayer() == Player::BLUE)*/
-	{
-		return Piece::BLUE_SELECTED;
-	}
-}
-
-bool GUI::Bonol::IsFreeForActivePlayer(const PosCell pos) const
-{
-	return (GetCellPiece(pos) == Piece::FREE || IsActivePlayerPiece(pos));
-}
-
-GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell pos) const
-{
-	return old_board_->at(pos);
-}
-
-GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
-{
-	PointGUI table_origin = interface_.GetTableOrigin();
-	PointGUI pos_mapped_to_table_origin = PointGUI(pos.x - table_origin.x, pos.y - table_origin.y);
-	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_size_,
-	               pos_mapped_to_table_origin.y / interface_.cell_size_);
-}
+/// update state for GUI interaction
 
 void GUI::Bonol::InvalidateTable()
 {
