@@ -370,8 +370,8 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 
 	if (row >= 2)
 		if(IsActivePlayerPiece(PosCell(column,row)) || old_board_->at(PosCell(column,row)) == Piece::FREE)
-			if(IsActivePlayerPiece(PosCell(column,row-1)) || old_board_->at(PosCell(column, row-1)) == Piece::FREE)
-				{
+			if(IsActivePlayerPiece(PosCell(column,row-1)) || old_board_->at(PosCell(column, row-1)) == Piece::FREE && row-1>0)
+				{	
 					Count++;
 				}
 	
