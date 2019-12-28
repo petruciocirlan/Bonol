@@ -75,7 +75,7 @@ public:
 	bool ValidateL();
 	short SearchOnRows();
 	short SearchOnColumns();
-	short unsigned CountMoves(short unsigned row, short unsigned column);
+	short unsigned CountMoves(short unsigned column, short unsigned row);
 	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
 
 	/// update state for GUI interaction

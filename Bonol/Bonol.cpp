@@ -124,6 +124,9 @@ bool GUI::Bonol::ValidateMove()
 
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
+
+	std::cout <<"Possible moves : "<< CountMoves(0,2) <<"\n";
+
 	std::cout << "Show the move\n";
 
 	if ( ValidateL() )
@@ -195,7 +198,6 @@ bool GUI::Bonol::ValidateL()
 	std::cout << "\n";
 	bool GoodForm = false;
 
-	CountMoves(3,3	);
 
 	//From there until the end of the of the big if we are checking if the L is valid
 
@@ -360,28 +362,20 @@ bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSea
 	return false;
 }
 
-short unsigned GUI::Bonol::CountMoves(short unsigned row, short unsigned column)
-{
-	// Good ideea from second day of Christmas
-	// 2 for and go over all positions
-	// check first if the position is an empty space
-	// add some aditional if to check if you can go 2 more squares lower, upper , etc 
-	// and thene remember to make another if to check if the line can be an L
-	// Also remember to make a function that has 3 parameters, column, upper bound, lower bound and returns how
-	// many posible L's we can do w that line
-	
+short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
+{	
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
+	short unsigned Count = 0 ;
+
+	if (row >= 2)
+		if(IsActivePlayerPiece(PosCell(column,row)) || old_board_->at(PosCell(column,row)) == Piece::FREE)
+			if(IsActivePlayerPiece(PosCell(column,row-1)) || old_board_->at(PosCell(column, row-1)) == Piece::FREE)
+				{
+					Count++;
+				}
 	
-	/*PosCell pos = PosCell(column, row);
-
-	if (IsActivePlayerPiece(PosCell)) 
-	{
-		std::cout << "It's player piece";
-	}
-	*/
-
-	return 0;
+	return Count;
 }
 
 /// update state for GUI interaction
