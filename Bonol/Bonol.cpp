@@ -116,6 +116,7 @@ bool GUI::Bonol::ValidateMove()
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
 
+	std::cout << "===============================\n";
 	std::cout << "Possible moves : "<<HowManyPossibleMoves()<<"\n"; 
 
 	std::cout << "\n";
@@ -369,6 +370,8 @@ unsigned GUI::Bonol::HowManyPossibleMoves()
 				std::cout << column << " " << row << " - " << CountMoves(row, column) << "\n";
 			}
 
+	std::cout << "===============================\n";
+
 	return Count - 1;
 }
 
@@ -379,7 +382,8 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 	Board& update = *update_board_;
 	short unsigned Count = 0 ;
 
-		if (IsActivePlayerPiece(PosCell(column, row)) || old_board_->at(PosCell(column, row)) == Piece::FREE)
+		if (IsActivePlayerPiece(PosCell(column, row)) || old_board_->at(PosCell(column, row)) == Piece::FREE && 
+		old_board_->at(PosCell(column, row)) != Piece::BLOCKED)
 		{
 			//Check upper side
 			if (row >= 2)
@@ -387,11 +391,13 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 				if (IsActivePlayerPiece(PosCell(column, row - 2)) || old_board_->at(PosCell(column, row - 2)) == Piece::FREE)
 				{
 					if (IsActivePlayerPiece(PosCell(column + 1, row - 2)) ||
-						old_board_->at(PosCell(column + 1, row - 2)) == Piece::FREE && column + 1 <= 3)
-							Count++;
+						old_board_->at(PosCell(column + 1, row - 2)) == Piece::FREE)
+							if(column + 1 <= 3)
+								Count++;
 					if (IsActivePlayerPiece(PosCell(column - 1, row - 2)) ||
-						old_board_->at(PosCell(column - 1, row - 2)) == Piece::FREE && column - 1 >= 0)
-							Count++;
+						old_board_->at(PosCell(column - 1, row - 2)) == Piece::FREE)
+							if(column - 1 >= 0)
+								Count++;
 				}
 
 			//Check right side
@@ -400,11 +406,13 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 					if (IsActivePlayerPiece(PosCell(column + 2, row)) || old_board_->at(PosCell(column + 2, row)) == Piece::FREE)
 					{
 						if (IsActivePlayerPiece(PosCell(column + 2, row + 1)) ||
-							old_board_->at(PosCell(column + 2, row + 1)) == Piece::FREE && row + 1 <= 3)
-							Count++;
+							old_board_->at(PosCell(column + 2, row + 1)) == Piece::FREE)
+								if(row + 1 <= 3)
+									Count++;
 						if (IsActivePlayerPiece(PosCell(column +2, row - 1)) ||
-							old_board_->at(PosCell(column + 2, row - 1)) == Piece::FREE && row - 1 >= 0)
-							Count++;
+							old_board_->at(PosCell(column + 2, row - 1)) == Piece::FREE)
+								if(row - 1 >= 0)
+									Count++;
 					}
 
 			//Check bottom side
@@ -413,11 +421,13 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 					if (IsActivePlayerPiece(PosCell(column, row + 2)) || old_board_->at(PosCell(column, row + 2)) == Piece::FREE)
 					{
 						if (IsActivePlayerPiece(PosCell(column + 1, row + 2)) ||
-							old_board_->at(PosCell(column + 1, row + 2)) == Piece::FREE && column + 1 <= 3)
-							Count++;
+							old_board_->at(PosCell(column + 1, row + 2)) == Piece::FREE)
+								if (column + 1 <= 3)
+									Count++;
 						if (IsActivePlayerPiece(PosCell(column - 1, row + 2)) ||
-							old_board_->at(PosCell(column - 1, row + 2)) == Piece::FREE && column - 1 >= 0)
-							Count++;
+							old_board_->at(PosCell(column - 1, row + 2)) == Piece::FREE)
+								if(column - 1 >= 0)
+									Count++;
 					}
 
 			//Check left side
@@ -426,11 +436,13 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 					if (IsActivePlayerPiece(PosCell(column - 2, row)) || old_board_->at(PosCell(column - 2, row)) == Piece::FREE)
 					{
 						if (IsActivePlayerPiece(PosCell(column - 2, row + 1)) ||
-							old_board_->at(PosCell(column - 2, row + 1)) == Piece::FREE && row + 1 <= 3)
-							Count++;
+							old_board_->at(PosCell(column - 2, row + 1)) == Piece::FREE)
+								if(row + 1 <= 3)
+									Count++;
 						if (IsActivePlayerPiece(PosCell(column - 2, row - 1)) ||
-							old_board_->at(PosCell(column - 2, row - 1)) == Piece::FREE && row - 1 >= 0)
-							Count++;
+							old_board_->at(PosCell(column - 2, row - 1)) == Piece::FREE)
+								if(row - 1 >= 0)
+									Count++;
 					}
 		}
 		return Count;
