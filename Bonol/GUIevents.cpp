@@ -111,33 +111,21 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
 
             selected_blocked_piece = Bonol::PosCell(-1, -1);
 
-            skip_button_->visible = false;
-            skip_button_->updated = true;
-
-            turn_move_piece_ = true;
-            turn_move_block_ = false;
-            game_state_->ChangePlayer();
-            game_state_->DeHighlightBlockedPieces();
+            EndMovingBlockTurn();
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
     }
     else if (turn_move_block_ && skip_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        skip_button_->visible = false;
-        skip_button_->updated = true;
-
-        turn_move_piece_ = true;
-        turn_move_block_ = false;
-        game_state_->ChangePlayer();
-        game_state_->DeHighlightBlockedPieces();
-
         if (is_moving_block_)
         {
             game_state_->SetCellPiece(selected_blocked_piece, Bonol::Piece::BLOCKED);
             selected_blocked_piece = Bonol::PosCell(-1, -1);
             is_moving_block_ = false;
         }
+
+        EndMovingBlockTurn();
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -188,12 +176,6 @@ void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
             turn_move_piece_ = false;
             turn_move_block_ = true;
             game_state_->HighlightBlockedPieces();
-
-            if (game_state_->Over())
-            {
-                /// TODO(@petru): add "player has won" popup
-                // InvalidateRect(hwnd_, 0, TRUE);
-            }
         }
 
         is_selecting_ = false;

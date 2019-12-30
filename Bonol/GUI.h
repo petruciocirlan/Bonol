@@ -32,6 +32,7 @@ class GUI
 private:
 	using CoordGUI = INT;
 	struct PointGUI;
+	struct Padding;
 	struct TextBox;
 	class Bonol;
 
@@ -66,7 +67,6 @@ private:
 		struct { TextBox *title_, *play_button_; };
 	};
 
-	/// TODO(@petru): merge turn_move_* flags
 	bool turn_move_piece_, turn_move_block_;
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
 	bool repaint_background_;
@@ -107,7 +107,7 @@ private:
 
 	/// logic
 	Rect MakeRect(PointGUI origin, PointGUI dimensions) const;
-	Rect InflateRect(const Rect rect, INT padding) const;
+	Rect InflateRect(const Rect rect, Padding padding) const;
 	PointGUI GetTableCenter() const;
 	PointGUI GetTableOrigin() const;
 	BOOL IsInsideTable(const PointGUI pos) const;
@@ -120,6 +120,7 @@ private:
 
 	void CreateGame();
 	void DestroyGame();
+	void EndMovingBlockTurn();
 
 	void CreateMenu();
 	void DestroyMenu();
@@ -139,18 +140,34 @@ struct GUI::PointGUI
 	PointGUI(CoordGUI x_pos, CoordGUI y_pos) : x(x_pos), y(y_pos) {};
 };
 
+struct GUI::Padding
+{
+	INT top, right, bottom, left;
+
+	Padding() :
+		top(0), right(0), bottom(0), left(0) {};
+	Padding(INT padding) :
+		top(padding), right(padding), bottom(padding), left(padding) {};
+	Padding(INT vertical, INT horizontal) :
+		top(vertical), right(horizontal), bottom(vertical), left(horizontal) {};
+	Padding(INT top_pad, INT right_pad, INT bottom_pad, INT left_pad) :
+		top(top_pad), right(right_pad), bottom(bottom_pad), left(left_pad) {};
+};
+
 struct GUI::TextBox
 {
 	std::basic_string<TCHAR> text;
 	Font *font;
 	Brush *color;
 	PointGUI center;
-	bool updated, visible;
+
 	Rect rect;
+	Padding padding;
+	bool updated, visible;
 
 	//TextBox() : updated(true), visible(true) {};
-	TextBox(const std::basic_string<TCHAR> TEXT, Font *FONT, Brush *COLOR)
-		: text(TEXT), font(FONT), color(COLOR), updated(true), visible(true) {};
+	TextBox(const std::basic_string<TCHAR> TEXT, Font *FONT, Brush *COLOR, Padding PADDING = Padding())
+		: text(TEXT), font(FONT), color(COLOR), updated(true), visible(true), padding(PADDING) {};
 	~TextBox();
 	/// TODO(@petru): suggestion - attach click events to struct
 };

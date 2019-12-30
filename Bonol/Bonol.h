@@ -65,6 +65,7 @@ public:
 	/// data access
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
+	std::basic_string<TCHAR> GetActivePlayerName() const;
 	Piece GetCellPiece(const PosCell cell) const;
 	Piece GetUpdateCellPiece(const PosCell cell) const;
 	PosCell GetCellFromGUI(const PointGUI pos) const;

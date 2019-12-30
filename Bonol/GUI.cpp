@@ -17,14 +17,14 @@ Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
     return Rect(origin.x, origin.y, dimensions.x, dimensions.y);
 }
 
-Rect GUI::InflateRect(const Rect rect, INT padding) const
+Rect GUI::InflateRect(const Rect rect, Padding padding) const
 {
     /// TODO(@petru): test this
     return Rect(
-        rect.X - padding,
-        rect.Y - padding,
-        rect.Width + 2 * padding - 1,
-        rect.Height + 2 * padding - 1
+        rect.X - padding.left,
+        rect.Y - padding.top,
+        rect.Width + padding.left + padding.right - 1,
+        rect.Height + padding.top + padding.bottom - 1
     );
 }
 
@@ -123,7 +123,8 @@ void GUI::CreateGame()
     current_player_ = new TextBox(
         TEXT("Your turn, RED!"),
         new Font(TEXT("Arial"), 16),
-        new SolidBrush(kTextColor)
+        new SolidBrush(kTextColor),
+        Padding(0, 50)
     );
     skip_button_ = new TextBox(
         TEXT("SKIP?"),
@@ -140,6 +141,7 @@ void GUI::CreateGame()
         new Font(TEXT("Arial"), 10),
         new SolidBrush(kTextColor)
     );
+    /// TODO(@petru): add possible moves count
 
     CalculateLayout();
 
@@ -158,6 +160,36 @@ void GUI::DestroyGame()
 {
     delete game_state_;
     delete current_player_, skip_button_, reset_button_, menu_button_;
+}
+
+void GUI::EndMovingBlockTurn()
+{
+    skip_button_->visible = false;
+    skip_button_->updated = true;
+
+    turn_move_piece_ = true;
+    turn_move_block_ = false;
+    game_state_->ChangePlayer();
+    game_state_->DeHighlightBlockedPieces();
+
+    if (game_state_->Over())
+    {
+        turn_move_piece_ = false;
+
+        game_state_->ChangePlayer();
+        std::basic_string<TCHAR> winner = game_state_->GetActivePlayerName();
+        delete current_player_->color;
+        if (winner == TEXT("RED"))
+        {
+            current_player_->color = new SolidBrush(Color::Firebrick);
+        }
+        else
+        {
+            current_player_->color = new SolidBrush(Color::RoyalBlue);
+        }
+        current_player_->text = winner + TEXT(" has won!");
+        current_player_->updated = true;
+    }
 }
 
 void GUI::CreateMenu()

@@ -68,6 +68,18 @@ GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
 	}
 }
 
+std::basic_string<TCHAR> GUI::Bonol::GetActivePlayerName() const
+{
+	if (active_player_piece_ == Piece::RED)
+	{
+		return std::basic_string<TCHAR>(TEXT("RED"));
+	}
+	else
+	{
+		return std::basic_string<TCHAR>(TEXT("BLUE"));
+	}
+}
+
 GUI::Bonol::Piece GUI::Bonol::GetCellPiece(const PosCell cell) const
 {
 	return old_board_->at(cell);
@@ -117,7 +129,7 @@ bool GUI::Bonol::ValidateMove()
 	Board& update = *update_board_;
 
 	std::cout << "===============================\n";
-	std::cout << "Possible moves : "<<HowManyPossibleMoves()<<"\n"; 
+	//std::cout << "Possible moves : "<<HowManyPossibleMoves()<<"\n"; 
 
 	std::cout << "\n";
 	std::cout << "Show the move\n";
@@ -375,7 +387,6 @@ unsigned GUI::Bonol::HowManyPossibleMoves()
 	return Count - 1;
 }
 
-
 short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 {	
 	Board& old_state = *old_board_;
@@ -535,6 +546,12 @@ void GUI::Bonol::ChangePlayer()
 	}
 	interface_.current_player_->updated = true;
 	std::cout << "Changed player\n";
+
+	std::cout << "Possible moves : " << HowManyPossibleMoves() << "\n";
+	if (HowManyPossibleMoves() == 0)
+	{
+		is_over_ = true;
+	}
 }
 
 /// Board struct

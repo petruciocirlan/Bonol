@@ -97,7 +97,7 @@ void GUI::DrawCell(const PointGUI pos) const
 void GUI::DrawTextBox(TextBox &box)
 {
     CalculateTextBoxPosition(box);
-    FillRect(InflateRect(box.rect, 5), kBackgroundColor);
+    FillRect(InflateRect(box.rect, box.padding), kBackgroundColor);
 
     if (box.visible)
     {
@@ -134,6 +134,7 @@ void GUI::DrawBackground() const
     //    Color::RoyalBlue,
     //    Color::Firebrick
     //);
+	/// TODO(@petru): add background image?
     SolidBrush brush(kBackgroundColor);
     graphics_->FillRectangle(&brush, window_);
 }
