@@ -52,6 +52,43 @@ void GUI::CalculateTextBoxPosition(TextBox& box)
     box.rect = MakeRect(text_box_origin, text_box_dimensions);
 }
 
+void GUI::CalculateCurrentPlayerText()
+{
+    std::basic_string<TCHAR> current_player = game_state_->GetActivePlayerName();
+    if (game_state_->Over())
+    {
+        std::basic_string<TCHAR> new_text = current_player + TEXT(" has won!");
+
+        if (current_player_->text != new_text)
+        {
+            current_player_->updated = true;
+            current_player_->text = new_text;
+
+            delete current_player_->color;
+            current_player_->color = new SolidBrush(Color::Black);
+        }
+    }
+    else
+    {
+        std::basic_string<TCHAR> new_text = TEXT("Your turn, ") + current_player + TEXT("!");
+
+        if (current_player_->text != new_text)
+        {
+            current_player_->updated = true;
+            current_player_->text = new_text;
+            delete current_player_->color;
+            if (current_player == TEXT("RED"))
+            {
+                current_player_->color = new SolidBrush(Color::Firebrick);
+            }
+            else
+            {
+                current_player_->color = new SolidBrush(Color::RoyalBlue);
+            }
+        }
+    }
+}
+
 void GUI::CalculateLayout()
 {
     RECT window;
@@ -88,8 +125,25 @@ void GUI::CalculateLayoutGame()
 
     current_player_->center = PointGUI(window_.Width / 2, table_.Y - 60);
     skip_button_->center = PointGUI(window_.Width / 2, table_.Y + table_.Height + 20);
-    reset_button_->center = PointGUI(window_.Width / 2 - 40, table_.Y - 20);
-    menu_button_->center = PointGUI(window_.Width / 2 + 40, table_.Y - 20);
+    reset_button_->center = PointGUI(window_.Width / 2 + 40, table_.Y - 20);
+    undo_button_->center = PointGUI(window_.Width / 2 - 40, table_.Y - 20);
+    menu_button_->center = PointGUI(table_.X + 40, table_.Y + table_.Height + 20);
+
+    if (skip_button_->visible != game_state_->turn_move_block_)
+    {
+        skip_button_->visible = game_state_->turn_move_block_;
+        skip_button_->updated = true;
+    }
+
+    if (undo_button_->visible != (game_history_->size() > 1))
+    {
+        undo_button_->visible = game_history_->size() > 1;
+        undo_button_->updated = true;
+    }
+
+    CalculateCurrentPlayerText();
+
+    /// TODO(@petru): suggestion - specify how many times you can undo ( UNDO(#) | where # is a number)
 
     //InvalidateTextBoxes();
     game_state_->InvalidateTable();
@@ -121,7 +175,7 @@ void GUI::CreateGame()
     game_state_ = new Bonol(*this);
     
     current_player_ = new TextBox(
-        TEXT("Your turn, RED!"),
+        TEXT(""),
         new Font(TEXT("Arial"), 16),
         new SolidBrush(kTextColor),
         Padding(0, 50)
@@ -136,6 +190,11 @@ void GUI::CreateGame()
         new Font(TEXT("Arial"), 10),
         new SolidBrush(kTextColor)
     );
+    undo_button_ = new TextBox(
+        TEXT("UNDO"),
+        new Font(TEXT("Arial"), 10),
+        new SolidBrush(kTextColor)
+    );
     menu_button_ = new TextBox(
         TEXT("MENU"),
         new Font(TEXT("Arial"), 10),
@@ -143,53 +202,44 @@ void GUI::CreateGame()
     );
     /// TODO(@petru): add possible moves count
 
-    CalculateLayout();
-
-    turn_move_piece_ = true;
-    turn_move_block_ = false;
-
     is_mouse_down_ = false;
     is_selecting_ = false;
     is_moving_block_ = false;
 
-    skip_button_->visible = false;
     repaint_background_ = true;
+
+    game_history_ = new std::stack < Bonol >;
+    game_history_->push(Bonol(*this, *game_state_));
 }
 
 void GUI::DestroyGame()
 {
+    delete current_player_, skip_button_, reset_button_, undo_button_, menu_button_;
+    while (!game_history_->empty())
+    {
+        //delete game_history_->top();
+        game_history_->pop();
+    }
+    delete game_history_;
     delete game_state_;
-    delete current_player_, skip_button_, reset_button_, menu_button_;
 }
 
 void GUI::EndMovingBlockTurn()
 {
-    skip_button_->visible = false;
-    skip_button_->updated = true;
-
-    turn_move_piece_ = true;
-    turn_move_block_ = false;
+    game_state_->turn_move_piece_ = true;
+    game_state_->turn_move_block_ = false;
     game_state_->ChangePlayer();
     game_state_->DeHighlightBlockedPieces();
 
     if (game_state_->Over())
     {
-        turn_move_piece_ = false;
+        game_state_->turn_move_piece_ = false;
 
         game_state_->ChangePlayer();
-        std::basic_string<TCHAR> winner = game_state_->GetActivePlayerName();
-        delete current_player_->color;
-        if (winner == TEXT("RED"))
-        {
-            current_player_->color = new SolidBrush(Color::Firebrick);
-        }
-        else
-        {
-            current_player_->color = new SolidBrush(Color::RoyalBlue);
-        }
-        current_player_->text = winner + TEXT(" has won!");
-        current_player_->updated = true;
+        CalculateCurrentPlayerText();
     }
+
+    game_history_->push(Bonol(*this, *game_state_));
 }
 
 void GUI::CreateMenu()

@@ -12,13 +12,46 @@
 
 #include "Bonol.h"
 
-GUI::Bonol::Bonol(const GUI& gui)
-	: old_board_(new Board(kStartingSetup)), update_board_(new Board()), interface_(gui)
+GUI::Bonol::Bonol(const GUI &gui)
+	: old_board_(new Board(kStartingSetup)), update_board_(new Board()), interface_(&gui),
+	  turn_move_piece_(true), turn_move_block_(false)
 {
 	memset(has_cell_updated_, false, sizeof(has_cell_updated_));
 	active_player_piece_ = Piece::RED;
 	is_over_ = false;
 }
+
+GUI::Bonol::Bonol(const GUI &gui, const Bonol &copy)
+	: old_board_(new Board(kStartingSetup)), update_board_(new Board()), interface_(&gui),
+	  turn_move_piece_(copy.turn_move_piece_), turn_move_block_(copy.turn_move_block_)
+{
+	memcpy((void*)old_board_, copy.old_board_, sizeof(Board));
+	memcpy((void*)update_board_, copy.update_board_, sizeof(Board));
+	memset(has_cell_updated_, 0, sizeof(has_cell_updated_));
+
+	is_over_ = copy.is_over_;
+	active_player_piece_ = copy.active_player_piece_;
+}
+
+//GUI::Bonol GUI::Bonol::operator=(const Bonol &assign)
+//{
+//	memcpy((void*)old_board_, assign.old_board_, sizeof(Board));
+//	memcpy((void*)update_board_, assign.update_board_, sizeof(Board));
+//	memset(has_cell_updated_, 0, sizeof(has_cell_updated_));
+//	
+//	is_over_ = assign.is_over_;
+//	active_player_piece_ = assign.active_player_piece_;
+//
+//	turn_move_piece_ = assign.turn_move_piece_;
+//	turn_move_block_ = assign.turn_move_block_;
+//
+//	return *this;
+//}
+
+//GUI::Bonol::~Bonol()
+//{
+//	delete old_board_, update_board_;
+//}
 
 /// checks
 
@@ -100,17 +133,17 @@ GUI::Bonol::Piece GUI::Bonol::GetUpdateCellPiece(const PosCell cell) const
 
 GUI::Bonol::PosCell GUI::Bonol::GetCellFromGUI(const PointGUI pos) const
 {
-	PointGUI table_origin = interface_.GetTableOrigin();
+	PointGUI table_origin = interface_->GetTableOrigin();
 	PointGUI pos_mapped_to_table_origin = PointGUI(pos.x - table_origin.x, pos.y - table_origin.y);
-	return PosCell(pos_mapped_to_table_origin.x / interface_.cell_size_,
-	               pos_mapped_to_table_origin.y / interface_.cell_size_);
+	return PosCell(pos_mapped_to_table_origin.x / interface_->cell_size_,
+	               pos_mapped_to_table_origin.y / interface_->cell_size_);
 }
 
 GUI::PointGUI GUI::Bonol::GetGUIFromCell(const PosCell cell) const
 {
-	PointGUI origin = interface_.GetTableOrigin();
-	PointGUI pos = PointGUI(origin.x + cell.x * interface_.cell_size_,
-		origin.y + cell.y * interface_.cell_size_);
+	PointGUI origin = interface_->GetTableOrigin();
+	PointGUI pos = PointGUI(origin.x + cell.x * interface_->cell_size_,
+		origin.y + cell.y * interface_->cell_size_);
 	return pos;
 }
 
@@ -125,41 +158,13 @@ bool GUI::Bonol::ValidateMove()
 	/// access each cell with new_state(pos) or board_(pos),
 	/// where pos is a PosCell and constructor is PosCell(column, line)
 
-	Board& old_state = *old_board_;
-	Board& update = *update_board_;
-
 	std::cout << "===============================\n";
 	//std::cout << "Possible moves : "<<HowManyPossibleMoves()<<"\n"; 
 
 	std::cout << "\n";
 	std::cout << "Show the move\n";
 
-
-	if ( ValidateL() )
-	{
-		for (CoordCell row = 0; row < kBoardSize; ++row)
-			for (CoordCell column = 0; column < kBoardSize; ++column)
-			{
-				PosCell pos = PosCell(column, row);
-				if (IsActivePlayerPiece(pos))
-				{
-					old_state.at(pos) = Piece::FREE;
-				}
-
-				if (IsPlayerPiece(update.at(pos)))
-				{
-					old_state.at(pos) = GetActivePlayer();
-				}
-			}
-	}
-	else
-	{
-		update.Clear();
-		return false;
-	}
-
-	update.Clear();
-	return true;
+	return ValidateL();
 }
 
 bool GUI::Bonol::ValidateL()
@@ -461,6 +466,27 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 
 /// update state for GUI interaction
 
+void GUI::Bonol::ApplyMove()
+{
+	Board& old_state = *old_board_;
+	Board& update = *update_board_;
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			PosCell pos = PosCell(column, row);
+			if (IsActivePlayerPiece(pos))
+			{
+				old_state.at(pos) = Piece::FREE;
+			}
+
+			if (IsPlayerPiece(update.at(pos)))
+			{
+				old_state.at(pos) = GetActivePlayer();
+			}
+		}
+	update.Clear();
+}
+
 void GUI::Bonol::InvalidateTable()
 {
 	memset(has_cell_updated_, true, sizeof(has_cell_updated_));
@@ -471,7 +497,7 @@ void GUI::Bonol::InvalidateCell(const PosCell cell)
 	has_cell_updated_[cell.x][cell.y] = true;
 }
 
-void GUI::Bonol::InitiateUpdate()
+void GUI::Bonol::ClearUpdate()
 {
 	update_board_->Clear();
 }
@@ -514,14 +540,11 @@ void GUI::Bonol::DeHighlightBlockedPieces()
 
 void GUI::Bonol::DrawTable()
 {
-	Board& old_state = *old_board_;
-	Board& update = *update_board_;
-
 	for (CoordCell line = 0; line < kBoardSize; ++line)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
 			if (has_cell_updated_[line][column])
 			{
-				interface_.DrawCell(GetGUIFromCell(PosCell(line, column)));
+				interface_->DrawCell(GetGUIFromCell(PosCell(line, column)));
 				has_cell_updated_[line][column] = false;
 			}
 }
@@ -537,17 +560,15 @@ void GUI::Bonol::ChangePlayer()
 	if (active_player_piece_ == Piece::RED)
 	{
 		active_player_piece_ = Piece::BLUE;
-		interface_.current_player_->text = TEXT("Your turn, BLUE!");
 	}
 	else
 	{
 		active_player_piece_ = Piece::RED;
-		interface_.current_player_->text = TEXT("Your turn, RED!");
 	}
-	interface_.current_player_->updated = true;
-	std::cout << "Changed player\n";
 
+	std::cout << "Changed player\n";
 	std::cout << "Possible moves : " << HowManyPossibleMoves() << "\n";
+	
 	if (HowManyPossibleMoves() == 0)
 	{
 		is_over_ = true;

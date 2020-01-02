@@ -17,6 +17,7 @@
 #endif
 
 #include <string>
+#include <stack>
 #include <cassert>
 #include <iostream>
 //#include <stdafx.h>
@@ -53,11 +54,11 @@ private:
 	INT cell_size_;
 	//PosGUI* mouse_;
 
-	static const INT kTextBoxesGameCount = 4;
+	static const INT kTextBoxesGameCount = 5;
 	union
 	{
 		struct { TextBox *text_boxes_game_[kTextBoxesGameCount]; };
-		struct { TextBox *current_player_, *skip_button_, *reset_button_, *menu_button_; };
+		struct { TextBox *current_player_, *skip_button_, *reset_button_, *undo_button_, * menu_button_; };
 	};
 
 	static const INT kTextBoxesMenuCount = 2;
@@ -67,10 +68,10 @@ private:
 		struct { TextBox *title_, *play_button_; };
 	};
 
-	bool turn_move_piece_, turn_move_block_;
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
 	bool repaint_background_;
 
+	std::stack < Bonol > *game_history_;
 	Graphics *graphics_;
 	Bonol *game_state_;
 	HWND hwnd_;
@@ -113,6 +114,7 @@ private:
 	BOOL IsInsideTable(const PointGUI pos) const;
 
 	void CalculateTextBoxPosition(TextBox& box);
+	void CalculateCurrentPlayerText();
 	void CalculateLayout();
 	void CalculateLayoutMenu();
 	void CalculateLayoutGame();

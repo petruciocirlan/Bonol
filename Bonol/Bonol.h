@@ -43,17 +43,22 @@ private:
 		{Piece::FREE,		Piece::BLUE,	Piece::BLUE,	Piece::BLOCKED}
 	};
 
-	const GUI& interface_;
+	const GUI *interface_;
 
-	Board *const old_board_;
-	Board *const update_board_;
+	Board *old_board_;
+	Board *update_board_;
 	bool has_cell_updated_[kBoardSize][kBoardSize];
 
 	bool is_over_;
 	Piece active_player_piece_;
 
 public:
-	Bonol(const GUI& gui);
+	bool turn_move_piece_, turn_move_block_;
+
+	Bonol(const GUI &gui);
+	Bonol(const GUI &gui, const Bonol &copy);
+	//Bonol operator=(const Bonol& assign);
+	//~Bonol();
 
 	/// checks
 	bool Over() const;
@@ -81,9 +86,11 @@ public:
 	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
 
 	/// update state for GUI interaction
+	void ApplyMove();
+
 	void InvalidateTable();
 	void InvalidateCell(const PosCell cell);
-	void InitiateUpdate();
+	void ClearUpdate();
 	void UpdateCell(const PosCell cell, const Piece piece);
 
 	void HighlightBlockedPieces();

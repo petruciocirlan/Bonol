@@ -75,17 +75,17 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
     {
         Bonol::PosCell clicked_cell = game_state_->GetCellFromGUI(mouse_pos);
         Bonol::Piece clicked_piece = game_state_->GetCellPiece(clicked_cell);
-        if (turn_move_piece_ && game_state_->IsFreeForActivePlayer(clicked_cell))
+        if (game_state_->turn_move_piece_ && game_state_->IsFreeForActivePlayer(clicked_cell))
         {
-            game_state_->InitiateUpdate();
+            game_state_->ClearUpdate();
             game_state_->UpdateCell(clicked_cell, game_state_->GetActivePlayerSelected());
             is_selecting_ = true;
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
-        else if (turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_HIGHLIGHTED)
+        else if (game_state_->turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_HIGHLIGHTED)
         {
-            game_state_->InitiateUpdate();
+            game_state_->ClearUpdate();
             game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED_SELECTED);
             is_moving_block_ = true;
 
@@ -116,7 +116,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
             InvalidateRect(hwnd_, 0, TRUE);
         }
     }
-    else if (turn_move_block_ && skip_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    else if (game_state_->turn_move_block_ && skip_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
         if (is_moving_block_)
         {
@@ -135,6 +135,22 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
         CreateGame();
 
         InvalidateRect(hwnd_, 0, TRUE);
+    }
+    else if (undo_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        if (game_history_->size() > 1)
+        {
+            delete game_state_;
+            game_history_->pop();
+            game_state_ = new Bonol(*this, game_history_->top());
+
+            is_moving_block_ = false;
+
+            InvalidateTextBoxes();
+            game_state_->InvalidateTable();
+
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
     }
     else if (menu_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
@@ -170,13 +186,15 @@ void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
         game_state_->InvalidateTable();
         if (game_state_->ValidateMove())
         {
-            skip_button_->visible = true;
-            skip_button_->updated = true;
+            game_state_->ApplyMove();
 
-            turn_move_piece_ = false;
-            turn_move_block_ = true;
+            game_state_->turn_move_piece_ = false;
+            game_state_->turn_move_block_ = true;
             game_state_->HighlightBlockedPieces();
+
+            game_history_->push(Bonol(*this, *game_state_));
         }
+        game_state_->ClearUpdate();
 
         is_selecting_ = false;
         InvalidateRect(hwnd_, 0, TRUE);
