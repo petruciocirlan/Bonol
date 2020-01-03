@@ -13,10 +13,10 @@
 
 #include "GUI.h"
 
-void GUI::DrawLine(const PointGUI from, const PointGUI to) const
-{
-    //line(from.x, from.y, to.x, to.y);
-}
+//void GUI::DrawLine(const PointGUI from, const PointGUI to) const
+//{
+//    //line(from.x, from.y, to.x, to.y);
+//}
 
 void GUI::DrawRect(const Rect rc, const Color color, const FLOAT width) const
 {
@@ -101,8 +101,18 @@ void GUI::DrawTextBox(TextBox &box)
 
     if (box.visible)
     {
-        PointF drawOrigin((REAL)box.rect.X, (REAL)box.rect.Y);
-        graphics_->DrawString(box.text.data(), -1, box.font, drawOrigin, box.color);
+		Brush *color;
+		if (box.hover && box.highlight != NULL)
+		{
+			color = box.highlight;
+		}
+		else
+		{
+			color = box.color;
+		}
+
+		PointF drawOrigin((REAL)box.rect.X, (REAL)box.rect.Y);
+        graphics_->DrawString(box.text.data(), -1, box.font, drawOrigin, color);
     }
 }
 

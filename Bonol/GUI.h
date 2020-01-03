@@ -43,6 +43,13 @@ public:
 private:
 	const Color kBackgroundColor = Color::White;
 	const Color kTextColor = Color::Black;
+	const Color kTextHover = Color::Green;
+
+	enum class VersusMode
+	{
+		PLAYER, COMPUTER_EASY, COMPUTER_HARD
+	};
+	VersusMode current_mode_;
 
 	enum class Screen
 	{
@@ -58,14 +65,14 @@ private:
 	union
 	{
 		struct { TextBox *text_boxes_game_[kTextBoxesGameCount]; };
-		struct { TextBox *current_player_, *skip_button_, *reset_button_, *undo_button_, * menu_button_; };
+		struct { TextBox *current_player_, *skip_button_, *reset_button_, *undo_button_, *menu_button_; };
 	};
 
-	static const INT kTextBoxesMenuCount = 2;
+	static const INT kTextBoxesMenuCount = 3;
 	union
 	{
 		struct { TextBox *text_boxes_menu_[kTextBoxesMenuCount]; };
-		struct { TextBox *title_, *play_button_; };
+		struct { TextBox *title_, *play_player_button_, *play_computer_button_; };
 	};
 
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
@@ -95,7 +102,7 @@ private:
 	void Resize();
 
 	/// drawing
-	void DrawLine(const PointGUI from, const PointGUI to) const;
+	//void DrawLine(const PointGUI from, const PointGUI to) const;
 	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
 	void FillRect(const Rect rc, const Color color) const;
 
@@ -146,30 +153,32 @@ struct GUI::Padding
 {
 	INT top, right, bottom, left;
 
-	Padding() :
-		top(0), right(0), bottom(0), left(0) {};
-	Padding(INT padding) :
-		top(padding), right(padding), bottom(padding), left(padding) {};
-	Padding(INT vertical, INT horizontal) :
-		top(vertical), right(horizontal), bottom(vertical), left(horizontal) {};
-	Padding(INT top_pad, INT right_pad, INT bottom_pad, INT left_pad) :
-		top(top_pad), right(right_pad), bottom(bottom_pad), left(left_pad) {};
+	Padding()
+		: top(0), right(0), bottom(0), left(0) {};
+	Padding(INT padding)
+		: top(padding), right(padding), bottom(padding), left(padding) {};
+	Padding(INT vertical, INT horizontal)
+		: top(vertical), right(horizontal), bottom(vertical), left(horizontal) {};
+	Padding(INT top_pad, INT right_pad, INT bottom_pad, INT left_pad)
+		: top(top_pad), right(right_pad), bottom(bottom_pad), left(left_pad) {};
 };
 
 struct GUI::TextBox
 {
 	std::basic_string<TCHAR> text;
 	Font *font;
-	Brush *color;
+	Brush *color, *highlight;
 	PointGUI center;
 
 	Rect rect;
 	Padding padding;
-	bool updated, visible;
+	bool updated, visible, hover;
 
 	//TextBox() : updated(true), visible(true) {};
-	TextBox(const std::basic_string<TCHAR> TEXT, Font *FONT, Brush *COLOR, Padding PADDING = Padding())
-		: text(TEXT), font(FONT), color(COLOR), updated(true), visible(true), padding(PADDING) {};
+	TextBox(const std::basic_string<TCHAR> TEXT, Font *FONT, Brush *COLOR,
+		    Brush* HIGHLIGHT, Padding PADDING = Padding())
+		: text(TEXT), font(FONT), color(COLOR), highlight(HIGHLIGHT),
+		  padding(PADDING), updated(true), visible(true), hover(false) {};
 	~TextBox();
 	/// TODO(@petru): suggestion - attach click events to struct
 };

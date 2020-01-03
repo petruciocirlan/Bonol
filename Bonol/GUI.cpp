@@ -19,7 +19,6 @@ Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
 
 Rect GUI::InflateRect(const Rect rect, Padding padding) const
 {
-    /// TODO(@petru): test this
     return Rect(
         rect.X - padding.left,
         rect.Y - padding.top,
@@ -109,7 +108,8 @@ void GUI::CalculateLayout()
 void GUI::CalculateLayoutMenu()
 {
     title_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 200);
-    play_button_->center = PointGUI(window_.Width / 2, window_.Height / 2);
+    play_player_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 50);
+    play_computer_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 50);
 }
 
 void GUI::CalculateLayoutGame()
@@ -178,27 +178,32 @@ void GUI::CreateGame()
         TEXT(""),
         new Font(TEXT("Arial"), 16),
         new SolidBrush(kTextColor),
+        NULL,
         Padding(0, 50)
     );
     skip_button_ = new TextBox(
         TEXT("SKIP?"),
         new Font(TEXT("Arial"), 16),
-        new SolidBrush(kTextColor)
+        new SolidBrush(kTextColor),
+        new SolidBrush(kTextHover)
     );
     reset_button_ = new TextBox(
         TEXT("RESET"),
         new Font(TEXT("Arial"), 10),
-        new SolidBrush(kTextColor)
+        new SolidBrush(kTextColor),
+        new SolidBrush(kTextHover)
     );
     undo_button_ = new TextBox(
         TEXT("UNDO"),
         new Font(TEXT("Arial"), 10),
-        new SolidBrush(kTextColor)
+        new SolidBrush(kTextColor),
+        new SolidBrush(kTextHover)
     );
     menu_button_ = new TextBox(
         TEXT("MENU"),
         new Font(TEXT("Arial"), 10),
-        new SolidBrush(kTextColor)
+        new SolidBrush(kTextColor),
+        new SolidBrush(kTextHover)
     );
     /// TODO(@petru): add possible moves count
 
@@ -247,12 +252,20 @@ void GUI::CreateMenu()
     title_ = new TextBox(
         TEXT("BONOL GAME"),
         new Font(TEXT("Arial"), 32),
+        new SolidBrush(kTextColor),
         new SolidBrush(kTextColor)
     );
-    play_button_ = new TextBox(
-        TEXT("Play!"),
+    play_player_button_ = new TextBox(
+        TEXT(">Player vs Player"),
         new Font(TEXT("Arial"), 24),
-        new SolidBrush(kTextColor)
+        new SolidBrush(kTextColor),
+        new SolidBrush(Color::RoyalBlue)
+    );
+    play_computer_button_ = new TextBox(
+        TEXT(">Player vs Computer"),
+        new Font(TEXT("Arial"), 24),
+        new SolidBrush(kTextColor),
+        new SolidBrush(Color::Firebrick)
     );
 
     repaint_background_ = true;
@@ -260,7 +273,7 @@ void GUI::CreateMenu()
 
 void GUI::DestroyMenu()
 {
-    delete title_, play_button_;
+    delete title_, play_player_button_, play_computer_button_;
 }
 
 void GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
@@ -330,4 +343,8 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
 GUI::TextBox::~TextBox()
 {
     delete font, color;
+    if (highlight != NULL)
+    {
+        delete highlight;
+    }
 }

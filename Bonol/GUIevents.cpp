@@ -23,7 +23,26 @@ void GUI::OnMouseMove(const PointGUI mouse_pos)
 
 void GUI::OnMouseMoveMenu(const PointGUI mouse_pos)
 {
-    /// TODO(@petru): menu - mouse move
+    bool updated = false;
+    for (INT counter = 0; counter < kTextBoxesMenuCount; ++counter)
+    {
+        if (text_boxes_menu_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+        {
+            text_boxes_menu_[counter]->hover = true;
+            updated = true;
+        }
+        else if (text_boxes_menu_[counter]->hover)
+        {
+            text_boxes_menu_[counter]->hover = false;
+            updated = true;
+        }
+    }
+
+    if (updated)
+    {
+        InvalidateTextBoxes();
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
 }
 
 void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
@@ -35,6 +54,29 @@ void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
         {
             game_state_->UpdateCell(hovered_cell, game_state_->GetActivePlayerSelected());
 
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
+    }
+    else
+    {
+        bool updated = false;
+        for (INT counter = 0; counter < kTextBoxesGameCount; ++counter)
+        {
+            if (text_boxes_game_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+            {
+                text_boxes_game_[counter]->hover = true;
+                updated = true;
+            }
+            else if (text_boxes_game_[counter]->hover)
+            {
+                text_boxes_game_[counter]->hover = false;
+                updated = true;
+            }
+        }
+
+        if (updated)
+        {
+            InvalidateTextBoxes();
             InvalidateRect(hwnd_, 0, TRUE);
         }
     }
@@ -58,10 +100,19 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
     {
         std::cout << "TITLE\n";
     }
-    else if (play_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    else if (play_player_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
         DestroyMenu();
         current_screen_ = Screen::GAME;
+        current_mode_ = VersusMode::PLAYER;
+        CreateGame();
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+    else if (play_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        DestroyMenu();
+        current_screen_ = Screen::GAME;
+        current_mode_ = VersusMode::COMPUTER_EASY;
         CreateGame();
         InvalidateRect(hwnd_, 0, TRUE);
     }
