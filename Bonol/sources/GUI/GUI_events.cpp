@@ -10,7 +10,7 @@
     Event listeners.
 */
 
-#include "GUI.h"
+#include "../../headers/GUI.h"
 
 void GUI::OnMouseMove(const PointGUI mouse_pos)
 {

@@ -19,15 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Bonol.cpp" />
-    <ClCompile Include="GUI.cpp" />
-    <ClCompile Include="GUIdraw.cpp" />
-    <ClCompile Include="GUIevents.cpp" />
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="sources\Bonol\Bonol.cpp" />
+    <ClCompile Include="sources\Bonol\Bonol_checks.cpp" />
+    <ClCompile Include="sources\Bonol\Bonol_data_access.cpp" />
+    <ClCompile Include="sources\Bonol\Bonol_GUI_interaction.cpp" />
+    <ClCompile Include="sources\Bonol\Bonol_mechanics.cpp" />
+    <ClCompile Include="sources\GUI\GUI.cpp" />
+    <ClCompile Include="sources\GUI\GUI_draw.cpp" />
+    <ClCompile Include="sources\GUI\GUI_events.cpp" />
+    <ClCompile Include="sources\Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bonol.h" />
-    <ClInclude Include="GUI.h" />
+    <ClInclude Include="headers\Bonol.h" />
+    <ClInclude Include="headers\GUI.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

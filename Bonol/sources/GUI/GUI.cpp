@@ -10,7 +10,7 @@
     Logistics, running of the window.
 */
 
-#include "GUI.h"
+#include "../../headers/GUI.h"
 
 Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
 {
@@ -256,13 +256,13 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor)
     );
     play_player_button_ = new TextBox(
-        TEXT(">Player vs Player"),
+        TEXT(">Player vs Player<"),
         new Font(TEXT("Arial"), 24),
         new SolidBrush(kTextColor),
         new SolidBrush(Color::RoyalBlue)
     );
     play_computer_button_ = new TextBox(
-        TEXT(">Player vs Computer"),
+        TEXT(">Player vs Computer<"),
         new Font(TEXT("Arial"), 24),
         new SolidBrush(kTextColor),
         new SolidBrush(Color::Firebrick)

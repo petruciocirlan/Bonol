@@ -13,29 +13,47 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Bonol">
+      <UniqueIdentifier>{d2ff4924-eede-4720-934b-1928acfbd897}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{9d89ad8e-136c-46b5-99a2-7957b06e9755}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Bonol.cpp">
+    <ClCompile Include="sources\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GUI.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="sources\Bonol\Bonol.cpp">
+      <Filter>Source Files\Bonol</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="sources\Bonol\Bonol_checks.cpp">
+      <Filter>Source Files\Bonol</Filter>
     </ClCompile>
-    <ClCompile Include="GUIdraw.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="sources\Bonol\Bonol_data_access.cpp">
+      <Filter>Source Files\Bonol</Filter>
     </ClCompile>
-    <ClCompile Include="GUIevents.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="sources\Bonol\Bonol_GUI_interaction.cpp">
+      <Filter>Source Files\Bonol</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Bonol\Bonol_mechanics.cpp">
+      <Filter>Source Files\Bonol</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\GUI.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\GUI_draw.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\GUI_events.cpp">
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bonol.h">
+    <ClInclude Include="headers\Bonol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GUI.h">
+    <ClInclude Include="headers\GUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

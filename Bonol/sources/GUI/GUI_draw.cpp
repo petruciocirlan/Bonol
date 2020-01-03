@@ -11,7 +11,7 @@
     (graphics library: GDI+ Win32 API)
 */
 
-#include "GUI.h"
+#include "../../headers/GUI.h"
 
 //void GUI::DrawLine(const PointGUI from, const PointGUI to) const
 //{
