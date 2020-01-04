@@ -116,6 +116,8 @@ struct GUI::Bonol::Board
 
 	Board();
 	Board(const Piece copy_source[kBoardSize][kBoardSize]);
+	Board(const Board &copy);
+	Board operator=(const Board &assign);
 	void Clear();
 	Piece& at(const PosCell pos);
 };

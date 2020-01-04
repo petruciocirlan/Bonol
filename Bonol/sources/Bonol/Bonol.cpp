@@ -71,6 +71,17 @@ GUI::Bonol::Board::Board(const Piece copy_source[kBoardSize][kBoardSize])
 			cell[line][column] = copy_source[line][column];
 }
 
+GUI::Bonol::Board::Board(const Board& copy)
+{
+	memcpy(cell, copy.cell, sizeof(cell));
+}
+
+GUI::Bonol::Board GUI::Bonol::Board::operator=(const Board& assign)
+{
+	memcpy(cell, assign.cell, sizeof(cell));
+	return *this;
+}
+
 void GUI::Bonol::Board::Clear()
 {
 	for (int line = 0; line < kBoardSize; ++line)
