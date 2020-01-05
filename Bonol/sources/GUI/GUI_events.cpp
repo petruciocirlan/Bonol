@@ -28,12 +28,13 @@ void GUI::OnMouseMoveMenu(const PointGUI mouse_pos)
     {
         if (text_boxes_menu_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
         {
-            text_boxes_menu_[counter]->hover = true;
+            text_boxes_menu_[counter]->is_hover = true;
+            text_boxes_menu_[counter]->was_hover = true;
             updated = true;
         }
-        else if (text_boxes_menu_[counter]->hover)
+        else if (text_boxes_menu_[counter]->is_hover)
         {
-            text_boxes_menu_[counter]->hover = false;
+            text_boxes_menu_[counter]->is_hover = false;
             updated = true;
         }
     }
@@ -64,12 +65,13 @@ void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
         {
             if (text_boxes_game_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
             {
-                text_boxes_game_[counter]->hover = true;
+                text_boxes_game_[counter]->is_hover = true;
+                text_boxes_game_[counter]->was_hover = true;
                 updated = true;
             }
-            else if (text_boxes_game_[counter]->hover)
+            else if (text_boxes_game_[counter]->is_hover)
             {
-                text_boxes_game_[counter]->hover = false;
+                text_boxes_game_[counter]->is_hover = false;
                 updated = true;
             }
         }

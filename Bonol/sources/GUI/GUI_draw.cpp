@@ -18,15 +18,15 @@
 //    //line(from.x, from.y, to.x, to.y);
 //}
 
-void GUI::DrawRect(const Rect rc, const Color color, const FLOAT width) const
+void GUI::DrawRect(const Rect rc, const Color normal_color, const FLOAT width) const
 {
-    Pen pen(color, width);
+    Pen pen(normal_color, width);
     graphics_->DrawRectangle(&pen, rc);
 }
 
-void GUI::FillRect(const Rect rc, const Color color) const
+void GUI::FillRect(const Rect rc, const Color normal_color) const
 {
-    SolidBrush brush(color);
+    SolidBrush brush(normal_color);
     graphics_->FillRectangle(&brush, rc);
 }
 
@@ -96,23 +96,33 @@ void GUI::DrawCell(const PointGUI pos) const
 
 void GUI::DrawTextBox(TextBox &box)
 {
+	if (box.was_hover && !box.is_hover)
+	{
+		FillRect(box.rect, kBackgroundColor);
+		box.was_hover = false;
+	}
+
     CalculateTextBoxPosition(box);
     FillRect(InflateRect(box.rect, box.padding), kBackgroundColor);
 
     if (box.visible)
     {
-		Brush *color;
-		if (box.hover && box.highlight != NULL)
+		Brush *brush = box.normal_color;
+		Font* font = box.normal_font;
+		if (box.is_hover)
 		{
-			color = box.highlight;
-		}
-		else
-		{
-			color = box.color;
+			if (box.highlighted_color != NULL)
+			{
+				brush = box.highlighted_color;
+			}
+			if (box.highlighted_font != NULL)
+			{
+				font = box.highlighted_font;
+			}
 		}
 
 		PointF drawOrigin((REAL)box.rect.X, (REAL)box.rect.Y);
-        graphics_->DrawString(box.text.data(), -1, box.font, drawOrigin, color);
+        graphics_->DrawString(box.text.data(), -1, font, drawOrigin, brush);
     }
 }
 

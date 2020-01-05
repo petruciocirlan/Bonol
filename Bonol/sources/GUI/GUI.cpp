@@ -45,7 +45,12 @@ BOOL GUI::IsInsideTable(const PointGUI pos) const
 void GUI::CalculateTextBoxPosition(TextBox& box)
 {
     RectF bounds;
-    graphics_->MeasureString(box.text.data(), -1, box.font, PointF(0, 0), &bounds);
+    Font *font = box.normal_font;
+    if (box.is_hover && box.highlighted_font != NULL)
+    {
+        font = box.highlighted_font;
+    }
+    graphics_->MeasureString(box.text.data(), -1, font, PointF(0, 0), &bounds);
     PointGUI text_box_dimensions((INT)bounds.Width, (INT)bounds.Height);
     PointGUI text_box_origin(box.center.x - (INT)bounds.Width / 2, box.center.y - (INT)bounds.Height / 2);
     box.rect = MakeRect(text_box_origin, text_box_dimensions);
@@ -63,8 +68,8 @@ void GUI::CalculateCurrentPlayerText()
             current_player_->updated = true;
             current_player_->text = new_text;
 
-            delete current_player_->color;
-            current_player_->color = new SolidBrush(Color::Black);
+            delete current_player_->normal_color;
+            current_player_->normal_color = new SolidBrush(Color::Black);
         }
     }
     else
@@ -75,14 +80,14 @@ void GUI::CalculateCurrentPlayerText()
         {
             current_player_->updated = true;
             current_player_->text = new_text;
-            delete current_player_->color;
+            delete current_player_->normal_color;
             if (current_player == TEXT("RED"))
             {
-                current_player_->color = new SolidBrush(Color::Firebrick);
+                current_player_->normal_color = new SolidBrush(Color::Firebrick);
             }
             else
             {
-                current_player_->color = new SolidBrush(Color::RoyalBlue);
+                current_player_->normal_color = new SolidBrush(Color::RoyalBlue);
             }
         }
     }
@@ -176,34 +181,41 @@ void GUI::CreateGame()
     
     current_player_ = new TextBox(
         TEXT(""),
-        new Font(TEXT("Arial"), 16),
         new SolidBrush(kTextColor),
-        NULL,
+        new Font(TEXT("Arial"), 16),
         Padding(0, 50)
     );
     skip_button_ = new TextBox(
         TEXT("SKIP?"),
-        new Font(TEXT("Arial"), 16),
         new SolidBrush(kTextColor),
-        new SolidBrush(kTextHover)
+        new Font(TEXT("Arial"), 16),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 20)
     );
     reset_button_ = new TextBox(
         TEXT("RESET"),
-        new Font(TEXT("Arial"), 10),
         new SolidBrush(kTextColor),
-        new SolidBrush(kTextHover)
+        new Font(TEXT("Arial"), 10),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 14)
     );
     undo_button_ = new TextBox(
         TEXT("UNDO"),
-        new Font(TEXT("Arial"), 10),
         new SolidBrush(kTextColor),
-        new SolidBrush(kTextHover)
+        new Font(TEXT("Arial"), 10),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 14)
     );
     menu_button_ = new TextBox(
         TEXT("MENU"),
-        new Font(TEXT("Arial"), 10),
         new SolidBrush(kTextColor),
-        new SolidBrush(kTextHover)
+        new Font(TEXT("Arial"), 10),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 14)
     );
     /// TODO(@petru): add possible moves count
 
@@ -251,21 +263,27 @@ void GUI::CreateMenu()
 {
     title_ = new TextBox(
         TEXT("BONOL GAME"),
-        new Font(TEXT("Arial"), 32),
         new SolidBrush(kTextColor),
-        new SolidBrush(kTextColor)
+        new Font(TEXT("Arial"), 32),
+        Padding(),
+        new SolidBrush(kTextColor)/*,
+        new Font(TEXT("Comic Sans MS"), 40)*/
     );
     play_player_button_ = new TextBox(
-        TEXT(">Player vs Player<"),
-        new Font(TEXT("Arial"), 24),
+        TEXT(">Multiplayer<"),
         new SolidBrush(kTextColor),
-        new SolidBrush(Color::RoyalBlue)
+        new Font(TEXT("Arial"), 24),
+        Padding(),
+        new SolidBrush(Color::RoyalBlue),
+        new Font(TEXT("Arial"), 28)
     );
     play_computer_button_ = new TextBox(
-        TEXT(">Player vs Computer<"),
-        new Font(TEXT("Arial"), 24),
+        TEXT(">Single Player<"),
         new SolidBrush(kTextColor),
-        new SolidBrush(Color::Firebrick)
+        new Font(TEXT("Arial"), 24),
+        Padding(),
+        new SolidBrush(Color::Firebrick),
+        new Font(TEXT("Arial"), 28)
     );
 
     repaint_background_ = true;
@@ -337,7 +355,7 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     ShowWindow(hwnd_, nCmdShow);
     UpdateWindow(hwnd_);
 
-    if (!PlaySound(MAKEINTRESOURCE(BACKGROUND_MUSIC), hInstance, SND_RESOURCE | SND_ASYNC | SND_NODEFAULT))
+    if (!PlaySound(MAKEINTRESOURCE(BACKGROUND_MUSIC), hInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP | SND_NODEFAULT))
     {
         PlaySound(NULL, 0, 0);
     }
@@ -347,11 +365,25 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     GdiplusShutdown(gdiplusToken);
 }
 
+GUI::TextBox::TextBox(const std::basic_string<TCHAR> TEXT,
+                      Brush* NORMAL_COLOR, Font* NORMAL_FONT, Padding PADDING,
+                      Brush* HIGHLIGHTED_COLOR, Font* HIGHLIGHTED_FONT)
+    : text(TEXT), normal_color(NORMAL_COLOR), normal_font(NORMAL_FONT), padding(PADDING),
+      highlighted_color(HIGHLIGHTED_COLOR), highlighted_font(HIGHLIGHTED_FONT),
+      updated(true), visible(true), is_hover(false), was_hover(false)
+{
+    /// TODO(@petru): caution - highlighted_color, highlighted_font can be NULL
+}
+
 GUI::TextBox::~TextBox()
 {
-    delete font, color;
-    if (highlight != NULL)
+    if (highlighted_color != NULL)
     {
-        delete highlight;
+        delete highlighted_color;
     }
+    if (highlighted_font != NULL)
+    {
+        delete highlighted_font;
+    }
+    delete normal_font, normal_color;
 }

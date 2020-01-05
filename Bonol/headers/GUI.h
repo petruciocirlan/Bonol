@@ -113,8 +113,8 @@ private:
 
 	/// drawing
 	//void DrawLine(const PointGUI from, const PointGUI to) const;
-	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
-	void FillRect(const Rect rc, const Color color) const;
+	void DrawRect(const Rect rc, const Color normal_color, const FLOAT width) const;
+	void FillRect(const Rect rc, const Color normal_color) const;
 
 	void DrawCell(const PointGUI pos) const;
 	void DrawTextBox(TextBox &text_box);
@@ -160,7 +160,7 @@ struct GUI::PointGUI
 	CoordGUI x, y;
 
 	PointGUI() : x(0), y(0) {};
-	PointGUI(CoordGUI x_pos, CoordGUI y_pos) : x(x_pos), y(y_pos) {};
+	PointGUI(CoordGUI X, CoordGUI Y) : x(X), y(Y) {};
 };
 
 struct GUI::Padding
@@ -169,30 +169,29 @@ struct GUI::Padding
 
 	Padding()
 		: top(0), right(0), bottom(0), left(0) {};
-	Padding(INT padding)
-		: top(padding), right(padding), bottom(padding), left(padding) {};
-	Padding(INT vertical, INT horizontal)
-		: top(vertical), right(horizontal), bottom(vertical), left(horizontal) {};
-	Padding(INT top_pad, INT right_pad, INT bottom_pad, INT left_pad)
-		: top(top_pad), right(right_pad), bottom(bottom_pad), left(left_pad) {};
+	Padding(INT PADDING_ALL)
+		: top(PADDING_ALL), right(PADDING_ALL), bottom(PADDING_ALL), left(PADDING_ALL) {};
+	Padding(INT PADDING_VERTICAL, INT PADDING_HORIZONTAL)
+		: top(PADDING_VERTICAL), right(PADDING_HORIZONTAL), bottom(PADDING_VERTICAL), left(PADDING_HORIZONTAL) {};
+	Padding(INT PADDING_TOP, INT PADDING_RIGHT, INT PADDING_BOTTOM, INT PADDING_LEFT)
+		: top(PADDING_TOP), right(PADDING_RIGHT), bottom(PADDING_BOTTOM), left(PADDING_LEFT) {};
 };
 
 struct GUI::TextBox
 {
 	std::basic_string<TCHAR> text;
-	Font *font;
-	Brush *color, *highlight;
+	Font * normal_font, * highlighted_font;
+	Brush * normal_color, * highlighted_color;
 	PointGUI center;
 
 	Rect rect;
 	Padding padding;
-	bool updated, visible, hover;
+	bool updated, visible, is_hover, was_hover;
 
 	//TextBox() : updated(true), visible(true) {};
-	TextBox(const std::basic_string<TCHAR> TEXT, Font *FONT, Brush *COLOR,
-		    Brush* HIGHLIGHT, Padding PADDING = Padding())
-		: text(TEXT), font(FONT), color(COLOR), highlight(HIGHLIGHT),
-		  padding(PADDING), updated(true), visible(true), hover(false) {};
+	TextBox(const std::basic_string<TCHAR> TEXT,
+		    Brush* NORMAL_COLOR, Font* NORMAL_FONT, Padding PADDING = Padding(),
+		    Brush* HIGHLIGHTED_COLOR = NULL, Font* HIGHLIGHTED_FONT = NULL);
 	~TextBox();
 	/// TODO(@petru): suggestion - attach click events to struct
 };
