@@ -16,17 +16,27 @@
 #define UNICODE
 #endif
 
+/// utility
 #include <string>
 #include <stack>
 #include <cassert>
 #include <iostream>
+
+/// windows
 //#include <stdafx.h>
 #include <windows.h>
 #include <windowsx.h>
+
+/// graphics
 //#include <objidl.h>
 #include <gdiplus.h>
-using namespace Gdiplus;
 #pragma comment (lib,"Gdiplus.lib")
+using namespace Gdiplus;
+
+/// audio
+#include "../resources/resource.h"
+#include <mmsystem.h>
+#pragma comment (lib,"Winmm.lib")
 
 class GUI
 {
@@ -127,12 +137,16 @@ private:
 	void CalculateLayoutGame();
 	void InvalidateTextBoxes();
 
+	/// Screen create/delete and screen-specific methods
+
 	void CreateGame();
 	void DestroyGame();
 	void EndMovingBlockTurn();
 
 	void CreateMenu();
 	void DestroyMenu();
+
+	/// Window setup and message loop
 
 	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI *&game_interface);
 	void RunMessageLoop();

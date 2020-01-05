@@ -168,7 +168,7 @@ void GUI::InvalidateTextBoxes()
     }
 }
 
-/// BELOW: Window setup and message loop
+/// Screen create/delete and screen-specific methods
 
 void GUI::CreateGame()
 {
@@ -276,6 +276,8 @@ void GUI::DestroyMenu()
     delete title_, play_player_button_, play_computer_button_;
 }
 
+/// Window setup and message loop
+
 void GUI::SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface)
 {
     CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
@@ -335,6 +337,11 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     ShowWindow(hwnd_, nCmdShow);
     UpdateWindow(hwnd_);
 
+    if (!PlaySound(MAKEINTRESOURCE(BACKGROUND_MUSIC), hInstance, SND_RESOURCE | SND_ASYNC | SND_NODEFAULT))
+    {
+        PlaySound(NULL, 0, 0);
+    }
+    
     RunMessageLoop();
 
     GdiplusShutdown(gdiplusToken);

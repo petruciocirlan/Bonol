@@ -32,9 +32,16 @@
   <ItemGroup>
     <ClInclude Include="headers\Bonol.h" />
     <ClInclude Include="headers\GUI.h" />
+    <ClInclude Include="resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="LICENSE.txt" />
+    <Text Include="resources\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="resources\background_music.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\Bonol.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
