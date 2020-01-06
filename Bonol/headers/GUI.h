@@ -53,7 +53,7 @@ public:
 private:
 	const Color kBackgroundColor = Color::White;
 	const Color kTextColor = Color::Black;
-	const Color kTextHover = Color::Green;
+	const Color kTextHover = Color::DeepPink;
 
 	enum class VersusMode
 	{
@@ -69,20 +69,27 @@ private:
 
 	Rect table_, window_;
 	INT cell_size_;
-	//PosGUI* mouse_;
+
+	static const INT kTextBoxesGlobalCount = 1;
+	union
+	{
+		struct { TextBox* text_boxes_global_[kTextBoxesGlobalCount]; };
+		struct { TextBox* music_toggle_; };
+	};
+	bool is_playing_music_;
 
 	static const INT kTextBoxesGameCount = 5;
 	union
 	{
-		struct { TextBox *text_boxes_game_[kTextBoxesGameCount]; };
-		struct { TextBox *current_player_, *skip_button_, *reset_button_, *undo_button_, *menu_button_; };
+		struct { TextBox* text_boxes_game_[kTextBoxesGameCount]; };
+		struct { TextBox* current_player_, * skip_button_, * reset_button_, * undo_button_, * menu_button_; };
 	};
 
 	static const INT kTextBoxesMenuCount = 3;
 	union
 	{
-		struct { TextBox *text_boxes_menu_[kTextBoxesMenuCount]; };
-		struct { TextBox *title_, *play_player_button_, *play_computer_button_; };
+		struct { TextBox* text_boxes_menu_[kTextBoxesMenuCount]; };
+		struct { TextBox* title_, * play_player_button_, * play_computer_button_; };
 	};
 
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
@@ -117,7 +124,8 @@ private:
 	void FillRect(const Rect rc, const Color normal_color) const;
 
 	void DrawCell(const PointGUI pos) const;
-	void DrawTextBox(TextBox &text_box);
+	void DrawTextBox(TextBox& text_box);
+	void DrawTextBoxes();
 	void DrawTextBoxesMenu();
 	void DrawTextBoxesGame();
 	void DrawBackground() const;
@@ -148,8 +156,10 @@ private:
 
 	/// Window setup and message loop
 
-	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI *&game_interface);
+	static void SetWindowDataInfo(HWND hwnd, LPARAM lParam, GUI*& game_interface);
 	void RunMessageLoop();
+	void Initialize();
+	void Destroy();
 
 public:
 	GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow);

@@ -94,7 +94,7 @@ void GUI::DrawCell(const PointGUI pos) const
 	}
 }
 
-void GUI::DrawTextBox(TextBox &box)
+void GUI::DrawTextBox(TextBox& box)
 {
 	if (box.was_hover && !box.is_hover)
 	{
@@ -124,6 +124,22 @@ void GUI::DrawTextBox(TextBox &box)
 		PointF drawOrigin((REAL)box.rect.X, (REAL)box.rect.Y);
         graphics_->DrawString(box.text.data(), -1, font, drawOrigin, brush);
     }
+}
+
+void GUI::DrawTextBoxes()
+{
+	for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
+		if (text_boxes_global_[counter]->updated)
+		{
+			DrawTextBox(*text_boxes_global_[counter]);
+			text_boxes_global_[counter]->updated = false;
+		}
+
+	switch (current_screen_)
+	{
+	case Screen::MENU: DrawTextBoxesMenu(); break;
+	case Screen::GAME: DrawTextBoxesGame(); break;
+	}
 }
 
 void GUI::DrawTextBoxesMenu()
@@ -161,18 +177,18 @@ void GUI::DrawBackground() const
 
 void GUI::DrawForeground()
 {
+	DrawTextBoxes();
+
     switch (current_screen_)
     {
     case Screen::MENU:
     {
-        DrawTextBoxesMenu();
 
         break;
     }
     case Screen::GAME:
     {
         game_state_->DrawTable();
-        DrawTextBoxesGame();
 
         break;
     }

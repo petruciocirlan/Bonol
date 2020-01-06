@@ -103,6 +103,9 @@ void GUI::CalculateLayout()
         window.right - window.left,
         window.bottom - window.top
     );
+
+    music_toggle_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 260);
+
     switch (current_screen_)
     {
     case Screen::MENU: CalculateLayoutMenu(); break;
@@ -156,6 +159,9 @@ void GUI::CalculateLayoutGame()
 
 void GUI::InvalidateTextBoxes()
 {
+    for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
+        text_boxes_global_[counter]->updated = true;
+
     switch (current_screen_)
     {
     case Screen::MENU:
@@ -219,6 +225,8 @@ void GUI::CreateGame()
     );
     /// TODO(@petru): add possible moves count
 
+    InvalidateTextBoxes();
+
     is_mouse_down_ = false;
     is_selecting_ = false;
     is_moving_block_ = false;
@@ -231,14 +239,20 @@ void GUI::CreateGame()
 
 void GUI::DestroyGame()
 {
-    delete current_player_, skip_button_, reset_button_, undo_button_, menu_button_;
+    for (INT counter = 0; counter < kTextBoxesGameCount; ++counter)
+    {
+        delete text_boxes_game_[counter];
+        text_boxes_game_[counter] = NULL;
+    }
+
     while (!game_history_->empty())
     {
         //delete game_history_->top();
         game_history_->pop();
     }
-    delete game_history_;
-    delete game_state_;
+
+    delete game_history_; game_history_ = NULL;
+    delete game_state_; game_state_ = NULL;
 }
 
 void GUI::EndMovingBlockTurn()
@@ -286,12 +300,18 @@ void GUI::CreateMenu()
         new Font(TEXT("Arial"), 28)
     );
 
+    InvalidateTextBoxes();
+
     repaint_background_ = true;
 }
 
 void GUI::DestroyMenu()
 {
-    delete title_, play_player_button_, play_computer_button_;
+    for (INT counter = 0; counter < kTextBoxesMenuCount; ++counter)
+    {
+        delete text_boxes_menu_[counter];
+        text_boxes_menu_[counter] = NULL;
+    }
 }
 
 /// Window setup and message loop
@@ -313,8 +333,46 @@ void GUI::RunMessageLoop()
     }
 }
 
+void GUI::Initialize()
+{
+    current_screen_ = Screen::MENU;
+
+    music_toggle_ = new TextBox(
+        TEXT("STOP MUSIC"),
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Arial"), 10),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 14)
+    );
+
+    HINSTANCE hInstance = GetModuleHandle(NULL);
+    if (!PlaySound(MAKEINTRESOURCE(BACKGROUND_MUSIC), hInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP | SND_NODEFAULT))
+    {
+        // something went wrong
+        // PlaySound(NULL, 0, 0);
+        is_playing_music_ = false;
+    }
+    else
+    {
+        is_playing_music_ = true;
+    }
+}
+
+void GUI::Destroy()
+{
+    switch (current_screen_)
+    {
+    case Screen::MENU: DestroyMenu(); break;
+    case Screen::GAME: DestroyGame(); break;
+    }
+
+    delete music_toggle_; music_toggle_ = NULL;
+
+    PlaySound(NULL, 0, 0);
+}
+
 GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
-    : current_screen_(Screen::MENU)
 {
     WNDCLASS            wndClass;
     GdiplusStartupInput gdiplusStartupInput;
@@ -355,11 +413,6 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     ShowWindow(hwnd_, nCmdShow);
     UpdateWindow(hwnd_);
 
-    if (!PlaySound(MAKEINTRESOURCE(BACKGROUND_MUSIC), hInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP | SND_NODEFAULT))
-    {
-        PlaySound(NULL, 0, 0);
-    }
-    
     RunMessageLoop();
 
     GdiplusShutdown(gdiplusToken);
@@ -379,11 +432,12 @@ GUI::TextBox::~TextBox()
 {
     if (highlighted_color != NULL)
     {
-        delete highlighted_color;
+        delete highlighted_color; highlighted_color = NULL;
     }
     if (highlighted_font != NULL)
     {
-        delete highlighted_font;
+        delete highlighted_font; highlighted_font = NULL;
     }
-    delete normal_font, normal_color;
+    delete normal_font; normal_font = NULL;
+    delete normal_color; normal_color = NULL;
 }

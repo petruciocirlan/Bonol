@@ -14,6 +14,28 @@
 
 void GUI::OnMouseMove(const PointGUI mouse_pos)
 {
+    bool updated = false;
+    for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
+    {
+        if (text_boxes_global_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+        {
+            text_boxes_global_[counter]->is_hover = true;
+            text_boxes_global_[counter]->was_hover = true;
+            updated = true;
+        }
+        else if (text_boxes_global_[counter]->is_hover)
+        {
+            text_boxes_global_[counter]->is_hover = false;
+            updated = true;
+        }
+    }
+
+    if (updated)
+    {
+        InvalidateTextBoxes();
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+
     switch (current_screen_)
     {
     case Screen::MENU: OnMouseMoveMenu(mouse_pos); break;
@@ -89,11 +111,41 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
     SetCapture(hwnd_);
     is_mouse_down_ = true;
 
-    switch (current_screen_)
+    if (music_toggle_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-    case Screen::GAME: OnLeftClickPressGame(mouse_pos); break;
-    case Screen::MENU: OnLeftClickPressMenu(mouse_pos); break;
+        if (is_playing_music_)
+        {
+            PlaySound(NULL, 0, 0);
+            is_playing_music_ = false;
+            music_toggle_->text = TEXT("PLAY MUSIC");
+        }
+        else
+        {
+            HINSTANCE hInstance = GetModuleHandle(NULL);
+            if (!PlaySound(MAKEINTRESOURCE(BACKGROUND_MUSIC), hInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP | SND_NODEFAULT))
+            {
+                // something went wrong
+                // PlaySound(NULL, 0, 0);
+                is_playing_music_ = false;
+                music_toggle_->text = TEXT("PLAY MUSIC");
+            }
+            else
+            {
+                is_playing_music_ = true;
+                music_toggle_->text = TEXT("STOP MUSIC");
+            }
+        }
+        music_toggle_->updated = true;
     }
+    else
+    {
+        switch (current_screen_)
+        {
+        case Screen::GAME: OnLeftClickPressGame(mouse_pos); break;
+        case Screen::MENU: OnLeftClickPressMenu(mouse_pos); break;
+        }
+    }
+
 }
 
 void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
@@ -104,18 +156,22 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
     }
     else if (play_player_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        DestroyMenu();
         current_screen_ = Screen::GAME;
         current_mode_ = VersusMode::PLAYER;
+
+        DestroyMenu();
         CreateGame();
+
         InvalidateRect(hwnd_, 0, TRUE);
     }
     else if (play_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        DestroyMenu();
         current_screen_ = Screen::GAME;
         current_mode_ = VersusMode::COMPUTER_EASY;
+
+        DestroyMenu();
         CreateGame();
+
         InvalidateRect(hwnd_, 0, TRUE);
     }
 }
@@ -207,9 +263,10 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
     }
     else if (menu_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
+        current_screen_ = Screen::MENU;
+
         DestroyGame();
         CreateMenu();
-        current_screen_ = Screen::MENU;
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -313,10 +370,11 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
     {
         SetWindowDataInfo(hwnd, lParam, game_interface);
+        game_interface->Initialize();
         switch (game_interface->current_screen_)
         {
-        case Screen::MENU: game_interface->CreateMenu();
-        case Screen::GAME: game_interface->CreateGame();
+        case Screen::MENU: game_interface->CreateMenu(); break;
+        case Screen::GAME: game_interface->CreateGame(); break;
         }
         return 0;
     }
@@ -330,6 +388,7 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_DESTROY:
     {
+        game_interface->Destroy();
         PostQuitMessage(0);
         return 0;
     }
