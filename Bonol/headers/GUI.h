@@ -76,7 +76,6 @@ private:
 		struct { TextBox* text_boxes_global_[kTextBoxesGlobalCount]; };
 		struct { TextBox* music_toggle_; };
 	};
-	bool is_playing_music_;
 
 	static const INT kTextBoxesGameCount = 5;
 	union
@@ -85,15 +84,18 @@ private:
 		struct { TextBox* current_player_, * skip_button_, * reset_button_, * undo_button_, * menu_button_; };
 	};
 
-	static const INT kTextBoxesMenuCount = 3;
+	static const INT kTextBoxesMenuCount = 5;
 	union
 	{
 		struct { TextBox* text_boxes_menu_[kTextBoxesMenuCount]; };
-		struct { TextBox* title_, * play_player_button_, * play_computer_button_; };
+		struct { TextBox* title_,
+			            * play_player_button_, * play_computer_button_,
+			            * easy_computer_button_, * hard_computer_button_; };
 	};
 
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
 	bool repaint_background_;
+	bool is_playing_music_;
 
 	std::stack < Bonol > *game_history_;
 	Graphics *graphics_;
@@ -104,14 +106,17 @@ private:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void OnMouseMove(const PointGUI mouse_pos);
+	void OnMouseMoveGlobal(const PointGUI mouse_pos);
 	void OnMouseMoveMenu(const PointGUI mouse_pos);
 	void OnMouseMoveGame(const PointGUI mouse_pos);
 
 	void OnLeftClickPress(const PointGUI mouse_pos);
+	bool OnLeftClickPressGlobal(const PointGUI mouse_pos);
 	void OnLeftClickPressMenu(const PointGUI mouse_pos);
 	void OnLeftClickPressGame(const PointGUI mouse_pos);
 
 	void OnLeftClickRelease(const PointGUI mouse_pos);
+	void OnLeftClickReleaseGlobal(const PointGUI mouse_pos);
 	void OnLeftClickReleaseMenu(const PointGUI mouse_pos);
 	void OnLeftClickReleaseGame(const PointGUI mouse_pos);
 
@@ -124,14 +129,17 @@ private:
 	void FillRect(const Rect rc, const Color normal_color) const;
 
 	void DrawCell(const PointGUI pos) const;
+
 	void DrawTextBox(TextBox& text_box);
 	void DrawTextBoxes();
+	void DrawTextBoxesGlobal();
 	void DrawTextBoxesMenu();
 	void DrawTextBoxesGame();
+
 	void DrawBackground() const;
 	void DrawForeground();
 
-	/// logic
+	/// layout compute
 	Rect MakeRect(PointGUI origin, PointGUI dimensions) const;
 	Rect InflateRect(const Rect rect, Padding padding) const;
 	PointGUI GetTableCenter() const;

@@ -48,6 +48,9 @@
     <ClCompile Include="sources\GUI\GUI_events.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\GUI_layout.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\Bonol.h">
@@ -56,7 +59,7 @@
     <ClInclude Include="headers\GUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="resources\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -71,7 +74,7 @@
     </Media>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Bonol.rc">
+    <ResourceCompile Include="resources\Bonol.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

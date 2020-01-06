@@ -1,5 +1,5 @@
 /*
-	File: Bonol_GUI_interaction.cpp
+	File: Bonol_mechanics.cpp
 	Written by:
 		Petru Ciocirlan		(petru.ciocirlan@info.uaic.ro)
 		Valentin Grigorean	(valentin.grigorean@info.uaic.ro)

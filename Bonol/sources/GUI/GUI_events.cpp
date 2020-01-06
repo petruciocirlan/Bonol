@@ -1,5 +1,5 @@
 /*
-    File: GUIevents.cpp
+    File: GUI_events.cpp
     Written by:
         Petru Ciocirlan		(petru.ciocirlan@info.uaic.ro)
         Valentin Grigorean	(valentin.grigorean@info.uaic.ro)
@@ -7,12 +7,25 @@
     Faculty of Computer Science, UAIC, WINTER 2019
 
     ABOUT THIS FILE:
-    Event listeners.
+    Event handling.
 */
 
 #include "../../headers/GUI.h"
 
+/// mouse move
+
 void GUI::OnMouseMove(const PointGUI mouse_pos)
+{
+    OnMouseMoveGlobal(mouse_pos);
+
+    switch (current_screen_)
+    {
+    case Screen::MENU: OnMouseMoveMenu(mouse_pos); break;
+    case Screen::GAME: OnMouseMoveGame(mouse_pos); break;
+    }
+}
+
+void GUI::OnMouseMoveGlobal(const PointGUI mouse_pos)
 {
     bool updated = false;
     for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
@@ -34,12 +47,6 @@ void GUI::OnMouseMove(const PointGUI mouse_pos)
     {
         InvalidateTextBoxes();
         InvalidateRect(hwnd_, 0, TRUE);
-    }
-
-    switch (current_screen_)
-    {
-    case Screen::MENU: OnMouseMoveMenu(mouse_pos); break;
-    case Screen::GAME: OnMouseMoveGame(mouse_pos); break;
     }
 }
 
@@ -106,11 +113,25 @@ void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
     }
 }
 
+/// left click press
+
 void GUI::OnLeftClickPress(const PointGUI mouse_pos)
 {
     SetCapture(hwnd_);
     is_mouse_down_ = true;
 
+    if (!OnLeftClickPressGlobal(mouse_pos))
+    {
+        switch (current_screen_)
+        {
+        case Screen::GAME: OnLeftClickPressGame(mouse_pos); break;
+        case Screen::MENU: OnLeftClickPressMenu(mouse_pos); break;
+        }
+    }
+}
+
+bool GUI::OnLeftClickPressGlobal(const PointGUI mouse_pos)
+{
     if (music_toggle_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
         if (is_playing_music_)
@@ -126,6 +147,7 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
             {
                 // something went wrong
                 // PlaySound(NULL, 0, 0);
+                PlaySound(NULL, 0, 0);
                 is_playing_music_ = false;
                 music_toggle_->text = TEXT("PLAY MUSIC");
             }
@@ -136,16 +158,13 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
             }
         }
         music_toggle_->updated = true;
-    }
-    else
-    {
-        switch (current_screen_)
-        {
-        case Screen::GAME: OnLeftClickPressGame(mouse_pos); break;
-        case Screen::MENU: OnLeftClickPressMenu(mouse_pos); break;
-        }
+
+        InvalidateRect(hwnd_, NULL, TRUE);
+
+        return true;
     }
 
+    return false;
 }
 
 void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
@@ -164,10 +183,40 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
-    else if (play_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    else if (play_computer_button_->visible && play_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        play_computer_button_->text = TEXT("Choose difficulty");
+
+        delete play_computer_button_->highlighted_color;
+        play_computer_button_->highlighted_color = NULL;
+
+        delete play_computer_button_->highlighted_font;
+        play_computer_button_->highlighted_font = NULL;
+
+        play_computer_button_->updated = true;
+
+        easy_computer_button_->visible = true;
+        easy_computer_button_->updated = true;
+
+        hard_computer_button_->visible = true;
+        hard_computer_button_->updated = true;
+
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+    else if (easy_computer_button_->visible && easy_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
         current_screen_ = Screen::GAME;
         current_mode_ = VersusMode::COMPUTER_EASY;
+
+        DestroyMenu();
+        CreateGame();
+
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+    else if (hard_computer_button_->visible && hard_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        current_screen_ = Screen::GAME;
+        current_mode_ = VersusMode::COMPUTER_HARD;
 
         DestroyMenu();
         CreateGame();
@@ -245,7 +294,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
-    else if (undo_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    else if (undo_button_->visible && undo_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
         if (game_history_->size() > 1)
         {
@@ -272,8 +321,12 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
     }
 }
 
+/// left click release
+
 void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
 {
+    OnLeftClickReleaseGlobal(mouse_pos);
+
     switch (current_screen_)
     {
     case Screen::GAME: OnLeftClickReleaseGame(mouse_pos); break;
@@ -282,6 +335,11 @@ void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
 
     is_mouse_down_ = false;
     ReleaseCapture();
+}
+
+void GUI::OnLeftClickReleaseGlobal(const PointGUI mouse_pos)
+{
+    /// TODO(@petru): global - left click release
 }
 
 void GUI::OnLeftClickReleaseMenu(const PointGUI mouse_pos)
@@ -310,6 +368,8 @@ void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
         InvalidateRect(hwnd_, 0, TRUE);
     }
 }
+
+/// paint screen
 
 void GUI::OnPaint()
 {

@@ -1,5 +1,5 @@
 /*
-    File: GUIdraw.cpp
+    File: GUI_draw.cpp
     Written by:
         Petru Ciocirlan		(petru.ciocirlan@info.uaic.ro)
         Valentin Grigorean	(valentin.grigorean@info.uaic.ro)
@@ -96,12 +96,13 @@ void GUI::DrawCell(const PointGUI pos) const
 
 void GUI::DrawTextBox(TextBox& box)
 {
-	if (box.was_hover && !box.is_hover)
+	if (box.was_hover && !box.is_hover && box.visible)
 	{
 		FillRect(box.rect, kBackgroundColor);
 		box.was_hover = false;
 	}
 
+	FillRect(InflateRect(box.rect, box.padding), kBackgroundColor);
     CalculateTextBoxPosition(box);
     FillRect(InflateRect(box.rect, box.padding), kBackgroundColor);
 
@@ -128,18 +129,23 @@ void GUI::DrawTextBox(TextBox& box)
 
 void GUI::DrawTextBoxes()
 {
-	for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
-		if (text_boxes_global_[counter]->updated)
-		{
-			DrawTextBox(*text_boxes_global_[counter]);
-			text_boxes_global_[counter]->updated = false;
-		}
+	DrawTextBoxesGlobal();
 
 	switch (current_screen_)
 	{
 	case Screen::MENU: DrawTextBoxesMenu(); break;
 	case Screen::GAME: DrawTextBoxesGame(); break;
 	}
+}
+
+void GUI::DrawTextBoxesGlobal()
+{
+	for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
+		if (text_boxes_global_[counter]->updated)
+		{
+			DrawTextBox(*text_boxes_global_[counter]);
+			text_boxes_global_[counter]->updated = false;
+		}
 }
 
 void GUI::DrawTextBoxesMenu()

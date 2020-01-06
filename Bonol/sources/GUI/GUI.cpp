@@ -12,173 +12,6 @@
 
 #include "../../headers/GUI.h"
 
-Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
-{
-    return Rect(origin.x, origin.y, dimensions.x, dimensions.y);
-}
-
-Rect GUI::InflateRect(const Rect rect, Padding padding) const
-{
-    return Rect(
-        rect.X - padding.left,
-        rect.Y - padding.top,
-        rect.Width + padding.left + padding.right - 1,
-        rect.Height + padding.top + padding.bottom - 1
-    );
-}
-
-GUI::PointGUI GUI::GetTableCenter() const
-{
-    return PointGUI(window_.Width / 2, window_.Height / 2);
-}
-
-GUI::PointGUI GUI::GetTableOrigin() const
-{
-    return PointGUI(table_.X, table_.Y);
-}
-
-BOOL GUI::IsInsideTable(const PointGUI pos) const
-{
-    return table_.Contains(pos.x, pos.y);
-}
-
-void GUI::CalculateTextBoxPosition(TextBox& box)
-{
-    RectF bounds;
-    Font *font = box.normal_font;
-    if (box.is_hover && box.highlighted_font != NULL)
-    {
-        font = box.highlighted_font;
-    }
-    graphics_->MeasureString(box.text.data(), -1, font, PointF(0, 0), &bounds);
-    PointGUI text_box_dimensions((INT)bounds.Width, (INT)bounds.Height);
-    PointGUI text_box_origin(box.center.x - (INT)bounds.Width / 2, box.center.y - (INT)bounds.Height / 2);
-    box.rect = MakeRect(text_box_origin, text_box_dimensions);
-}
-
-void GUI::CalculateCurrentPlayerText()
-{
-    std::basic_string<TCHAR> current_player = game_state_->GetActivePlayerName();
-    if (game_state_->Over())
-    {
-        std::basic_string<TCHAR> new_text = current_player + TEXT(" has won!");
-
-        if (current_player_->text != new_text)
-        {
-            current_player_->updated = true;
-            current_player_->text = new_text;
-
-            delete current_player_->normal_color;
-            current_player_->normal_color = new SolidBrush(Color::Black);
-        }
-    }
-    else
-    {
-        std::basic_string<TCHAR> new_text = TEXT("Your turn, ") + current_player + TEXT("!");
-
-        if (current_player_->text != new_text)
-        {
-            current_player_->updated = true;
-            current_player_->text = new_text;
-            delete current_player_->normal_color;
-            if (current_player == TEXT("RED"))
-            {
-                current_player_->normal_color = new SolidBrush(Color::Firebrick);
-            }
-            else
-            {
-                current_player_->normal_color = new SolidBrush(Color::RoyalBlue);
-            }
-        }
-    }
-}
-
-void GUI::CalculateLayout()
-{
-    RECT window;
-    GetClientRect(hwnd_, &window);
-    window_ = Rect(
-        window.left,
-        window.top,
-        window.right - window.left,
-        window.bottom - window.top
-    );
-
-    music_toggle_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 260);
-
-    switch (current_screen_)
-    {
-    case Screen::MENU: CalculateLayoutMenu(); break;
-    case Screen::GAME: CalculateLayoutGame(); break;
-    }
-}
-
-void GUI::CalculateLayoutMenu()
-{
-    title_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 200);
-    play_player_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 50);
-    play_computer_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 50);
-}
-
-void GUI::CalculateLayoutGame()
-{
-    INT table_size = 400;
-    table_ = Rect(
-        (window_.Width - table_size) / 2,
-        (window_.Height - table_size) / 2,
-        table_size,
-        table_size
-    );
-    cell_size_ = table_.Width / Bonol::kBoardSize;
-
-    current_player_->center = PointGUI(window_.Width / 2, table_.Y - 60);
-    skip_button_->center = PointGUI(window_.Width / 2, table_.Y + table_.Height + 20);
-    reset_button_->center = PointGUI(window_.Width / 2 + 40, table_.Y - 20);
-    undo_button_->center = PointGUI(window_.Width / 2 - 40, table_.Y - 20);
-    menu_button_->center = PointGUI(table_.X + 40, table_.Y + table_.Height + 20);
-
-    if (skip_button_->visible != game_state_->turn_move_block_)
-    {
-        skip_button_->visible = game_state_->turn_move_block_;
-        skip_button_->updated = true;
-    }
-
-    if (undo_button_->visible != (game_history_->size() > 1))
-    {
-        undo_button_->visible = game_history_->size() > 1;
-        undo_button_->updated = true;
-    }
-
-    CalculateCurrentPlayerText();
-
-    /// TODO(@petru): suggestion - specify how many times you can undo ( UNDO(#) | where # is a number)
-
-    //InvalidateTextBoxes();
-    game_state_->InvalidateTable();
-}
-
-void GUI::InvalidateTextBoxes()
-{
-    for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
-        text_boxes_global_[counter]->updated = true;
-
-    switch (current_screen_)
-    {
-    case Screen::MENU:
-    {
-        for (INT counter = 0; counter < kTextBoxesMenuCount; ++counter)
-            text_boxes_menu_[counter]->updated = true;
-        break;
-    }
-    case Screen::GAME:
-    {
-        for (INT counter = 0; counter < kTextBoxesGameCount; ++counter)
-            text_boxes_game_[counter]->updated = true;
-        break;
-    }
-    }
-}
-
 /// Screen create/delete and screen-specific methods
 
 void GUI::CreateGame()
@@ -299,6 +132,25 @@ void GUI::CreateMenu()
         new SolidBrush(Color::Firebrick),
         new Font(TEXT("Arial"), 28)
     );
+    easy_computer_button_ = new TextBox(
+        TEXT(">Easy<"),
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Arial"), 24),
+        Padding(),
+        new SolidBrush(Color::RoyalBlue),
+        new Font(TEXT("Arial"), 28)
+    );
+    hard_computer_button_ = new TextBox(
+        TEXT(">Hard<"),
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Arial"), 24),
+        Padding(),
+        new SolidBrush(Color::Firebrick),
+        new Font(TEXT("Arial"), 28)
+    );
+
+    easy_computer_button_->visible = false;
+    hard_computer_button_->visible = false;
 
     InvalidateTextBoxes();
 
@@ -345,17 +197,15 @@ void GUI::Initialize()
         new SolidBrush(kTextHover),
         new Font(TEXT("Arial"), 14)
     );
+    is_playing_music_ = true;
 
     HINSTANCE hInstance = GetModuleHandle(NULL);
     if (!PlaySound(MAKEINTRESOURCE(BACKGROUND_MUSIC), hInstance, SND_RESOURCE | SND_ASYNC | SND_LOOP | SND_NODEFAULT))
     {
         // something went wrong
-        // PlaySound(NULL, 0, 0);
+        PlaySound(NULL, 0, 0);
         is_playing_music_ = false;
-    }
-    else
-    {
-        is_playing_music_ = true;
+        music_toggle_->text = TEXT("PLAY MUSIC");
     }
 }
 
