@@ -29,15 +29,15 @@ GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
 	}
 }
 
-std::basic_string<TCHAR> GUI::Bonol::GetActivePlayerName() const
+GUI::String GUI::Bonol::GetActivePlayerName() const
 {
 	if (active_player_piece_ == Piece::RED)
 	{
-		return std::basic_string<TCHAR>(TEXT("RED"));
+		return String(TEXT("RED"));
 	}
 	else
 	{
-		return std::basic_string<TCHAR>(TEXT("BLUE"));
+		return String(TEXT("BLUE"));
 	}
 }
 

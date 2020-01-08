@@ -66,11 +66,12 @@ public:
 	bool IsPlayerPiece(const Piece piece) const;
 	bool IsActivePlayerPiece(const PosCell pos) const;
 	bool IsFreeForActivePlayer(const PosCell cell) const;
+	bool IsSelected(const PosCell cell) const;
 
 	/// data access
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
-	std::basic_string<TCHAR> GetActivePlayerName() const;
+	String GetActivePlayerName() const;
 	Piece GetCellPiece(const PosCell cell) const;
 	Piece GetUpdateCellPiece(const PosCell cell) const;
 	PosCell GetCellFromGUI(const PointGUI pos) const;
@@ -92,6 +93,8 @@ public:
 	void InvalidateCell(const PosCell cell);
 	void ClearUpdate();
 	void UpdateCell(const PosCell cell, const Piece piece);
+	void RemoveUpdateCell(const PosCell cell);
+	bool IsUpdateSelectionConnected() const;
 
 	void HighlightBlockedPieces();
 	void DeHighlightBlockedPieces();

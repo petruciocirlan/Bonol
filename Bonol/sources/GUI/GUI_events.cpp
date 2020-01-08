@@ -77,12 +77,22 @@ void GUI::OnMouseMoveMenu(const PointGUI mouse_pos)
 
 void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
 {
-    if (is_selecting_ && IsInsideTable(mouse_pos))
+    if (is_selecting_ && IsInsideTable(mouse_pos) && selected_cells_count_ < 4)
     {
         Bonol::PosCell hovered_cell = game_state_->GetCellFromGUI(mouse_pos);
-        if (game_state_->IsFreeForActivePlayer(hovered_cell))
+        if (game_state_->IsFreeForActivePlayer(hovered_cell) && !game_state_->IsSelected(hovered_cell))
         {
             game_state_->UpdateCell(hovered_cell, game_state_->GetActivePlayerSelected());
+            if (game_state_->IsUpdateSelectionConnected())
+            {
+                ++selected_cells_count_;
+            }
+            else
+            {
+                game_state_->RemoveUpdateCell(hovered_cell);
+            }
+
+            //std::cout << "Selected cells count: " << selected_cells_count_ << '\n';
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
@@ -239,6 +249,8 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
             game_state_->UpdateCell(clicked_cell, game_state_->GetActivePlayerSelected());
             is_selecting_ = true;
 
+            selected_cells_count_ = 1;
+
             InvalidateRect(hwnd_, 0, TRUE);
         }
         else if (game_state_->turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_HIGHLIGHTED)
@@ -365,6 +377,8 @@ void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
         game_state_->ClearUpdate();
 
         is_selecting_ = false;
+        selected_cells_count_ = 0;
+
         InvalidateRect(hwnd_, 0, TRUE);
     }
 }

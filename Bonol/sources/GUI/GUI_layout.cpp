@@ -58,10 +58,10 @@ void GUI::CalculateTextBoxPosition(TextBox& box)
 
 void GUI::CalculateCurrentPlayerText()
 {
-    std::basic_string<TCHAR> current_player = game_state_->GetActivePlayerName();
+    String current_player = game_state_->GetActivePlayerName();
     if (game_state_->Over())
     {
-        std::basic_string<TCHAR> new_text = current_player + TEXT(" has won!");
+        String new_text = current_player + TEXT(" has won!");
 
         if (current_player_->text != new_text)
         {
@@ -74,7 +74,7 @@ void GUI::CalculateCurrentPlayerText()
     }
     else
     {
-        std::basic_string<TCHAR> new_text = TEXT("Your turn, ") + current_player + TEXT("!");
+        String new_text = TEXT("Your turn, ") + current_player + TEXT("!");
 
         if (current_player_->text != new_text)
         {

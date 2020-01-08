@@ -38,3 +38,8 @@ bool GUI::Bonol::IsFreeForActivePlayer(const PosCell cell) const
 {
 	return (GetCellPiece(cell) == Piece::FREE || IsActivePlayerPiece(cell));
 }
+
+bool GUI::Bonol::IsSelected(const PosCell cell) const
+{
+	return (update_board_->at(cell) != Piece::UNUSED);
+}

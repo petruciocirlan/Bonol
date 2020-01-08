@@ -54,6 +54,63 @@ void GUI::Bonol::UpdateCell(const PosCell cell, const Piece piece)
 	InvalidateCell(cell);
 }
 
+void GUI::Bonol::RemoveUpdateCell(const PosCell cell)
+{
+	update_board_->at(cell) = Piece::UNUSED;
+	InvalidateCell(cell);
+}
+
+bool GUI::Bonol::IsUpdateSelectionConnected() const
+{
+	INT areas_count = 0;
+	Board parse_board(*update_board_);
+
+	const INT kDirections = 4;
+	const INT kRowDirections[kDirections] =   { -1, 0, 1, 0 };
+	const INT kColumnDirections[kDirections] = { 0, 1, 0,-1 };
+
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+			if (parse_board.at(PosCell(column, row)) != Piece::UNUSED)
+			{
+				++areas_count;
+
+				std::stack < PosCell > visited;
+				visited.push(PosCell(column, row));
+				parse_board.at(PosCell(column, row)) = Piece::UNUSED;
+
+				while (!visited.empty())
+				{
+					PosCell position = visited.top();
+					bool has_visited = false;
+
+					for (INT direction = 0; direction < kDirections; ++direction)
+					{
+						PosCell neighbour = PosCell(position.x + kColumnDirections[direction],
+							                        position.y + kRowDirections[direction]);
+						if (0 <= neighbour.x && neighbour.x < kBoardSize &&
+							0 <= neighbour.y && neighbour.y < kBoardSize)
+						{
+							if (parse_board.at(neighbour) != Piece::UNUSED)
+							{
+								visited.push(neighbour);
+								parse_board.at(neighbour) = Piece::UNUSED;
+								has_visited = true;
+								break;
+							}
+						}
+					}
+
+					if (!has_visited)
+					{
+						visited.pop();
+					}
+				}
+			}
+
+	return (areas_count == 1);
+}
+
 void GUI::Bonol::HighlightBlockedPieces()
 {
 	for (CoordCell row = 0; row < kBoardSize; ++row)

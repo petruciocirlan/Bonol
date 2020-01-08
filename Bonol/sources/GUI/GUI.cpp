@@ -21,7 +21,7 @@ void GUI::CreateGame()
     current_player_ = new TextBox(
         TEXT(""),
         new SolidBrush(kTextColor),
-        new Font(TEXT("Arial"), 16),
+        new Font(TEXT("Arial"), 20),
         Padding(0, 50)
     );
     skip_button_ = new TextBox(
@@ -63,6 +63,8 @@ void GUI::CreateGame()
     is_mouse_down_ = false;
     is_selecting_ = false;
     is_moving_block_ = false;
+
+    selected_cells_count_ = 0;
 
     repaint_background_ = true;
 
@@ -187,6 +189,7 @@ void GUI::RunMessageLoop()
 
 void GUI::Initialize()
 {
+    current_language_ = Language::ENGLISH;
     current_screen_ = Screen::MENU;
 
     music_toggle_ = new TextBox(
@@ -268,7 +271,7 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     GdiplusShutdown(gdiplusToken);
 }
 
-GUI::TextBox::TextBox(const std::basic_string<TCHAR> TEXT,
+GUI::TextBox::TextBox(const String TEXT,
                       Brush* NORMAL_COLOR, Font* NORMAL_FONT, Padding PADDING,
                       Brush* HIGHLIGHTED_COLOR, Font* HIGHLIGHTED_FONT)
     : text(TEXT), normal_color(NORMAL_COLOR), normal_font(NORMAL_FONT), padding(PADDING),

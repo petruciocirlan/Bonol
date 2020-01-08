@@ -1,0 +1,6 @@
+BONOL GAME
+>Multiplayer<
+>Single Player<
+Choose difficulty
+>Easy<
+>Hard<

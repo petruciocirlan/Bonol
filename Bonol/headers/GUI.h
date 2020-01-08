@@ -49,17 +49,18 @@ private:
 
 public:
 	using Dimensions = PointGUI;
+	using String = std::basic_string<TCHAR>;
 
 private:
 	const Color kBackgroundColor = Color::White;
 	const Color kTextColor = Color::Black;
 	const Color kTextHover = Color::DeepPink;
 
-	enum class VersusMode
+	enum class Language
 	{
-		PLAYER, COMPUTER_EASY, COMPUTER_HARD
+		ENGLISH//, ROMANIAN
 	};
-	VersusMode current_mode_;
+	Language current_language_;
 
 	enum class Screen
 	{
@@ -67,8 +68,14 @@ private:
 	};
 	Screen current_screen_;
 
+	enum class VersusMode
+	{
+		PLAYER, COMPUTER_EASY, COMPUTER_HARD
+	};
+	VersusMode current_mode_;
+
 	Rect table_, window_;
-	INT cell_size_;
+	INT cell_size_, selected_cells_count_;
 
 	static const INT kTextBoxesGlobalCount = 1;
 	union
@@ -92,6 +99,7 @@ private:
 			            * play_player_button_, * play_computer_button_,
 			            * easy_computer_button_, * hard_computer_button_; };
 	};
+	//String* language_text_menu_[kTextBoxesMenuCount];
 
 	bool is_mouse_down_, is_selecting_, is_moving_block_;
 	bool repaint_background_;
@@ -197,7 +205,7 @@ struct GUI::Padding
 
 struct GUI::TextBox
 {
-	std::basic_string<TCHAR> text;
+	String text;
 	Font * normal_font, * highlighted_font;
 	Brush * normal_color, * highlighted_color;
 	PointGUI center;
@@ -207,7 +215,7 @@ struct GUI::TextBox
 	bool updated, visible, is_hover, was_hover;
 
 	//TextBox() : updated(true), visible(true) {};
-	TextBox(const std::basic_string<TCHAR> TEXT,
+	TextBox(const String TEXT,
 		    Brush* NORMAL_COLOR, Font* NORMAL_FONT, Padding PADDING = Padding(),
 		    Brush* HIGHLIGHTED_COLOR = NULL, Font* HIGHLIGHTED_FONT = NULL);
 	~TextBox();
