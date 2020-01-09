@@ -32,18 +32,15 @@ void GUI::FillRect(const Rect rc, const Color color) const
 
 void GUI::DrawCircle(const Rect rc, const Color color, const FLOAT width) const
 {
-	graphics_->SetSmoothingMode(SmoothingModeHighQuality);
 	Pen pen(color, width);
 	graphics_->DrawEllipse(&pen, rc);
 }
 
 void GUI::FillCircle(const Rect rc, const Color color) const
 {
-	graphics_->SetSmoothingMode(SmoothingModeHighQuality);
 	SolidBrush brush(color);
 	graphics_->FillEllipse(&brush, rc);
 }
-
 
 void GUI::DrawCell(const PointGUI pos) const
 {
@@ -104,12 +101,14 @@ void GUI::DrawCell(const PointGUI pos) const
 	{
 		FillCircle(full_cell, Color::Yellow);
 		DrawCircle(full_cell, Color::Black, 1.0f);
+		DrawCircle(InflateRect(full_cell, Padding(3)), Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLOCKED_HIGHLIGHTED:
 	{
 		FillCircle(full_cell, Color::LightSlateGray);
 		DrawCircle(full_cell, Color::Black, 1.0f);
+		DrawCircle(InflateRect(full_cell, Padding(3)), Color::Black, 1.0f);
 		break;
 	}
 	}

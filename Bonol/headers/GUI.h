@@ -34,7 +34,7 @@
 using namespace Gdiplus;
 
 /// audio
-#include "../resources/resource.h"
+#include "..\resources\resource.h"
 #include <mmsystem.h>
 #pragma comment (lib,"Winmm.lib")
 

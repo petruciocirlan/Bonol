@@ -83,11 +83,11 @@ void GUI::CalculateCurrentPlayerText()
             delete current_player_->normal_color;
             if (current_player == TEXT("RED"))
             {
-                current_player_->normal_color = new SolidBrush(Color::Firebrick);
+                current_player_->normal_color = new SolidBrush(Color::PaleVioletRed);
             }
             else
             {
-                current_player_->normal_color = new SolidBrush(Color::RoyalBlue);
+                current_player_->normal_color = new SolidBrush(Color::DodgerBlue);
             }
         }
     }

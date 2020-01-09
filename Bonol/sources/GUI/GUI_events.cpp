@@ -396,6 +396,9 @@ void GUI::OnPaint()
     graphics_ = new Graphics(&buffer);
     Graphics graphics(hdc);
 
+    graphics_->SetSmoothingMode(SmoothingModeAntiAlias);
+    graphics_->SetTextRenderingHint(TextRenderingHintAntiAlias);
+
     if (force_repaint_background_)
     {
         DrawBackground();
@@ -420,6 +423,9 @@ void GUI::Resize()
     Bitmap buffer(window_.Width, window_.Height);
     graphics_ = new Graphics(&buffer);
     Graphics graphics(hdc);
+
+    graphics_->SetSmoothingMode(SmoothingModeAntiAlias);
+    graphics_->SetTextRenderingHint(TextRenderingHintAntiAlias);
 
     DrawBackground();
     DrawForeground();
@@ -510,7 +516,7 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
         lpMMI->ptMinTrackSize.x = 480;
-        lpMMI->ptMinTrackSize.y = 600;
+        lpMMI->ptMinTrackSize.y = 640;
         return 0;
     }
     case WM_ERASEBKGND:

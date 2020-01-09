@@ -109,7 +109,7 @@ void GUI::EndMovingBlockTurn()
 }
 
 void GUI::CreateMenu()
-{
+{ 
     title_ = new TextBox(
         TEXT("BONOL GAME"),
         new SolidBrush(kTextColor),
@@ -123,7 +123,7 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor),
         new Font(TEXT("Arial"), 24),
         Padding(),
-        new SolidBrush(Color::RoyalBlue),
+        new SolidBrush(Color::DodgerBlue),
         new Font(TEXT("Arial"), 28)
     );
     play_computer_button_ = new TextBox(
@@ -131,7 +131,7 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor),
         new Font(TEXT("Arial"), 24),
         Padding(),
-        new SolidBrush(Color::Firebrick),
+        new SolidBrush(Color::PaleVioletRed),
         new Font(TEXT("Arial"), 28)
     );
     easy_computer_button_ = new TextBox(
@@ -139,7 +139,7 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor),
         new Font(TEXT("Arial"), 24),
         Padding(),
-        new SolidBrush(Color::RoyalBlue),
+        new SolidBrush(Color::DodgerBlue),
         new Font(TEXT("Arial"), 28)
     );
     hard_computer_button_ = new TextBox(
@@ -147,7 +147,7 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor),
         new Font(TEXT("Arial"), 24),
         Padding(),
-        new SolidBrush(Color::Firebrick),
+        new SolidBrush(Color::PaleVioletRed),
         new Font(TEXT("Arial"), 28)
     );
 
