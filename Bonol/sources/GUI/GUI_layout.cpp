@@ -22,8 +22,8 @@ Rect GUI::InflateRect(const Rect rect, Padding padding) const
     return Rect(
         rect.X - padding.left,
         rect.Y - padding.top,
-        rect.Width + padding.left + padding.right - 1,
-        rect.Height + padding.top + padding.bottom - 1
+        rect.Width + padding.left + padding.right,
+        rect.Height + padding.top + padding.bottom
     );
 }
 
@@ -135,9 +135,9 @@ void GUI::CalculateLayoutGame()
 
     current_player_->center = PointGUI(window_.Width / 2, table_.Y - 60);
     skip_button_->center = PointGUI(window_.Width / 2, table_.Y + table_.Height + 20);
-    reset_button_->center = PointGUI(window_.Width / 2 + 40, table_.Y - 20);
-    undo_button_->center = PointGUI(window_.Width / 2 - 40, table_.Y - 20);
-    menu_button_->center = PointGUI(table_.X + 40, table_.Y + table_.Height + 20);
+    reset_button_->center = PointGUI(window_.Width / 2 + cell_size_ / 2, table_.Y - 20);
+    undo_button_->center = PointGUI(window_.Width / 2 - cell_size_ / 2, table_.Y - 20);
+    menu_button_->center = PointGUI(table_.X + cell_size_ / 2, table_.Y + table_.Height + 20);
 
     if (skip_button_->visible != game_state_->turn_move_block_)
     {

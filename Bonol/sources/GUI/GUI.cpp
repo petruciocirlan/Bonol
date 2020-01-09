@@ -66,7 +66,7 @@ void GUI::CreateGame()
 
     selected_cells_count_ = 0;
 
-    repaint_background_ = true;
+    force_repaint_background_ = true;
 
     game_history_ = new std::stack < Bonol >;
     game_history_->push(Bonol(*this, *game_state_));
@@ -156,7 +156,7 @@ void GUI::CreateMenu()
 
     InvalidateTextBoxes();
 
-    repaint_background_ = true;
+    force_repaint_background_ = true;
 }
 
 void GUI::DestroyMenu()

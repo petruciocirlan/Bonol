@@ -18,26 +18,47 @@
 //    //line(from.x, from.y, to.x, to.y);
 //}
 
-void GUI::DrawRect(const Rect rc, const Color normal_color, const FLOAT width) const
+void GUI::DrawRect(const Rect rc, const Color color, const FLOAT width) const
 {
-    Pen pen(normal_color, width);
+    Pen pen(color, width);
     graphics_->DrawRectangle(&pen, rc);
 }
 
-void GUI::FillRect(const Rect rc, const Color normal_color) const
+void GUI::FillRect(const Rect rc, const Color color) const
 {
-    SolidBrush brush(normal_color);
+    SolidBrush brush(color);
     graphics_->FillRectangle(&brush, rc);
 }
 
+void GUI::DrawCircle(const Rect rc, const Color color, const FLOAT width) const
+{
+	graphics_->SetSmoothingMode(SmoothingModeHighQuality);
+	Pen pen(color, width);
+	graphics_->DrawEllipse(&pen, rc);
+}
+
+void GUI::FillCircle(const Rect rc, const Color color) const
+{
+	graphics_->SetSmoothingMode(SmoothingModeHighQuality);
+	SolidBrush brush(color);
+	graphics_->FillEllipse(&brush, rc);
+}
+
+
 void GUI::DrawCell(const PointGUI pos) const
 {
-	const INT cool_padding = 5;
+	//const INT cool_padding = 5;
 	Rect rc(
-		pos.x + cool_padding,
-		pos.y + cool_padding,
-		cell_size_ - 2 * cool_padding,
-		cell_size_ - 2 * cool_padding);
+		pos.x,// + cool_padding,
+		pos.y,// + cool_padding,
+		cell_size_,// - 2 * cool_padding,
+		cell_size_// - 2 * cool_padding
+	);
+
+	FillRect(rc, Color::White);
+
+	Rect free_cell = InflateRect(rc, Padding(-5));
+	Rect full_cell = InflateRect(rc, Padding(-10));
 	
 	Bonol::Piece cell_piece = game_state_->GetUpdateCellPiece(game_state_->GetCellFromGUI(pos));
 
@@ -45,50 +66,50 @@ void GUI::DrawCell(const PointGUI pos) const
 	{
 	case Bonol::Piece::FREE:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::White);
+		FillRect(free_cell, Color::White);
+		DrawRect(free_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::RED:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::PaleVioletRed);
+		FillRect(full_cell, Color::PaleVioletRed);
+		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLUE:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::DodgerBlue);
+		FillRect(full_cell, Color::DodgerBlue);
+		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLOCKED:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::DarkGray);
+		FillCircle(full_cell, Color::DarkGray);
+		DrawCircle(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::RED_SELECTED:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::Firebrick);
+		FillRect(full_cell, Color::Firebrick);
+		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLUE_SELECTED:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::RoyalBlue);
+		FillRect(full_cell, Color::RoyalBlue);
+		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLOCKED_SELECTED:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::Yellow);
+		FillCircle(full_cell, Color::Yellow);
+		DrawCircle(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLOCKED_HIGHLIGHTED:
 	{
-		DrawRect(InflateRect(rc, 1), Color::Black, 1.0f);
-		FillRect(rc, Color::LightSlateGray);
+		FillCircle(full_cell, Color::LightSlateGray);
+		DrawCircle(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	}

@@ -396,10 +396,10 @@ void GUI::OnPaint()
     graphics_ = new Graphics(&buffer);
     Graphics graphics(hdc);
 
-    if (repaint_background_)
+    if (force_repaint_background_)
     {
         DrawBackground();
-        repaint_background_ = false;
+        force_repaint_background_ = false;
     }
     DrawForeground();
 

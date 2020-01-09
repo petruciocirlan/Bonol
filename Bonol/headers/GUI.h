@@ -74,8 +74,14 @@ private:
 	};
 	VersusMode current_mode_;
 
-	Rect table_, window_;
-	INT cell_size_, selected_cells_count_;
+	/// ANY SCREEN (GLOBAL)
+	HWND hwnd_;
+	Rect window_;
+	Graphics* graphics_;
+
+	bool is_mouse_down_;
+	bool force_repaint_background_;
+	bool is_playing_music_;
 
 	static const INT kTextBoxesGlobalCount = 1;
 	union
@@ -84,6 +90,27 @@ private:
 		struct { TextBox* music_toggle_; };
 	};
 
+	/// MENU SCREEN
+	static const INT kTextBoxesMenuCount = 5;
+	union
+	{
+		struct { TextBox* text_boxes_menu_[kTextBoxesMenuCount]; };
+		struct {
+			TextBox* title_,
+				* play_player_button_, * play_computer_button_,
+				* easy_computer_button_, * hard_computer_button_;
+		};
+	};
+
+	/// GAME SCREEN
+	Bonol* game_state_;
+	std::stack < Bonol >* game_history_;
+
+	Rect table_;
+	INT cell_size_, selected_cells_count_;
+
+	bool is_selecting_, is_moving_block_;
+
 	static const INT kTextBoxesGameCount = 5;
 	union
 	{
@@ -91,24 +118,8 @@ private:
 		struct { TextBox* current_player_, * skip_button_, * reset_button_, * undo_button_, * menu_button_; };
 	};
 
-	static const INT kTextBoxesMenuCount = 5;
-	union
-	{
-		struct { TextBox* text_boxes_menu_[kTextBoxesMenuCount]; };
-		struct { TextBox* title_,
-			            * play_player_button_, * play_computer_button_,
-			            * easy_computer_button_, * hard_computer_button_; };
-	};
 	//String* language_text_menu_[kTextBoxesMenuCount];
 
-	bool is_mouse_down_, is_selecting_, is_moving_block_;
-	bool repaint_background_;
-	bool is_playing_music_;
-
-	std::stack < Bonol > *game_history_;
-	Graphics *graphics_;
-	Bonol *game_state_;
-	HWND hwnd_;
 
 	/// events
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -133,8 +144,10 @@ private:
 
 	/// drawing
 	//void DrawLine(const PointGUI from, const PointGUI to) const;
-	void DrawRect(const Rect rc, const Color normal_color, const FLOAT width) const;
-	void FillRect(const Rect rc, const Color normal_color) const;
+	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
+	void FillRect(const Rect rc, const Color color) const;
+	void DrawCircle(const Rect rc, const Color color, const FLOAT width) const;
+	void FillCircle(const Rect rc, const Color color) const;
 
 	void DrawCell(const PointGUI pos) const;
 
