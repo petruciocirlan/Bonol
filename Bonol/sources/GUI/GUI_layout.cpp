@@ -58,10 +58,16 @@ void GUI::CalculateTextBoxPosition(TextBox& box)
 
 void GUI::CalculateCurrentPlayerText()
 {
-    String current_player = game_state_->GetActivePlayerName();
+    //String current_player = game_state_->GetActivePlayerName();
+    String player = player_1_;
+    if (game_state_->GetActivePlayer() == Bonol::Piece::BLUE)
+    {
+        player = player_2_;
+    }
+
     if (game_state_->Over())
     {
-        String new_text = current_player + TEXT(" has won!");
+        String new_text = player + TEXT(" has won!");
 
         if (current_player_->text != new_text)
         {
@@ -74,14 +80,14 @@ void GUI::CalculateCurrentPlayerText()
     }
     else
     {
-        String new_text = TEXT("Your turn, ") + current_player + TEXT("!");
+        String new_text = TEXT("Your turn, ") + player + TEXT("!");
 
         if (current_player_->text != new_text)
         {
             current_player_->updated = true;
             current_player_->text = new_text;
             delete current_player_->normal_color;
-            if (current_player == TEXT("RED"))
+            if (player == player_1_)
             {
                 current_player_->normal_color = new SolidBrush(Color::PaleVioletRed);
             }
@@ -110,6 +116,7 @@ void GUI::CalculateLayout()
     {
     case Screen::MENU: CalculateLayoutMenu(); break;
     case Screen::GAME: CalculateLayoutGame(); break;
+    case Screen::NAME_SELECT: CalculateLayoutName(); break;
     }
 }
 
@@ -159,6 +166,13 @@ void GUI::CalculateLayoutGame()
     game_state_->InvalidateTable();
 }
 
+void GUI::CalculateLayoutName()
+{
+    choose_name_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 150);
+    select_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 150);
+    name_type_->center = PointGUI(window_.Width / 2, window_.Height / 2);
+}
+
 void GUI::InvalidateTextBoxes()
 {
     for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
@@ -176,6 +190,12 @@ void GUI::InvalidateTextBoxes()
     {
         for (INT counter = 0; counter < kTextBoxesGameCount; ++counter)
             text_boxes_game_[counter]->updated = true;
+        break;
+    }
+    case Screen::NAME_SELECT:
+    {
+        for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
+            text_boxes_name_[counter]->updated = true;
         break;
     }
     }

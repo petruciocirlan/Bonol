@@ -155,6 +155,7 @@ void GUI::DrawTextBoxes()
 	{
 	case Screen::MENU: DrawTextBoxesMenu(); break;
 	case Screen::GAME: DrawTextBoxesGame(); break;
+	case Screen::NAME_SELECT: DrawTextBoxesName(); break;
 	}
 }
 
@@ -188,6 +189,16 @@ void GUI::DrawTextBoxesGame()
         }
 }
 
+void GUI::DrawTextBoxesName()
+{
+	for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
+		if (text_boxes_name_[counter]->updated)
+		{
+			DrawTextBox(*text_boxes_name_[counter]);
+			text_boxes_name_[counter]->updated = false;
+		}
+}
+
 void GUI::DrawBackground() const
 {
     //LinearGradientBrush brush(
@@ -218,5 +229,10 @@ void GUI::DrawForeground()
 
         break;
     }
+	case Screen::NAME_SELECT:
+	{
+
+		break;
+	}
     }
 }

@@ -64,7 +64,7 @@ private:
 
 	enum class Screen
 	{
-		MENU, GAME//, SETTINGS
+		MENU, GAME, NAME_SELECT//, SETTINGS
 	};
 	Screen current_screen_;
 
@@ -78,6 +78,8 @@ private:
 	HWND hwnd_;
 	Rect window_;
 	Graphics* graphics_;
+
+	String player_1_, player_2_;
 
 	bool is_mouse_down_;
 	bool force_repaint_background_;
@@ -118,6 +120,14 @@ private:
 		struct { TextBox* current_player_, * skip_button_, * reset_button_, * undo_button_, * menu_button_; };
 	};
 
+	/// NAME SELECT SCREEN
+	static const INT kTextBoxesNameCount = 3;
+	union
+	{
+		struct { TextBox* text_boxes_name_[kTextBoxesNameCount]; };
+		struct { TextBox* choose_name_, * select_button_, * name_type_; };
+	};
+
 	//String* language_text_menu_[kTextBoxesMenuCount];
 
 
@@ -128,16 +138,21 @@ private:
 	void OnMouseMoveGlobal(const PointGUI mouse_pos);
 	void OnMouseMoveMenu(const PointGUI mouse_pos);
 	void OnMouseMoveGame(const PointGUI mouse_pos);
+	void OnMouseMoveName(const PointGUI mouse_pos);
 
 	void OnLeftClickPress(const PointGUI mouse_pos);
 	bool OnLeftClickPressGlobal(const PointGUI mouse_pos);
 	void OnLeftClickPressMenu(const PointGUI mouse_pos);
 	void OnLeftClickPressGame(const PointGUI mouse_pos);
+	void OnLeftClickPressName(const PointGUI mouse_pos);
 
 	void OnLeftClickRelease(const PointGUI mouse_pos);
 	void OnLeftClickReleaseGlobal(const PointGUI mouse_pos);
 	void OnLeftClickReleaseMenu(const PointGUI mouse_pos);
 	void OnLeftClickReleaseGame(const PointGUI mouse_pos);
+	void OnLeftClickReleaseName(const PointGUI mouse_pos);
+
+	void TypeName(TCHAR character);
 
 	void OnPaint();
 	void Resize();
@@ -156,6 +171,7 @@ private:
 	void DrawTextBoxesGlobal();
 	void DrawTextBoxesMenu();
 	void DrawTextBoxesGame();
+	void DrawTextBoxesName();
 
 	void DrawBackground() const;
 	void DrawForeground();
@@ -172,6 +188,7 @@ private:
 	void CalculateLayout();
 	void CalculateLayoutMenu();
 	void CalculateLayoutGame();
+	void CalculateLayoutName();
 	void InvalidateTextBoxes();
 
 	/// Screen create/delete and screen-specific methods
@@ -182,6 +199,9 @@ private:
 
 	void CreateMenu();
 	void DestroyMenu();
+
+	void CreateNameSelect(String default_name = String(TEXT("PLAYER")));
+	void DestroyNameSelect();
 
 	/// Window setup and message loop
 

@@ -22,6 +22,7 @@ void GUI::OnMouseMove(const PointGUI mouse_pos)
     {
     case Screen::MENU: OnMouseMoveMenu(mouse_pos); break;
     case Screen::GAME: OnMouseMoveGame(mouse_pos); break;
+    case Screen::NAME_SELECT: OnMouseMoveName(mouse_pos); break;
     }
 }
 
@@ -123,6 +124,31 @@ void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
     }
 }
 
+void GUI::OnMouseMoveName(const PointGUI mouse_pos)
+{
+    bool updated = false;
+    for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
+    {
+        if (text_boxes_name_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+        {
+            text_boxes_name_[counter]->is_hover = true;
+            text_boxes_name_[counter]->was_hover = true;
+            updated = true;
+        }
+        else if (text_boxes_name_[counter]->is_hover)
+        {
+            text_boxes_name_[counter]->is_hover = false;
+            updated = true;
+        }
+    }
+
+    if (updated)
+    {
+        InvalidateTextBoxes();
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+}
+
 /// left click press
 
 void GUI::OnLeftClickPress(const PointGUI mouse_pos)
@@ -136,6 +162,7 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
         {
         case Screen::GAME: OnLeftClickPressGame(mouse_pos); break;
         case Screen::MENU: OnLeftClickPressMenu(mouse_pos); break;
+        case Screen::NAME_SELECT: OnLeftClickPressName(mouse_pos); break;
         }
     }
 }
@@ -185,11 +212,11 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
     }
     else if (play_player_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        current_screen_ = Screen::GAME;
+        current_screen_ = Screen::NAME_SELECT;
         current_mode_ = VersusMode::PLAYER;
 
         DestroyMenu();
-        CreateGame();
+        CreateNameSelect(TEXT("PLAYER1"));
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -215,21 +242,23 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
     }
     else if (easy_computer_button_->visible && easy_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        current_screen_ = Screen::GAME;
+        current_screen_ = Screen::NAME_SELECT;
         current_mode_ = VersusMode::COMPUTER_EASY;
 
         DestroyMenu();
-        CreateGame();
+        CreateNameSelect(TEXT("PLAYER"));
+        player_2_ = TEXT("COMPUTER");
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
     else if (hard_computer_button_->visible && hard_computer_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        current_screen_ = Screen::GAME;
+        current_screen_ = Screen::NAME_SELECT;
         current_mode_ = VersusMode::COMPUTER_HARD;
 
         DestroyMenu();
-        CreateGame();
+        CreateNameSelect(TEXT("PLAYER"));
+        player_2_ = TEXT("COMPUTER");
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -301,10 +330,25 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
     }
     else if (reset_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
-        DestroyGame();
-        CreateGame();
+        //DestroyGame();
+        //CreateGame();
 
-        InvalidateRect(hwnd_, 0, TRUE);
+        if (game_history_->size() > 1)
+        {
+            delete game_state_;
+            while (game_history_->size() > 1)
+            {
+                game_history_->pop();
+            }
+            game_state_ = new Bonol(*this, game_history_->top());
+
+            is_moving_block_ = false;
+
+            InvalidateTextBoxes();
+            game_state_->InvalidateTable();
+
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
     }
     else if (undo_button_->visible && undo_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
@@ -333,6 +377,56 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
     }
 }
 
+void GUI::OnLeftClickPressName(const PointGUI mouse_pos)
+{
+    if (select_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        String player_name = name_type_->text;
+
+        if (player_1_ == TEXT(""))
+        {
+            if (player_name == TEXT(""))
+            {
+                player_name = TEXT("PLAYER1");
+            }
+            player_1_ = player_name;
+
+            DestroyNameSelect();
+
+            if (current_mode_ == VersusMode::PLAYER)
+            {
+                CreateNameSelect(TEXT("PLAYER2"));
+            }
+            else
+            {
+                current_screen_ = Screen::GAME;
+                CreateGame();
+            }
+
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
+        else if (current_mode_ == VersusMode::PLAYER)
+        {
+            if (player_name == TEXT(""))
+            {
+                player_name = TEXT("PLAYER2");
+            }
+            player_2_ = player_name;
+
+            current_screen_ = Screen::GAME;
+
+            DestroyNameSelect();
+            CreateGame();
+
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
+        else
+        {
+            std::cout << "UNEXPECTED!\n";
+        }
+    }
+}
+
 /// left click release
 
 void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
@@ -343,6 +437,7 @@ void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
     {
     case Screen::GAME: OnLeftClickReleaseGame(mouse_pos); break;
     case Screen::MENU: OnLeftClickReleaseMenu(mouse_pos); break;
+    case Screen::NAME_SELECT: OnLeftClickReleaseName(mouse_pos); break;
     }
 
     is_mouse_down_ = false;
@@ -380,6 +475,35 @@ void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
         selected_cells_count_ = 0;
 
         InvalidateRect(hwnd_, 0, TRUE);
+    }
+}
+
+void GUI::OnLeftClickReleaseName(const PointGUI mouse_pos)
+{
+    /// TODO(@petru): name select - left click release
+}
+
+void GUI::TypeName(TCHAR character)
+{
+    if (iswalnum(character))
+    {
+        if (name_type_->text.size() < 8)
+        {
+            name_type_->text += character;
+            name_type_->updated = true;
+
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
+    }
+    else if (character == L'\b')
+    {
+        if (!name_type_->text.empty())
+        {
+            name_type_->text.pop_back();
+            name_type_->updated = true;
+
+            InvalidateRect(hwnd_, 0, TRUE);
+        }
     }
 }
 
@@ -509,6 +633,14 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 DestroyWindow(hwnd);
             }
             return 0;
+        }
+        break;
+    }
+    case WM_CHAR:
+    {
+        if (game_interface->current_screen_ == Screen::NAME_SELECT)
+        {
+            game_interface->TypeName((TCHAR)wParam);
         }
         break;
     }

@@ -156,6 +156,7 @@ void GUI::CreateMenu()
 
     InvalidateTextBoxes();
 
+    player_1_ = TEXT(""), player_2_ = TEXT("");
     force_repaint_background_ = true;
 }
 
@@ -165,6 +166,41 @@ void GUI::DestroyMenu()
     {
         delete text_boxes_menu_[counter];
         text_boxes_menu_[counter] = NULL;
+    }
+}
+
+void GUI::CreateNameSelect(String default_name)
+{
+    choose_name_ = new TextBox(
+        TEXT("Type in your name"),
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Arial"), 24)
+    );
+    select_button_ = new TextBox(
+        TEXT("Enter"),
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Arial"), 20),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 24)
+    );
+    name_type_ = new TextBox(
+        default_name,
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 20)
+    );
+    
+    InvalidateTextBoxes();
+
+    force_repaint_background_ = true;
+}
+
+void GUI::DestroyNameSelect()
+{
+    for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
+    {
+        delete text_boxes_name_[counter];
+        text_boxes_name_[counter] = NULL;
     }
 }
 
