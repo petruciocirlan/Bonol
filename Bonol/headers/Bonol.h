@@ -51,9 +51,9 @@ private:
 
 	bool is_over_;
 	Piece active_player_piece_;
+	bool turn_move_piece_, turn_move_block_;
 
 public:
-	bool turn_move_piece_, turn_move_block_;
 
 	Bonol(const GUI &gui);
 	Bonol(const GUI &gui, const Bonol &copy);
@@ -72,8 +72,10 @@ public:
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
 	String GetActivePlayerName() const;
+
 	Piece GetCellPiece(const PosCell cell) const;
 	Piece GetUpdateCellPiece(const PosCell cell) const;
+
 	PosCell GetCellFromGUI(const PointGUI pos) const;
 	PointGUI GetGUIFromCell(const PosCell cell) const;
 
@@ -88,6 +90,9 @@ public:
 
 	/// update state for GUI interaction
 	void ApplyMove();
+
+	bool& MovePieceTurn();
+	bool& MoveBlockTurn();
 
 	void InvalidateTable();
 	void InvalidateCell(const PosCell cell);

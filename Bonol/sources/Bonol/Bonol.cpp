@@ -53,7 +53,13 @@ GUI::Bonol::Bonol(const GUI &gui, const Bonol &copy)
 //	delete old_board_, update_board_;
 //}
 
-/// Board struct
+/// Additional structs
+
+bool GUI::Bonol::PosCell::operator==(const PosCell& operand) const
+{
+	return (this->x == operand.x && this->y == operand.y);
+}
+
 
 GUI::Bonol::Board::Board()
 {
@@ -92,9 +98,4 @@ void GUI::Bonol::Board::Clear()
 GUI::Bonol::Piece& GUI::Bonol::Board::at(const PosCell pos)
 {
 	return cell[pos.y][pos.x];
-}
-
-bool GUI::Bonol::PosCell::operator==(const PosCell& operand) const
-{
-	return (this->x == operand.x && this->y == operand.y);
 }

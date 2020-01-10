@@ -92,14 +92,14 @@ void GUI::DestroyGame()
 
 void GUI::EndMovingBlockTurn()
 {
-    game_state_->turn_move_piece_ = true;
-    game_state_->turn_move_block_ = false;
+    game_state_->MovePieceTurn() = true;
+    game_state_->MoveBlockTurn() = false;
     game_state_->ChangePlayer();
     game_state_->DeHighlightBlockedPieces();
 
     if (game_state_->Over())
     {
-        game_state_->turn_move_piece_ = false;
+        game_state_->MovePieceTurn() = false;
 
         game_state_->ChangePlayer();
         CalculateCurrentPlayerText();
@@ -156,7 +156,7 @@ void GUI::CreateMenu()
 
     InvalidateTextBoxes();
 
-    player_1_ = TEXT(""), player_2_ = TEXT("");
+    player_1_name_ = TEXT(""), player_2_name_ = TEXT("");
     force_repaint_background_ = true;
 }
 
@@ -184,10 +184,17 @@ void GUI::CreateNameSelect(String default_name)
         new SolidBrush(kTextHover),
         new Font(TEXT("Arial"), 24)
     );
+
+    Color name_color = Color::PaleVioletRed;
+    if (current_mode_ == VersusMode::PLAYER && player_1_name_ != TEXT(""))
+    {
+        name_color = Color::DodgerBlue;
+    }
     name_type_ = new TextBox(
         default_name,
-        new SolidBrush(kTextHover),
-        new Font(TEXT("Arial"), 20)
+        new SolidBrush(name_color),
+        new Font(TEXT("Arial"), 20),
+        Padding(5)
     );
     
     InvalidateTextBoxes();

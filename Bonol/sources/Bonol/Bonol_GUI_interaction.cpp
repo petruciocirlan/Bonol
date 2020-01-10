@@ -33,6 +33,16 @@ void GUI::Bonol::ApplyMove()
 	update.Clear();
 }
 
+bool& GUI::Bonol::MovePieceTurn()
+{
+	return turn_move_piece_;
+}
+
+bool& GUI::Bonol::MoveBlockTurn()
+{
+	return turn_move_block_;
+}
+
 void GUI::Bonol::InvalidateTable()
 {
 	memset(has_cell_updated_, true, sizeof(has_cell_updated_));
@@ -143,12 +153,12 @@ void GUI::Bonol::DeHighlightBlockedPieces()
 
 void GUI::Bonol::DrawTable()
 {
-	for (CoordCell line = 0; line < kBoardSize; ++line)
+	for (CoordCell row = 0; row < kBoardSize; ++row)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
-			if (has_cell_updated_[line][column])
+			if (has_cell_updated_[row][column])
 			{
-				interface_->DrawCell(GetGUIFromCell(PosCell(line, column)));
-				has_cell_updated_[line][column] = false;
+				interface_->DrawCell(GetGUIFromCell(PosCell(row, column)));
+				has_cell_updated_[row][column] = false;
 			}
 }
 

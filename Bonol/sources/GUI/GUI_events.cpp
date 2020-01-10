@@ -196,7 +196,7 @@ bool GUI::OnLeftClickPressGlobal(const PointGUI mouse_pos)
         }
         music_toggle_->updated = true;
 
-        InvalidateRect(hwnd_, NULL, TRUE);
+        InvalidateRect(hwnd_, 0, TRUE);
 
         return true;
     }
@@ -247,7 +247,7 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
 
         DestroyMenu();
         CreateNameSelect(TEXT("PLAYER"));
-        player_2_ = TEXT("COMPUTER");
+        player_2_name_ = TEXT("COMPUTER");
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -258,7 +258,7 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
 
         DestroyMenu();
         CreateNameSelect(TEXT("PLAYER"));
-        player_2_ = TEXT("COMPUTER");
+        player_2_name_ = TEXT("COMPUTER");
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -272,7 +272,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
     {
         Bonol::PosCell clicked_cell = game_state_->GetCellFromGUI(mouse_pos);
         Bonol::Piece clicked_piece = game_state_->GetCellPiece(clicked_cell);
-        if (game_state_->turn_move_piece_ && game_state_->IsFreeForActivePlayer(clicked_cell))
+        if (game_state_->MovePieceTurn() && game_state_->IsFreeForActivePlayer(clicked_cell))
         {
             game_state_->ClearUpdate();
             game_state_->UpdateCell(clicked_cell, game_state_->GetActivePlayerSelected());
@@ -282,7 +282,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
 
             InvalidateRect(hwnd_, 0, TRUE);
         }
-        else if (game_state_->turn_move_block_ && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_HIGHLIGHTED)
+        else if (game_state_->MoveBlockTurn() && !is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_HIGHLIGHTED)
         {
             game_state_->ClearUpdate();
             game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED_SELECTED);
@@ -315,7 +315,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
             InvalidateRect(hwnd_, 0, TRUE);
         }
     }
-    else if (game_state_->turn_move_block_ && skip_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    else if (game_state_->MoveBlockTurn() && skip_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
         if (is_moving_block_)
         {
@@ -383,13 +383,20 @@ void GUI::OnLeftClickPressName(const PointGUI mouse_pos)
     {
         String player_name = name_type_->text;
 
-        if (player_1_ == TEXT(""))
+        if (player_1_name_ == TEXT(""))
         {
             if (player_name == TEXT(""))
             {
-                player_name = TEXT("PLAYER1");
+                if (current_mode_ == VersusMode::PLAYER)
+                {
+                    player_name = TEXT("PLAYER1");
+                }
+                else
+                {
+                    player_name = TEXT("PLAYER");
+                }
             }
-            player_1_ = player_name;
+            player_1_name_ = player_name;
 
             DestroyNameSelect();
 
@@ -411,7 +418,7 @@ void GUI::OnLeftClickPressName(const PointGUI mouse_pos)
             {
                 player_name = TEXT("PLAYER2");
             }
-            player_2_ = player_name;
+            player_2_name_ = player_name;
 
             current_screen_ = Screen::GAME;
 
@@ -463,8 +470,8 @@ void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
         {
             game_state_->ApplyMove();
 
-            game_state_->turn_move_piece_ = false;
-            game_state_->turn_move_block_ = true;
+            game_state_->MovePieceTurn() = false;
+            game_state_->MoveBlockTurn() = true;
             game_state_->HighlightBlockedPieces();
 
             game_history_->push(Bonol(*this, *game_state_));
@@ -525,33 +532,10 @@ void GUI::OnPaint()
 
     if (force_repaint_background_)
     {
+        InvalidateTextBoxes();
         DrawBackground();
         force_repaint_background_ = false;
     }
-    DrawForeground();
-
-    graphics.DrawImage(&buffer, 0, 0);
-
-    delete graphics_;
-    EndPaint(hwnd_, &ps);
-}
-
-void GUI::Resize()
-{
-    CalculateLayout();
-    InvalidateTextBoxes();
-
-    PAINTSTRUCT ps;
-    HDC hdc = BeginPaint(hwnd_, &ps);
-
-    Bitmap buffer(window_.Width, window_.Height);
-    graphics_ = new Graphics(&buffer);
-    Graphics graphics(hdc);
-
-    graphics_->SetSmoothingMode(SmoothingModeAntiAlias);
-    graphics_->SetTextRenderingHint(TextRenderingHintAntiAlias);
-
-    DrawBackground();
     DrawForeground();
 
     graphics.DrawImage(&buffer, 0, 0);
@@ -603,7 +587,8 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_SIZE:
     {
-        game_interface->Resize();
+        game_interface->force_repaint_background_ = true;
+        game_interface->OnPaint();
         return 0;
     }
     case WM_MOUSEMOVE:

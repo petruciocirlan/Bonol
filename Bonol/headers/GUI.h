@@ -79,7 +79,7 @@ private:
 	Rect window_;
 	Graphics* graphics_;
 
-	String player_1_, player_2_;
+	String player_1_name_, player_2_name_;
 
 	bool is_mouse_down_;
 	bool force_repaint_background_;
@@ -155,7 +155,6 @@ private:
 	void TypeName(TCHAR character);
 
 	void OnPaint();
-	void Resize();
 
 	/// drawing
 	//void DrawLine(const PointGUI from, const PointGUI to) const;
@@ -177,7 +176,7 @@ private:
 	void DrawForeground();
 
 	/// layout compute
-	Rect MakeRect(PointGUI origin, PointGUI dimensions) const;
+	Rect MakeRect(PointGUI origin, Dimensions dimensions) const;
 	Rect InflateRect(const Rect rect, Padding padding) const;
 	PointGUI GetTableCenter() const;
 	PointGUI GetTableOrigin() const;

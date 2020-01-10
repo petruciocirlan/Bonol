@@ -12,7 +12,7 @@
 
 #include "../../headers/GUI.h"
 
-Rect GUI::MakeRect(PointGUI origin, PointGUI dimensions) const
+Rect GUI::MakeRect(PointGUI origin, Dimensions dimensions) const
 {
     return Rect(origin.x, origin.y, dimensions.x, dimensions.y);
 }
@@ -51,7 +51,7 @@ void GUI::CalculateTextBoxPosition(TextBox& box)
         font = box.highlighted_font;
     }
     graphics_->MeasureString(box.text.data(), -1, font, PointF(0, 0), &bounds);
-    PointGUI text_box_dimensions((INT)bounds.Width, (INT)bounds.Height);
+    Dimensions text_box_dimensions((INT)bounds.Width, (INT)bounds.Height);
     PointGUI text_box_origin(box.center.x - (INT)bounds.Width / 2, box.center.y - (INT)bounds.Height / 2);
     box.rect = MakeRect(text_box_origin, text_box_dimensions);
 }
@@ -59,10 +59,10 @@ void GUI::CalculateTextBoxPosition(TextBox& box)
 void GUI::CalculateCurrentPlayerText()
 {
     //String current_player = game_state_->GetActivePlayerName();
-    String player = player_1_;
+    String player = player_1_name_;
     if (game_state_->GetActivePlayer() == Bonol::Piece::BLUE)
     {
-        player = player_2_;
+        player = player_2_name_;
     }
 
     if (game_state_->Over())
@@ -87,7 +87,7 @@ void GUI::CalculateCurrentPlayerText()
             current_player_->updated = true;
             current_player_->text = new_text;
             delete current_player_->normal_color;
-            if (player == player_1_)
+            if (player == player_1_name_)
             {
                 current_player_->normal_color = new SolidBrush(Color::PaleVioletRed);
             }
@@ -146,9 +146,9 @@ void GUI::CalculateLayoutGame()
     undo_button_->center = PointGUI(window_.Width / 2 - cell_size_ / 2, table_.Y - 20);
     menu_button_->center = PointGUI(table_.X + cell_size_ / 2, table_.Y + table_.Height + 20);
 
-    if (skip_button_->visible != game_state_->turn_move_block_)
+    if (skip_button_->visible != game_state_->MoveBlockTurn())
     {
-        skip_button_->visible = game_state_->turn_move_block_;
+        skip_button_->visible = game_state_->MoveBlockTurn();
         skip_button_->updated = true;
     }
 
@@ -169,8 +169,8 @@ void GUI::CalculateLayoutGame()
 void GUI::CalculateLayoutName()
 {
     choose_name_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 150);
-    select_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 150);
-    name_type_->center = PointGUI(window_.Width / 2, window_.Height / 2);
+    select_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 75);
+    name_type_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 50);
 }
 
 void GUI::InvalidateTextBoxes()
