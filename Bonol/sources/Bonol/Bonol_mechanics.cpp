@@ -350,9 +350,8 @@ void GUI::Bonol::FindBestMove()
 
 	std::cout << "\n" << "===== Show Board =====\n";
 
-	
 	//ChangePlayer();
-
+	//DeleteCurrentPlayerPieces();
 
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 	{
@@ -466,6 +465,6 @@ void GUI::Bonol::DeleteCurrentPlayerPieces()
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
 			if (IsActivePlayerPiece(PosCell(column, row)))
-				old_board_->at(PosCell(column - 2, row - 1)) = Piece::FREE;
+				old_board_->at(PosCell(column, row)) = Piece::FREE;
 
 }
