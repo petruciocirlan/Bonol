@@ -88,6 +88,10 @@ public:
 	unsigned HowManyPossibleMoves();
 	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
 
+	// computer turn moves
+	void FindBestMove();
+	void DeleteCurrentPlayerPieces();
+
 	/// update state for GUI interaction
 	void ApplyMove();
 

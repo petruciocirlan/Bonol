@@ -179,8 +179,8 @@ void GUI::Bonol::ChangePlayer()
 		active_player_piece_ = Piece::RED;
 	}
 
-	std::cout << "Changed player\n";
-	std::cout << "Possible moves : " << HowManyPossibleMoves() << "\n";
+	///std::cout << "Changed player\n";
+	//std::cout << "Possible moves : " << HowManyPossibleMoves() << "\n";
 
 	if (HowManyPossibleMoves() == 0)
 	{
