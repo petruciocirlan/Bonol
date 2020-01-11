@@ -29,15 +29,17 @@ GUI::Bonol::Piece GUI::Bonol::GetActivePlayerSelected() const
 	}
 }
 
-GUI::String GUI::Bonol::GetActivePlayerName() const
+short GUI::Bonol::GetActivePlayerName() const
 {
 	if (active_player_piece_ == Piece::RED)
 	{
-		return String(TEXT("RED"));
+		/// Player RED
+		return 1;
 	}
 	else
 	{
-		return String(TEXT("BLUE"));
+		/// Player BLUE
+		return 2;
 	}
 }
 

@@ -71,7 +71,7 @@ public:
 	/// data access
 	Piece GetActivePlayer() const;
 	Piece GetActivePlayerSelected() const;
-	String GetActivePlayerName() const;
+	short GetActivePlayerName() const;
 
 	Piece GetCellPiece(const PosCell cell) const;
 	Piece GetUpdateCellPiece(const PosCell cell) const;
@@ -89,8 +89,10 @@ public:
 	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
 
 	// computer turn moves
-	void FindBestMove();
+	void FindPcMove(char WhichMove[5]);
 	void DeleteCurrentPlayerPieces();
+	void DeleteFirstRock();
+	
 
 	/// update state for GUI interaction
 	void ApplyMove();

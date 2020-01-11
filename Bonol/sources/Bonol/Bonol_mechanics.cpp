@@ -22,8 +22,10 @@ bool GUI::Bonol::ValidateMove()
 	/// where pos is a PosCell and constructor is PosCell(column, line)
 
 	///std::cout << "===============================\n";
-
-	FindBestMove();
+	
+	char move[5] = "HARD";
+	if(GetActivePlayerName()==2)
+	FindPcMove(move);
 
 	//std::cout << "Possible moves : "<<HowManyPossibleMoves()<<"\n"; 
 
@@ -330,7 +332,7 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 	return Count;
 }
 
-void GUI::Bonol::FindBestMove()
+void GUI::Bonol::FindPcMove(char WhichMove[5])
 {
 	///this function will find the best move
 	Board& old_state = *old_board_;
@@ -338,20 +340,30 @@ void GUI::Bonol::FindBestMove()
 	Board aux_board = old_state;
 
 	struct {
-		short LT;
-		short LB;
-		short RT;
-		short RB;
-		short TL;
-		short TR;
-		short BL;
-		short BR;
-	}AuxMoves[3][3];
+		int LT;
+		int LB;
+		int RT;
+		int RB;
+		int TL;
+		int TR;
+		int BL;
+		int BR;
+	}AuxMoves[4][4];
+
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			AuxMoves[column][row].LT = -1;
+			AuxMoves[column][row].LB = -1;
+			AuxMoves[column][row].RT = -1;
+			AuxMoves[column][row].RB = -1;
+			AuxMoves[column][row].TL = -1;
+			AuxMoves[column][row].TR = -1;
+			AuxMoves[column][row].BL = -1;
+			AuxMoves[column][row].BR = -1;
+		}
 
 	std::cout << "\n" << "===== Show Board =====\n";
-
-	//ChangePlayer();
-	//DeleteCurrentPlayerPieces();
 
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 	{
@@ -370,17 +382,30 @@ void GUI::Bonol::FindBestMove()
 							if (IsActivePlayerPiece(PosCell(column + 1, row - 2)) || old_board_->at(PosCell(column + 1, row - 2)) == Piece::FREE)
 								if (column + 1 <= 3)
 								{
-									if(IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column, row - 1)) && 
+									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column, row - 1)) &&
 										IsActivePlayerPiece(PosCell(column, row - 2)) && IsActivePlayerPiece(PosCell(column + 1, row - 2)))
-									{}else Count++;
+									{}
+									else
+									{
+										Count++;
 
-									/// apoi pe old board stergi intai piesele 
-									/// aplici mutarea
-									/// changeplayer apoi pui in AuxMoves in ce variabial trebuie cate mutari ii raman la pc
-									/// ChangePlayer();
-									/// aduci old board la starea initiala 
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 1, row - 2)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(TR" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].TR = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
 								}
-							old_state = aux_board;
+								old_state = aux_board;
 
 							if (IsActivePlayerPiece(PosCell(column - 1, row - 2)) ||
 								old_board_->at(PosCell(column - 1, row - 2)) == Piece::FREE)
@@ -388,10 +413,28 @@ void GUI::Bonol::FindBestMove()
 								{
 									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column, row - 1)) &&
 										IsActivePlayerPiece(PosCell(column, row - 2)) && IsActivePlayerPiece(PosCell(column - 1, row - 2)))
-									{}else Count++;
-								}
-     						old_state = aux_board;
+									{}
+									else
+									{
+										Count++;
 
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 1, row - 2)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(TL" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].TL = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
+								}
+     							old_state = aux_board;
 						}
 
 				//Check right side
@@ -402,11 +445,61 @@ void GUI::Bonol::FindBestMove()
 							if (IsActivePlayerPiece(PosCell(column + 2, row + 1)) ||
 								old_board_->at(PosCell(column + 2, row + 1)) == Piece::FREE)
 								if (row + 1 <= 3)
-									Count++;
+								{
+									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column + 1, row)) &&
+										IsActivePlayerPiece(PosCell(column + 2, row)) && IsActivePlayerPiece(PosCell(column + 2, row + 1)))
+									{}
+									else
+									{
+										Count++;
+
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 2, row + 1)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(RB" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].RB = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
+									old_state = aux_board;
+								}
+
 							if (IsActivePlayerPiece(PosCell(column + 2, row - 1)) ||
 								old_board_->at(PosCell(column + 2, row - 1)) == Piece::FREE)
 								if (row - 1 >= 0)
-									Count++;
+								{
+									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column + 1, row)) &&
+										IsActivePlayerPiece(PosCell(column + 2, row)) && IsActivePlayerPiece(PosCell(column + 2, row - 1)))
+									{}
+									else
+									{
+										Count++;
+
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 2, row - 1)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(RT" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].RT = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
+									old_state = aux_board;
+								}
+
 						}
 
 				//Check bottom side
@@ -417,11 +510,60 @@ void GUI::Bonol::FindBestMove()
 							if (IsActivePlayerPiece(PosCell(column + 1, row + 2)) ||
 								old_board_->at(PosCell(column + 1, row + 2)) == Piece::FREE)
 								if (column + 1 <= 3)
-									Count++;
+								{
+									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column, row + 1)) &&
+										IsActivePlayerPiece(PosCell(column, row + 2)) && IsActivePlayerPiece(PosCell(column + 1, row + 2)))
+									{}
+									else
+									{
+										Count++;
+
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
+										old_board_->at(PosCell(column + 1, row + 2)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(BR" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].BR = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
+									old_state = aux_board;
+								}
+
 							if (IsActivePlayerPiece(PosCell(column - 1, row + 2)) ||
 								old_board_->at(PosCell(column - 1, row + 2)) == Piece::FREE)
 								if (column - 1 >= 0)
-									Count++;
+								{
+									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column, row + 1)) &&
+										IsActivePlayerPiece(PosCell(column, row + 2)) && IsActivePlayerPiece(PosCell(column - 1, row + 2)))
+									{}
+									else
+									{
+										Count++;
+
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
+										old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 1, row + 2)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(BL" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].BL = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
+									old_state = aux_board;
+								}
 						}
 
 				//Check left side
@@ -432,14 +574,62 @@ void GUI::Bonol::FindBestMove()
 							if (IsActivePlayerPiece(PosCell(column - 2, row + 1)) ||
 								old_board_->at(PosCell(column - 2, row + 1)) == Piece::FREE)
 								if (row + 1 <= 3)
-									Count++;
+								{
+									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column - 1, row)) &&
+										IsActivePlayerPiece(PosCell(column - 2, row)) && IsActivePlayerPiece(PosCell(column - 2, row + 1)))
+									{}
+									else
+									{
+										Count++;
+
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 2, row + 1)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(LB" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].LB = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
+									old_state = aux_board;
+								}
+
 							if (IsActivePlayerPiece(PosCell(column - 2, row - 1)) ||
 								old_board_->at(PosCell(column - 2, row - 1)) == Piece::FREE)
 								if (row - 1 >= 0)
-									Count++;
+								{
+									if (IsActivePlayerPiece(PosCell(column, row)) && IsActivePlayerPiece(PosCell(column - 1, row)) &&
+										IsActivePlayerPiece(PosCell(column - 2, row)) && IsActivePlayerPiece(PosCell(column - 2, row - 1)))
+									{}
+									else
+									{
+										Count++;
+
+										DeleteCurrentPlayerPieces();
+
+										/// Apply the move
+										old_board_->at(PosCell(column, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
+										old_board_->at(PosCell(column - 2, row - 1)) = Piece::BLUE;
+
+										ChangePlayer();
+
+										std::cout << "(LT" << HowManyPossibleMoves() << ")";
+										AuxMoves[column][row].LT = HowManyPossibleMoves();
+
+										ChangePlayer();
+									}
+									old_state = aux_board;
+								}
 						}
-				std::cout << Count << " ";
-				//std::cout << CountMoves(column, row) << " ";
+				std::cout << Count << " ";	
 			}
 			else std::cout << "0 ";
 
@@ -449,22 +639,204 @@ void GUI::Bonol::FindBestMove()
 
 	}
 	
+
+	int BestMove = 99;
+	int WorstMove = -1;
+
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+		{
+			if (AuxMoves[column][row].LT > 0)
+				BestMove = min(AuxMoves[column][row].LT, BestMove);
+			if (AuxMoves[column][row].LB > 0)
+				BestMove = min(AuxMoves[column][row].LB, BestMove);
+			if (AuxMoves[column][row].RT > 0)
+				BestMove = min(AuxMoves[column][row].RT, BestMove);
+			if (AuxMoves[column][row].RB > 0)
+				BestMove = min(AuxMoves[column][row].RB, BestMove);
+			if (AuxMoves[column][row].TL > 0)
+				BestMove = min(AuxMoves[column][row].TL, BestMove);
+			if (AuxMoves[column][row].TR > 0)
+				BestMove = min(AuxMoves[column][row].TR, BestMove);
+			if (AuxMoves[column][row].BL > 0)
+				BestMove = min(AuxMoves[column][row].BL, BestMove);
+			if (AuxMoves[column][row].BR > 0)
+				BestMove = min(AuxMoves[column][row].BR, BestMove);
+		}
+
+	if (strcmp(WhichMove, "HARD")==0)
+	{
+		std::cout << "===== End Of Showing Board =====  " << BestMove << "\n";
+
+		bool FoundMove = false;
+
+		for (CoordCell row = 0; row < kBoardSize && FoundMove == false; ++row)
+			for (CoordCell column = 0; column < kBoardSize && FoundMove == false; ++column)
+			{
+				if(AuxMoves[column][row].TR == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 1, row - 2)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+				if(AuxMoves[column][row].TL == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 1, row - 2)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+				if(AuxMoves[column][row].RB == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 2, row + 1)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+				if(AuxMoves[column][row].RT == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 2, row - 1)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+				if(AuxMoves[column][row].BR == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
+					old_board_->at(PosCell(column + 1, row + 2)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+				if(AuxMoves[column][row].BL == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
+					old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 1, row + 2)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+				if(AuxMoves[column][row].LB == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 2, row + 1)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+				if (AuxMoves[column][row].LT == BestMove && FoundMove == false)
+				{
+					DeleteCurrentPlayerPieces();
+
+					old_board_->at(PosCell(column, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
+					old_board_->at(PosCell(column - 2, row - 1)) = Piece::BLUE;
+					FoundMove = true;
+					std::cout << row << " " << column << "\n";
+				}
+			}
+
+		std::cout << "\n\n";
+
+		aux_board = old_state;
+		int BestRock = 99, BestRockRow=-1, BestRockColumn=-1;
+		bool isOver = false;
+
+			for (CoordCell row = 0; row < kBoardSize; ++row)
+				for (CoordCell column = 0; column < kBoardSize; ++column)
+					if (old_board_->at(PosCell(column, row)) != Piece::BLOCKED && old_board_->at(PosCell(column, row)) == Piece::FREE)
+					{
+						old_board_->at(PosCell(column, row)) = Piece::BLOCKED;
+						ChangePlayer();
+
+						std::cout << HowManyPossibleMoves() << " ";
+						if (column == 3) std::cout << "\n";
+
+						if (HowManyPossibleMoves() == 0)
+						{
+							BestRock = HowManyPossibleMoves();
+							BestRockRow = row;
+							BestRockColumn = column;
+						}
+						ChangePlayer();
+						old_state = aux_board;
+					}
+					else
+					{
+						std::cout << " -1 ";
+						if (column == 3) std::cout << "\n";
+
+					}
+
+			std::cout << "=" << BestRock << " = "<< BestRockColumn <<"="<< BestRockRow<< "=\n" ;
+			
+			if (BestRock == 0)
+			{
+				DeleteFirstRock();
+				old_board_->at(PosCell(BestRockColumn, BestRockRow)) = Piece::BLOCKED;
+				isOver = true;
+				/// Afiseaza aici ca pc a castigat
+			}
+
+			if (isOver)
+			{
+				ChangePlayer();
+				ChangePlayer();
+			}
+			else ChangePlayer();	
+	}
+
 	
-	//ChangePlayer();
-
-
-	std::cout << "===== End Of Showing Board =====\n";
 
 }
 
 void GUI::Bonol::DeleteCurrentPlayerPieces()
 {
 	Board& old_state = *old_board_;
-	Board& update = *update_board_;
 
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
 			if (IsActivePlayerPiece(PosCell(column, row)))
 				old_board_->at(PosCell(column, row)) = Piece::FREE;
 
+}
+
+void GUI::Bonol::DeleteFirstRock()
+{
+	Board& old_state = *old_board_;
+
+	for (CoordCell row = 0; row < kBoardSize; ++row)
+		for (CoordCell column = 0; column < kBoardSize; ++column)
+			if (old_board_->at(PosCell(column, row)) == Piece::BLOCKED)
+			{
+				old_board_->at(PosCell(column, row)) = Piece::FREE;
+				column = kBoardSize + 1;
+				row = kBoardSize + 1;
+			}
 }
