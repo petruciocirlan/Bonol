@@ -797,15 +797,9 @@ void GUI::Bonol::FindPcMove(char WhichMove[5])
 			{
 				DeleteFirstRock();
 				old_board_->at(PosCell(BestRockColumn, BestRockRow)) = Piece::BLOCKED;
-				isOver = true;
 			}
-
-			if (isOver)
-			{
-				ChangePlayer();
-				ChangePlayer();
-			}
-			else ChangePlayer();	
+	
+			ChangePlayer();	
 	}
 
 	if (strcmp(WhichMove, "EASY") == 0)
@@ -897,8 +891,6 @@ void GUI::Bonol::FindPcMove(char WhichMove[5])
 					FoundMove = true;
 				}
 			}
-		ChangePlayer();
-		ChangePlayer();
 		ChangePlayer();
 	}
 }
