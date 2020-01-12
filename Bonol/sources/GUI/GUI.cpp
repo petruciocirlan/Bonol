@@ -97,12 +97,30 @@ void GUI::EndMovingBlockTurn()
     game_state_->ChangePlayer();
     game_state_->DeHighlightBlockedPieces();
 
-    if (game_state_->Over())
+    if (game_state_->CheckOver())
     {
         game_state_->MovePieceTurn() = false;
 
         game_state_->ChangePlayer();
         CalculateCurrentPlayerText();
+    }
+    else if (current_mode_ != VersusMode::PLAYER)
+    {
+        if (current_mode_ == VersusMode::COMPUTER_EASY)
+        {
+            game_state_->FindPcMove(TEXT("EASY"));
+        }
+        else // if (current_mode_ == VersusMode::COMPUTER_HARD)
+        {
+            game_state_->FindPcMove(TEXT("HARD"));
+        }
+        if (game_state_->CheckOver())
+        {
+            game_state_->MovePieceTurn() = false;
+
+            game_state_->ChangePlayer();
+            CalculateCurrentPlayerText();
+        }
     }
 
     game_history_->push(Bonol(*this, *game_state_));

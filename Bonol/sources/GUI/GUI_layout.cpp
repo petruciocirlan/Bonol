@@ -65,7 +65,7 @@ void GUI::CalculateCurrentPlayerText()
         player = player_2_name_;
     }
 
-    if (game_state_->Over())
+    if (game_state_->IsOver())
     {
         String new_text = player + TEXT(" has won!");
 

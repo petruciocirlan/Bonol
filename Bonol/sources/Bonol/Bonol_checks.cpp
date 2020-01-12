@@ -12,9 +12,14 @@
 
 #include "../../headers/Bonol.h"
 
-bool GUI::Bonol::Over() const
+bool GUI::Bonol::IsOver() const
 {
 	return is_over_;
+}
+
+bool GUI::Bonol::CheckOver()
+{
+	return (is_over_ = (HowManyPossibleMoves() == 0));
 }
 
 bool GUI::Bonol::IsValidPosition(const PosCell pos) const

@@ -61,7 +61,8 @@ public:
 	//~Bonol();
 
 	/// checks
-	bool Over() const;
+	bool IsOver() const;
+	bool CheckOver();
 	bool IsValidPosition(const PosCell pos) const;
 	bool IsPlayerPiece(const Piece piece) const;
 	bool IsActivePlayerPiece(const PosCell pos) const;
@@ -89,7 +90,7 @@ public:
 	bool CheckGoodForm(short unsigned ToCheck ,short unsigned ArrayToSearch[4]);
 
 	// computer turn moves
-	void FindPcMove(char WhichMove[5]);
+	void FindPcMove(String WhichMove);
 	void DeleteCurrentPlayerPieces();
 	void DeleteFirstRock();
 	

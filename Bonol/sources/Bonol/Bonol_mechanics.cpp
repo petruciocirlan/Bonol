@@ -14,9 +14,11 @@
 
 bool GUI::Bonol::ValidateMove()
 {		
-	char move[5] = "EASY";
-	if(GetActivePlayerName()==2)
-	FindPcMove(move);
+	//TCHAR move[5] = TEXT("EASY");
+	//if (GetActivePlayerName() == 2)
+	//{
+	//	FindPcMove(move);
+	//}
 
 	std::cout << "\n";
 	std::cout << "Show the move\n";
@@ -313,7 +315,7 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 	return Count;
 }
 
-void GUI::Bonol::FindPcMove(char WhichMove[5])
+void GUI::Bonol::FindPcMove(String WhichMove)
 {
 	/// This function will find the best move
 	Board& old_state = *old_board_;
@@ -669,7 +671,7 @@ void GUI::Bonol::FindPcMove(char WhichMove[5])
 			}
 		}
 
-	if (strcmp(WhichMove, "HARD")==0)
+	if (WhichMove.compare(TEXT("HARD")) == 0)
 	{
 		std::cout << "===== End Of Showing Board HARD =====  " << BestMove << "\n";
 
@@ -802,7 +804,7 @@ void GUI::Bonol::FindPcMove(char WhichMove[5])
 			ChangePlayer();	
 	}
 
-	if (strcmp(WhichMove, "EASY") == 0)
+	if (WhichMove.compare(TEXT("EASY")) == 0)
 	{
 		std::cout << "===== End Of Showing Board EASY =====  "<< WorstMove << "\n";
 
