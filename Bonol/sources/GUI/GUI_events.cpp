@@ -414,18 +414,21 @@ void GUI::OnLeftClickPressName(const PointGUI mouse_pos)
         }
         else if (current_mode_ == VersusMode::PLAYER)
         {
-            if (player_name == TEXT(""))
+            if (player_name != player_1_name_)
             {
-                player_name = TEXT("PLAYER2");
+                if (player_name == TEXT(""))
+                {
+                    player_name = TEXT("PLAYER2");
+                }
+                player_2_name_ = player_name;
+
+                current_screen_ = Screen::GAME;
+
+                DestroyNameSelect();
+                CreateGame();
+
+                InvalidateRect(hwnd_, 0, TRUE);
             }
-            player_2_name_ = player_name;
-
-            current_screen_ = Screen::GAME;
-
-            DestroyNameSelect();
-            CreateGame();
-
-            InvalidateRect(hwnd_, 0, TRUE);
         }
         else
         {

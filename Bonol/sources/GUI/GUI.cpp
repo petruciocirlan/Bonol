@@ -68,6 +68,9 @@ void GUI::CreateGame()
 
     force_repaint_background_ = true;
 
+    //game_state_->ChangePlayer();
+    //game_state_->FindPcMove(TEXT("HARD"));
+
     game_history_ = new std::stack < Bonol >;
     game_history_->push(Bonol(*this, *game_state_));
 }

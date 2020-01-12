@@ -75,7 +75,7 @@ void GUI::CalculateCurrentPlayerText()
             current_player_->text = new_text;
 
             delete current_player_->normal_color;
-            current_player_->normal_color = new SolidBrush(Color::Black);
+            current_player_->normal_color = new SolidBrush(Color::ForestGreen);
         }
     }
     else
