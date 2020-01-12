@@ -22,7 +22,8 @@ void GUI::OnMouseMove(const PointGUI mouse_pos)
     {
     case Screen::MENU: OnMouseMoveMenu(mouse_pos); break;
     case Screen::GAME: OnMouseMoveGame(mouse_pos); break;
-    case Screen::NAME_SELECT: OnMouseMoveName(mouse_pos); break;
+    case Screen::NAME_SELECT: OnMouseMoveNameSelect(mouse_pos); break;
+    case Screen::LEADERBOARD: OnMouseMoveLeaderboard(mouse_pos); break;
     }
 }
 
@@ -124,20 +125,45 @@ void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
     }
 }
 
-void GUI::OnMouseMoveName(const PointGUI mouse_pos)
+void GUI::OnMouseMoveNameSelect(const PointGUI mouse_pos)
 {
     bool updated = false;
-    for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
+    for (INT counter = 0; counter < kTextBoxesNameSelectCount; ++counter)
     {
-        if (text_boxes_name_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+        if (text_boxes_name_select_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
         {
-            text_boxes_name_[counter]->is_hover = true;
-            text_boxes_name_[counter]->was_hover = true;
+            text_boxes_name_select_[counter]->is_hover = true;
+            text_boxes_name_select_[counter]->was_hover = true;
             updated = true;
         }
-        else if (text_boxes_name_[counter]->is_hover)
+        else if (text_boxes_name_select_[counter]->is_hover)
         {
-            text_boxes_name_[counter]->is_hover = false;
+            text_boxes_name_select_[counter]->is_hover = false;
+            updated = true;
+        }
+    }
+
+    if (updated)
+    {
+        InvalidateTextBoxes();
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+}
+
+void GUI::OnMouseMoveLeaderboard(const PointGUI mouse_pos)
+{
+    bool updated = false;
+    for (INT counter = 0; counter < kTextBoxesLeaderboardCount; ++counter)
+    {
+        if (text_boxes_leaderboard_[counter]->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+        {
+            text_boxes_leaderboard_[counter]->is_hover = true;
+            text_boxes_leaderboard_[counter]->was_hover = true;
+            updated = true;
+        }
+        else if (text_boxes_leaderboard_[counter]->is_hover)
+        {
+            text_boxes_leaderboard_[counter]->is_hover = false;
             updated = true;
         }
     }
@@ -162,7 +188,8 @@ void GUI::OnLeftClickPress(const PointGUI mouse_pos)
         {
         case Screen::GAME: OnLeftClickPressGame(mouse_pos); break;
         case Screen::MENU: OnLeftClickPressMenu(mouse_pos); break;
-        case Screen::NAME_SELECT: OnLeftClickPressName(mouse_pos); break;
+        case Screen::NAME_SELECT: OnLeftClickPressNameSelect(mouse_pos); break;
+        case Screen::LEADERBOARD: OnLeftClickPressLeaderboard(mouse_pos); break;
         }
     }
 }
@@ -209,6 +236,15 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
     if (title_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
         std::cout << "TITLE\n";
+    }
+    else if (leaderboard_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        current_screen_ = Screen::LEADERBOARD;
+
+        DestroyMenu();
+        CreateLeaderboard();
+
+        InvalidateRect(hwnd_, 0, TRUE);
     }
     else if (play_player_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
@@ -377,7 +413,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
     }
 }
 
-void GUI::OnLeftClickPressName(const PointGUI mouse_pos)
+void GUI::OnLeftClickPressNameSelect(const PointGUI mouse_pos)
 {
     if (select_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
@@ -437,6 +473,19 @@ void GUI::OnLeftClickPressName(const PointGUI mouse_pos)
     }
 }
 
+void GUI::OnLeftClickPressLeaderboard(const PointGUI mouse_pos)
+{
+    if (back_button_->visible && back_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+    {
+        current_screen_ = Screen::MENU;
+
+        DestroyLeaderboard();
+        CreateMenu();
+
+        InvalidateRect(hwnd_, 0, TRUE);
+    }
+}
+
 /// left click release
 
 void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
@@ -447,7 +496,8 @@ void GUI::OnLeftClickRelease(const PointGUI mouse_pos)
     {
     case Screen::GAME: OnLeftClickReleaseGame(mouse_pos); break;
     case Screen::MENU: OnLeftClickReleaseMenu(mouse_pos); break;
-    case Screen::NAME_SELECT: OnLeftClickReleaseName(mouse_pos); break;
+    case Screen::NAME_SELECT: OnLeftClickReleaseNameSelect(mouse_pos); break;
+    case Screen::LEADERBOARD: OnLeftClickReleaseLeaderboard(mouse_pos); break;
     }
 
     is_mouse_down_ = false;
@@ -488,9 +538,14 @@ void GUI::OnLeftClickReleaseGame(const PointGUI mouse_pos)
     }
 }
 
-void GUI::OnLeftClickReleaseName(const PointGUI mouse_pos)
+void GUI::OnLeftClickReleaseNameSelect(const PointGUI mouse_pos)
 {
     /// TODO(@petru): name select - left click release
+}
+
+void GUI::OnLeftClickReleaseLeaderboard(const PointGUI mouse_pos)
+{
+    /// TODO(@petru): leaderboard - left click release
 }
 
 void GUI::TypeName(TCHAR character)

@@ -139,6 +139,14 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor)/*,
         new Font(TEXT("Comic Sans MS"), 40)*/
     );
+    leaderboard_button_ = new TextBox(
+        TEXT(">Leaderboard<"),
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Arial"), 24),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 28)
+    );
     play_player_button_ = new TextBox(
         TEXT(">Multiplayer<"),
         new SolidBrush(kTextColor),
@@ -225,10 +233,58 @@ void GUI::CreateNameSelect(String default_name)
 
 void GUI::DestroyNameSelect()
 {
-    for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
+    for (INT counter = 0; counter < kTextBoxesNameSelectCount; ++counter)
     {
-        delete text_boxes_name_[counter];
-        text_boxes_name_[counter] = NULL;
+        delete text_boxes_name_select_[counter];
+        text_boxes_name_select_[counter] = NULL;
+    }
+}
+
+void GUI::CreateLeaderboard()
+{
+    std::basic_ifstream<TCHAR> leaderboard_file;
+    leaderboard_file.open("leaderboard");
+
+    String leaderboard_content;
+    getline(leaderboard_file, leaderboard_content);
+
+    INT player_count = 0;
+    String line;
+    while (getline(leaderboard_file, line) && player_count < 10)
+    {
+        leaderboard_content += TEXT("\n");
+        leaderboard_content += line;
+        ++player_count;
+    }
+
+    leaderboard_file.close();
+
+    leaderboard_ = new TextBox(
+        leaderboard_content,
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Consolas"), 22)
+    );
+
+    back_button_ = new TextBox(
+        TEXT("BACK"),
+        new SolidBrush(kTextColor),
+        new Font(TEXT("Arial"), 14),
+        Padding(),
+        new SolidBrush(kTextHover),
+        new Font(TEXT("Arial"), 18)
+    );
+
+    InvalidateTextBoxes();
+
+    force_repaint_background_ = true;
+}
+
+void GUI::DestroyLeaderboard()
+{
+    for (INT counter = 0; counter < kTextBoxesLeaderboardCount; ++counter)
+    {
+        delete text_boxes_leaderboard_[counter];
+        text_boxes_leaderboard_[counter] = NULL;
     }
 }
 

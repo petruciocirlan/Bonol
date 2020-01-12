@@ -155,7 +155,8 @@ void GUI::DrawTextBoxes()
 	{
 	case Screen::MENU: DrawTextBoxesMenu(); break;
 	case Screen::GAME: DrawTextBoxesGame(); break;
-	case Screen::NAME_SELECT: DrawTextBoxesName(); break;
+	case Screen::NAME_SELECT: DrawTextBoxesNameSelect(); break;
+	case Screen::LEADERBOARD: DrawTextBoxesLeaderboard(); break;
 	}
 }
 
@@ -189,13 +190,23 @@ void GUI::DrawTextBoxesGame()
         }
 }
 
-void GUI::DrawTextBoxesName()
+void GUI::DrawTextBoxesNameSelect()
 {
-	for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
-		if (text_boxes_name_[counter]->updated)
+	for (INT counter = 0; counter < kTextBoxesNameSelectCount; ++counter)
+		if (text_boxes_name_select_[counter]->updated)
 		{
-			DrawTextBox(*text_boxes_name_[counter]);
-			text_boxes_name_[counter]->updated = false;
+			DrawTextBox(*text_boxes_name_select_[counter]);
+			text_boxes_name_select_[counter]->updated = false;
+		}
+}
+
+void GUI::DrawTextBoxesLeaderboard()
+{
+	for (INT counter = 0; counter < kTextBoxesLeaderboardCount; ++counter)
+		if (text_boxes_leaderboard_[counter]->updated)
+		{
+			DrawTextBox(*text_boxes_leaderboard_[counter]);
+			text_boxes_leaderboard_[counter]->updated = false;
 		}
 }
 
@@ -230,6 +241,11 @@ void GUI::DrawForeground()
         break;
     }
 	case Screen::NAME_SELECT:
+	{
+
+		break;
+	}
+	case Screen::LEADERBOARD:
 	{
 
 		break;

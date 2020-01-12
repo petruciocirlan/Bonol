@@ -17,10 +17,12 @@
 #endif
 
 /// utility
+#include <map>
 #include <string>
 #include <stack>
 #include <cassert>
 #include <iostream>
+#include <fstream>
 
 /// windows
 //#include <stdafx.h>
@@ -64,7 +66,7 @@ private:
 
 	enum class Screen
 	{
-		MENU, GAME, NAME_SELECT//, SETTINGS
+		MENU, GAME, NAME_SELECT, LEADERBOARD//, SETTINGS
 	};
 	Screen current_screen_;
 
@@ -93,12 +95,12 @@ private:
 	};
 
 	/// MENU SCREEN
-	static const INT kTextBoxesMenuCount = 5;
+	static const INT kTextBoxesMenuCount = 6;
 	union
 	{
 		struct { TextBox* text_boxes_menu_[kTextBoxesMenuCount]; };
 		struct {
-			TextBox* title_,
+			TextBox* title_, *leaderboard_button_,
 				* play_player_button_, * play_computer_button_,
 				* easy_computer_button_, * hard_computer_button_;
 		};
@@ -121,11 +123,20 @@ private:
 	};
 
 	/// NAME SELECT SCREEN
-	static const INT kTextBoxesNameCount = 3;
+	static const INT kTextBoxesNameSelectCount = 3;
 	union
 	{
-		struct { TextBox* text_boxes_name_[kTextBoxesNameCount]; };
+		struct { TextBox* text_boxes_name_select_[kTextBoxesNameSelectCount]; };
 		struct { TextBox* choose_name_, * select_button_, * name_type_; };
+	};
+
+	/// LEADERBOARD SCREEN
+	std::map < String, INT > scores;
+	static const INT kTextBoxesLeaderboardCount = 2;
+	union
+	{
+		struct { TextBox* text_boxes_leaderboard_[kTextBoxesLeaderboardCount]; };
+		struct { TextBox* leaderboard_, * back_button_; };
 	};
 
 	//String* language_text_menu_[kTextBoxesMenuCount];
@@ -138,19 +149,22 @@ private:
 	void OnMouseMoveGlobal(const PointGUI mouse_pos);
 	void OnMouseMoveMenu(const PointGUI mouse_pos);
 	void OnMouseMoveGame(const PointGUI mouse_pos);
-	void OnMouseMoveName(const PointGUI mouse_pos);
+	void OnMouseMoveNameSelect(const PointGUI mouse_pos);
+	void OnMouseMoveLeaderboard(const PointGUI mouse_pos);
 
 	void OnLeftClickPress(const PointGUI mouse_pos);
 	bool OnLeftClickPressGlobal(const PointGUI mouse_pos);
 	void OnLeftClickPressMenu(const PointGUI mouse_pos);
 	void OnLeftClickPressGame(const PointGUI mouse_pos);
-	void OnLeftClickPressName(const PointGUI mouse_pos);
+	void OnLeftClickPressNameSelect(const PointGUI mouse_pos);
+	void OnLeftClickPressLeaderboard(const PointGUI mouse_pos);
 
 	void OnLeftClickRelease(const PointGUI mouse_pos);
 	void OnLeftClickReleaseGlobal(const PointGUI mouse_pos);
 	void OnLeftClickReleaseMenu(const PointGUI mouse_pos);
 	void OnLeftClickReleaseGame(const PointGUI mouse_pos);
-	void OnLeftClickReleaseName(const PointGUI mouse_pos);
+	void OnLeftClickReleaseNameSelect(const PointGUI mouse_pos);
+	void OnLeftClickReleaseLeaderboard(const PointGUI mouse_pos);
 
 	void TypeName(TCHAR character);
 
@@ -170,7 +184,8 @@ private:
 	void DrawTextBoxesGlobal();
 	void DrawTextBoxesMenu();
 	void DrawTextBoxesGame();
-	void DrawTextBoxesName();
+	void DrawTextBoxesNameSelect();
+	void DrawTextBoxesLeaderboard();
 
 	void DrawBackground() const;
 	void DrawForeground();
@@ -187,7 +202,8 @@ private:
 	void CalculateLayout();
 	void CalculateLayoutMenu();
 	void CalculateLayoutGame();
-	void CalculateLayoutName();
+	void CalculateLayoutNameSelect();
+	void CalculateLayoutLeaderboard();
 	void InvalidateTextBoxes();
 
 	/// Screen create/delete and screen-specific methods
@@ -201,6 +217,9 @@ private:
 
 	void CreateNameSelect(String default_name = String(TEXT("PLAYER")));
 	void DestroyNameSelect();
+
+	void CreateLeaderboard();
+	void DestroyLeaderboard();
 
 	/// Window setup and message loop
 

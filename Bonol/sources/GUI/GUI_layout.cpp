@@ -116,17 +116,19 @@ void GUI::CalculateLayout()
     {
     case Screen::MENU: CalculateLayoutMenu(); break;
     case Screen::GAME: CalculateLayoutGame(); break;
-    case Screen::NAME_SELECT: CalculateLayoutName(); break;
+    case Screen::NAME_SELECT: CalculateLayoutNameSelect(); break;
+    case Screen::LEADERBOARD: CalculateLayoutLeaderboard(); break;
     }
 }
 
 void GUI::CalculateLayoutMenu()
 {
     title_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 200);
-    play_player_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 50);
-    play_computer_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 50);
-    easy_computer_button_->center = PointGUI(window_.Width / 2 - 100, window_.Height / 2 + 125);
-    hard_computer_button_->center = PointGUI(window_.Width / 2 + 100, window_.Height / 2 + 125);
+    leaderboard_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 100);
+    play_player_button_->center = PointGUI(window_.Width / 2, window_.Height / 2);
+    play_computer_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 100);
+    easy_computer_button_->center = PointGUI(window_.Width / 2 - 100, window_.Height / 2 + 175);
+    hard_computer_button_->center = PointGUI(window_.Width / 2 + 100, window_.Height / 2 + 175);
 }
 
 void GUI::CalculateLayoutGame()
@@ -166,11 +168,17 @@ void GUI::CalculateLayoutGame()
     game_state_->InvalidateTable();
 }
 
-void GUI::CalculateLayoutName()
+void GUI::CalculateLayoutNameSelect()
 {
     choose_name_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 150);
     select_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 75);
     name_type_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 50);
+}
+
+void GUI::CalculateLayoutLeaderboard()
+{
+    leaderboard_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 50);
+    back_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 220);
 }
 
 void GUI::InvalidateTextBoxes()
@@ -194,8 +202,14 @@ void GUI::InvalidateTextBoxes()
     }
     case Screen::NAME_SELECT:
     {
-        for (INT counter = 0; counter < kTextBoxesNameCount; ++counter)
-            text_boxes_name_[counter]->updated = true;
+        for (INT counter = 0; counter < kTextBoxesNameSelectCount; ++counter)
+            text_boxes_name_select_[counter]->updated = true;
+        break;
+    }
+    case Screen::LEADERBOARD:
+    {
+        for (INT counter = 0; counter < kTextBoxesLeaderboardCount; ++counter)
+            text_boxes_leaderboard_[counter]->updated = true;
         break;
     }
     }
