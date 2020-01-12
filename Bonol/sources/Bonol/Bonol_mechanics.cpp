@@ -13,21 +13,10 @@
 #include "../../headers/Bonol.h"
 
 bool GUI::Bonol::ValidateMove()
-{	
-	/// there are 5 pieces in updated_board_:
-	/// Piece::UNUSED, Piece::FREE, Piece::BLOCKED and Piece::RED_SELECTED
-
-	/// ALL 'Board's are [0...kBoardSize-1, 0...kBoardSize-1]
-	/// access each cell with new_state(pos) or board_(pos),
-	/// where pos is a PosCell and constructor is PosCell(column, line)
-
-	///std::cout << "===============================\n";
-	
+{		
 	char move[5] = "EASY";
 	if(GetActivePlayerName()==2)
 	FindPcMove(move);
-
-	//std::cout << "Possible moves : "<<HowManyPossibleMoves()<<"\n"; 
 
 	std::cout << "\n";
 	std::cout << "Show the move\n";
@@ -60,7 +49,7 @@ bool GUI::Bonol::ValidateL()
 					i++;
 				}
 
-				//Check how many squares are teh same w the ones from old_board_
+				//Check how many squares are the same w the ones from old_board_
 				if ((update_board_->at(PosCell(column, row)) == Piece::RED_SELECTED ||
 					update_board_->at(PosCell(column, row)) == Piece::BLUE_SELECTED)
 					&& old_board_->at(PosCell(column, row)) != Piece::FREE)
@@ -86,7 +75,6 @@ bool GUI::Bonol::ValidateL()
 
 		if (SearchNextTo - 1 != -1)
 		{
-			//std::cout << "Searching on row " << SearchNextTo - 1 << "\n";
 			for (CoordCell col = 0; col < kBoardSize; ++col)
 			{
 				if (update_board_->at(PosCell(col, SearchNextTo - 1)) == Piece::BLUE_SELECTED
@@ -104,7 +92,6 @@ bool GUI::Bonol::ValidateL()
 
 		if (SearchNextTo + 1 != 4)
 		{
-			//std::cout<< "Searching on row " << SearchNextTo+1 << "\n";
 			for (CoordCell col = 0; col < kBoardSize; ++col)
 			{
 				if (update_board_->at(PosCell(col, SearchNextTo + 1)) == Piece::BLUE_SELECTED
@@ -127,7 +114,6 @@ bool GUI::Bonol::ValidateL()
 
 		if (SearchNextTo - 1 != -1)
 		{
-			//std::cout <<"Searching on column "<< SearchNextTo - 1 << "\n";
 			for (CoordCell row = 0; row < kBoardSize; ++row)
 			{
 				if (update_board_->at(PosCell(SearchNextTo - 1, row)) == Piece::BLUE_SELECTED
@@ -144,7 +130,6 @@ bool GUI::Bonol::ValidateL()
 
 		if (SearchNextTo + 1 != 4)
 		{
-			//std::cout << "Searching on column " << SearchNextTo + 1 << "\n";
 			for (CoordCell row = 0; row < kBoardSize; ++row)
 			{
 				if (update_board_->at(PosCell(SearchNextTo + 1, row)) == Piece::BLUE_SELECTED
@@ -232,7 +217,6 @@ bool GUI::Bonol::CheckGoodForm(short unsigned ToCheck, short unsigned ArrayToSea
 			if (ToCheck == ArrayToSearch[i] + 1 || ToCheck == ArrayToSearch[i] + 10
 				|| ToCheck == ArrayToSearch[i] - 1 || ToCheck == ArrayToSearch[i] - 10)
 			{
-				//std::cout << ArrayToSearch[i]<<" ";
 				return true;
 			}
 		}
@@ -252,10 +236,7 @@ unsigned GUI::Bonol::HowManyPossibleMoves()
 			if (CountMoves(row, column) > 0)
 			{
 				Count += CountMoves(row, column);
-				//std::cout << column << " " << row << " - " << CountMoves(row, column) << "\n";
 			}
-
-	//std::cout << "===============================\n";
 
 	return Count - 1;
 }
@@ -334,7 +315,7 @@ short unsigned GUI::Bonol::CountMoves(short unsigned column, short unsigned row)
 
 void GUI::Bonol::FindPcMove(char WhichMove[5])
 {
-	///this function will find the best move
+	/// This function will find the best move
 	Board& old_state = *old_board_;
 	Board& update = *update_board_;
 	Board aux_board = old_state;
