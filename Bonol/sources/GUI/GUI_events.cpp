@@ -687,6 +687,12 @@ LRESULT GUI::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         break;
     }
+    case WM_PC_MOVE:
+    {
+        game_interface->ComputerTurn();
+
+        return 0;
+    }
     case WM_GETMINMAXINFO:
     {
         LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;

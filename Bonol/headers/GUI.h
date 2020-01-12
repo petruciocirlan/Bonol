@@ -18,11 +18,13 @@
 
 /// utility
 #include <map>
-#include <string>
 #include <stack>
+#include <string>
+#include <sstream>
 #include <cassert>
-#include <iostream>
+#include <iomanip>
 #include <fstream>
+#include <iostream>
 
 /// windows
 //#include <stdafx.h>
@@ -40,6 +42,8 @@ using namespace Gdiplus;
 #include <mmsystem.h>
 #pragma comment (lib,"Winmm.lib")
 
+#define WM_PC_MOVE (WM_USER + 0x0001)
+
 class GUI
 {
 private:
@@ -56,7 +60,7 @@ public:
 private:
 	const Color kBackgroundColor = Color::White;
 	const Color kTextColor = Color::Black;
-	const Color kTextHover = Color::DeepPink;
+	const Color kTextHover = Color::HotPink;
 
 	enum class Language
 	{
@@ -211,15 +215,18 @@ private:
 	void CreateGame();
 	void DestroyGame();
 	void EndMovingBlockTurn();
+	void ComputerTurn();
+	void IncreaseLeaderboardScore(const String player_name) const;
 
 	void CreateMenu();
 	void DestroyMenu();
 
-	void CreateNameSelect(String default_name = String(TEXT("PLAYER")));
+	void CreateNameSelect(const String default_name = String(TEXT("PLAYER")));
 	void DestroyNameSelect();
 
 	void CreateLeaderboard();
 	void DestroyLeaderboard();
+	String GetLeaderboardContent() const;
 
 	/// Window setup and message loop
 

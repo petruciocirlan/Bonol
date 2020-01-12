@@ -181,9 +181,4 @@ void GUI::Bonol::ChangePlayer()
 
 	///std::cout << "Changed player\n";
 	//std::cout << "Possible moves : " << HowManyPossibleMoves() << "\n";
-
-	if (HowManyPossibleMoves() == 0)
-	{
-		is_over_ = true;
-	}
 }

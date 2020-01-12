@@ -81,6 +81,10 @@ void GUI::CalculateCurrentPlayerText()
     else
     {
         String new_text = TEXT("Your turn, ") + player + TEXT("!");
+        if (current_mode_ != VersusMode::PLAYER && game_state_->GetActivePlayer() == Bonol::Piece::BLUE)
+        {
+            new_text = TEXT("The COMPUTER is making it's turn...");
+        }
 
         if (current_player_->text != new_text)
         {
@@ -158,6 +162,12 @@ void GUI::CalculateLayoutGame()
     {
         undo_button_->visible = game_history_->size() > 1;
         undo_button_->updated = true;
+    }
+
+    if (reset_button_->visible != (game_history_->size() > 1))
+    {
+        reset_button_->visible = game_history_->size() > 1;
+        reset_button_->updated = true;
     }
 
     CalculateCurrentPlayerText();

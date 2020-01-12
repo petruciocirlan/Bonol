@@ -106,27 +106,54 @@ void GUI::EndMovingBlockTurn()
 
         game_state_->ChangePlayer();
         CalculateCurrentPlayerText();
+
+        String winner = player_1_name_;
+        if (game_state_->GetActivePlayer() == Bonol::Piece::BLUE)
+        {
+            winner = player_2_name_;
+        }
+        IncreaseLeaderboardScore(winner);
     }
     else if (current_mode_ != VersusMode::PLAYER)
     {
-        if (current_mode_ == VersusMode::COMPUTER_EASY)
-        {
-            game_state_->FindPcMove(TEXT("EASY"));
-        }
-        else // if (current_mode_ == VersusMode::COMPUTER_HARD)
-        {
-            game_state_->FindPcMove(TEXT("HARD"));
-        }
-        if (game_state_->CheckOver())
-        {
-            game_state_->MovePieceTurn() = false;
-
-            game_state_->ChangePlayer();
-            CalculateCurrentPlayerText();
-        }
+        PostMessage(hwnd_, WM_PAINT, 0, 0);
+        PostMessage(hwnd_, WM_PC_MOVE, 0, 0);
     }
 
     game_history_->push(Bonol(*this, *game_state_));
+}
+
+void GUI::ComputerTurn()
+{
+    Sleep(750);
+    if (current_mode_ == VersusMode::COMPUTER_EASY)
+    {
+        game_state_->FindPcMove(TEXT("EASY"));
+    }
+    else // if (current_mode_ == VersusMode::COMPUTER_HARD)
+    {
+        game_state_->FindPcMove(TEXT("HARD"));
+    }
+    if (game_state_->CheckOver())
+    {
+        game_state_->MovePieceTurn() = false;
+
+        game_state_->ChangePlayer();
+        CalculateCurrentPlayerText();
+
+        if (game_state_->GetActivePlayer() == Bonol::Piece::RED)
+        {
+            String winner = player_1_name_;
+            IncreaseLeaderboardScore(winner);
+        }
+    }
+
+    InvalidateRect(hwnd_, 0, TRUE);
+}
+
+void GUI::IncreaseLeaderboardScore(const String player_name) const
+{
+    /// TODO(@petru): increase player_name's score on the leaderboard
 }
 
 void GUI::CreateMenu()
@@ -198,7 +225,7 @@ void GUI::DestroyMenu()
     }
 }
 
-void GUI::CreateNameSelect(String default_name)
+void GUI::CreateNameSelect(const String default_name)
 {
     choose_name_ = new TextBox(
         TEXT("Type in your name"),
@@ -242,22 +269,7 @@ void GUI::DestroyNameSelect()
 
 void GUI::CreateLeaderboard()
 {
-    std::basic_ifstream<TCHAR> leaderboard_file;
-    leaderboard_file.open("leaderboard");
-
-    String leaderboard_content;
-    getline(leaderboard_file, leaderboard_content);
-
-    INT player_count = 0;
-    String line;
-    while (getline(leaderboard_file, line) && player_count < 10)
-    {
-        leaderboard_content += TEXT("\n");
-        leaderboard_content += line;
-        ++player_count;
-    }
-
-    leaderboard_file.close();
+    String leaderboard_content = GetLeaderboardContent();
 
     leaderboard_ = new TextBox(
         leaderboard_content,
@@ -286,6 +298,58 @@ void GUI::DestroyLeaderboard()
         delete text_boxes_leaderboard_[counter];
         text_boxes_leaderboard_[counter] = NULL;
     }
+}
+
+GUI::String GUI::GetLeaderboardContent() const
+{
+    std::basic_stringstream<TCHAR> leaderboard_content;
+
+    std::basic_ifstream<TCHAR> leaderboard_input;
+    leaderboard_input.open("leaderboard");
+
+    String line;
+    getline(leaderboard_input, line);
+    if (line.size() == 0)
+    {
+        leaderboard_input.close();
+
+        std::basic_ofstream<TCHAR> leaderboard_output;
+        leaderboard_output.open("leaderboard");
+        leaderboard_output << (line = TEXT("PLAYER NAME\tSCORE"));
+        leaderboard_output.close();
+
+        leaderboard_input.open("leaderboard");
+    }
+
+    leaderboard_content << line;
+
+    INT player_count = 0;
+    while (!leaderboard_input.eof() && player_count < 10)
+    {
+        String name;
+        leaderboard_input >> name;
+
+        INT score;
+        leaderboard_input >> score;
+
+        if (name.size() < 8)
+        {
+            name += String(8 - name.size(), TEXT('_'));
+        }
+
+        leaderboard_content << TEXT('\n') << name << TEXT('\t') << std::setw(5) << std::setfill(TEXT('_')) << score;
+        ++player_count;
+    }
+
+    while (player_count < 10)
+    {
+        leaderboard_content << TEXT('\n') << String(8, TEXT('_')) << TEXT("\t_____");
+        ++player_count;
+    }
+
+    leaderboard_input.close();
+
+    return leaderboard_content.str();
 }
 
 /// Window setup and message loop
