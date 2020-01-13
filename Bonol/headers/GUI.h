@@ -22,7 +22,7 @@
 #include <queue>
 
 #include <string>
-#include <cassert>
+//#include <cassert>
 
 /// file manipulation
 #include <sstream>
@@ -147,7 +147,6 @@ private:
 	};
 
 	/// LEADERBOARD SCREEN
-	std::map < String, INT > scores;
 	static const INT kTextBoxesLeaderboardCount = 2;
 	union
 	{

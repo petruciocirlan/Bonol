@@ -331,7 +331,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
         }
         else if (is_moving_block_ && clicked_piece == Bonol::Piece::BLOCKED_SELECTED)
         {
-            assert(is_moving_block_ == true);
+            //assert(is_moving_block_ == true);
             game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED_HIGHLIGHTED);
             is_moving_block_ = false;
 
@@ -343,7 +343,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
             is_moving_block_ = false;
             game_state_->SetCellPiece(clicked_cell, Bonol::Piece::BLOCKED);
 
-            assert(!(selected_blocked_piece == Bonol::PosCell(-1, -1)));
+            //assert(!(selected_blocked_piece == Bonol::PosCell(-1, -1)));
             game_state_->SetCellPiece(selected_blocked_piece, Bonol::Piece::FREE);
 
             selected_blocked_piece = Bonol::PosCell(-1, -1);

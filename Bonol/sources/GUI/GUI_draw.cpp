@@ -16,9 +16,9 @@
 Color GUI::ChangeColorBrightness(const Color original, const FLOAT percent) const
 {
 	return Color(
-		(BYTE)original.GetRed() * percent,
-		(BYTE)original.GetGreen() * percent,
-		(BYTE)original.GetBlue () * percent
+		(BYTE)min(original.GetRed() * percent, 255),
+		(BYTE)min(original.GetGreen() * percent, 255),
+		(BYTE)min(original.GetBlue () * percent, 255)
 	);
 }
 
