@@ -55,6 +55,7 @@ private:
 	struct PointGUI;
 	struct Padding;
 	struct TextBox;
+	struct ColorBox;
 	class Bonol;
 
 public:
@@ -90,6 +91,7 @@ private:
 	Graphics* graphics_;
 
 	String player_1_name_, player_2_name_;
+	Color player_1_color_, player_2_color_;
 
 	bool is_mouse_down_;
 	bool force_repaint_background_;
@@ -137,6 +139,12 @@ private:
 		struct { TextBox* text_boxes_name_select_[kTextBoxesNameSelectCount]; };
 		struct { TextBox* choose_name_, * select_button_, * name_type_; };
 	};
+	static const INT kColorBoxesCount = 3;
+	union
+	{
+		struct { ColorBox* color_boxes_[kColorBoxesCount]; };
+		struct { ColorBox* red_box_, * green_box_, * blue_box_; };
+	};
 
 	/// LEADERBOARD SCREEN
 	std::map < String, INT > scores;
@@ -179,7 +187,9 @@ private:
 	void OnPaint();
 
 	/// drawing
-	//void DrawLine(const PointGUI from, const PointGUI to) const;
+	Color ChangeColorBrightness(const Color original, const FLOAT percent) const;
+
+	void DrawLine(const PointGUI from, const PointGUI to, const Color color, const FLOAT width) const;
 	void DrawRect(const Rect rc, const Color color, const FLOAT width) const;
 	void FillRect(const Rect rc, const Color color) const;
 	void DrawCircle(const Rect rc, const Color color, const FLOAT width) const;
@@ -194,6 +204,8 @@ private:
 	void DrawTextBoxesGame();
 	void DrawTextBoxesNameSelect();
 	void DrawTextBoxesLeaderboard();
+
+	void DrawColorBoxes();
 
 	void DrawBackground() const;
 	void DrawForeground();
@@ -212,7 +224,7 @@ private:
 	void CalculateLayoutGame();
 	void CalculateLayoutNameSelect();
 	void CalculateLayoutLeaderboard();
-	void InvalidateTextBoxes();
+	void InvalidateBoxes();
 
 	/// Screen create/delete and screen-specific methods
 
@@ -278,10 +290,27 @@ struct GUI::TextBox
 
 	//TextBox() : updated(true), visible(true) {};
 	TextBox(const String TEXT,
-		    Brush* NORMAL_COLOR, Font* NORMAL_FONT, Padding PADDING = Padding(),
-		    Brush* HIGHLIGHTED_COLOR = NULL, Font* HIGHLIGHTED_FONT = NULL);
+		Brush* NORMAL_COLOR, Font* NORMAL_FONT, Padding PADDING = Padding(),
+		Brush* HIGHLIGHTED_COLOR = NULL, Font* HIGHLIGHTED_FONT = NULL)
+		: text(TEXT), normal_color(NORMAL_COLOR), normal_font(NORMAL_FONT), padding(PADDING),
+		highlighted_color(HIGHLIGHTED_COLOR), highlighted_font(HIGHLIGHTED_FONT),
+		updated(true), visible(true), is_hover(false), was_hover(false) {}
 	~TextBox();
 	/// TODO(@petru): suggestion - attach click events to struct
+};
+
+struct GUI::ColorBox
+{
+	Color color;
+	PointGUI center;
+	INT width;
+	Rect rect;
+	bool updated, disabled, selected; // was_selected
+
+	ColorBox(Color COLOR, INT WIDTH, bool SELECTED = false)
+		: color(COLOR), width(WIDTH),
+		  updated(true), disabled(false), selected(SELECTED) {};
+	//~ColorBox();
 };
 
 #include "Bonol.h"

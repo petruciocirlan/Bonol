@@ -13,10 +13,20 @@
 
 #include "../../headers/GUI.h"
 
-//void GUI::DrawLine(const PointGUI from, const PointGUI to) const
-//{
-//    //line(from.x, from.y, to.x, to.y);
-//}
+Color GUI::ChangeColorBrightness(const Color original, const FLOAT percent) const
+{
+	return Color(
+		(BYTE)original.GetRed() * percent,
+		(BYTE)original.GetGreen() * percent,
+		(BYTE)original.GetBlue () * percent
+	);
+}
+
+void GUI::DrawLine(const PointGUI from, const PointGUI to, const Color color, const FLOAT width) const
+{
+	Pen pen(color, width);
+    graphics_->DrawLine(&pen, from.x, from.y, to.x, to.y);
+}
 
 void GUI::DrawRect(const Rect rc, const Color color, const FLOAT width) const
 {
@@ -69,13 +79,13 @@ void GUI::DrawCell(const PointGUI pos) const
 	}
 	case Bonol::Piece::RED:
 	{
-		FillRect(full_cell, Color::PaleVioletRed);
+		FillRect(full_cell, player_1_color_);
 		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLUE:
 	{
-		FillRect(full_cell, Color::DodgerBlue);
+		FillRect(full_cell, player_2_color_);
 		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
@@ -87,13 +97,13 @@ void GUI::DrawCell(const PointGUI pos) const
 	}
 	case Bonol::Piece::RED_SELECTED:
 	{
-		FillRect(full_cell, Color::Firebrick);
+		FillRect(full_cell, ChangeColorBrightness(player_1_color_, 0.6f));
 		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
 	case Bonol::Piece::BLUE_SELECTED:
 	{
-		FillRect(full_cell, Color::RoyalBlue);
+		FillRect(full_cell, ChangeColorBrightness(player_2_color_, 0.6f));
 		DrawRect(full_cell, Color::Black, 1.0f);
 		break;
 	}
@@ -210,6 +220,40 @@ void GUI::DrawTextBoxesLeaderboard()
 		}
 }
 
+void GUI::DrawColorBoxes()
+{
+	for (INT counter = 0; counter < kColorBoxesCount; ++counter)
+	{
+		ColorBox& box = *color_boxes_[counter];
+		if (box.updated)
+		{
+			PointGUI origin(box.center.x - box.width / 2, box.center.y - box.width / 2);
+			Dimensions dimensions(box.width, box.width);
+			box.rect = MakeRect(origin, dimensions);
+
+			FillRect(InflateRect(box.rect, Padding(10)), kBackgroundColor);
+
+			FillRect(box.rect, box.color);
+			DrawRect(InflateRect(box.rect, Padding(1)), Color::Black, 1.0f);
+
+			if (box.selected)
+			{
+				DrawRect(InflateRect(box.rect, Padding(5)), Color::Black, 3.0f);
+			}
+			if (box.disabled)
+			{
+				PointGUI top_left(origin.x, origin.y);
+				PointGUI top_right(origin.x + box.width, origin.y);
+				PointGUI bottom_right(origin.x + box.width, origin.y + box.width);
+				PointGUI bottom_left(origin.x, origin.y + box.width);
+
+				DrawLine(top_left, bottom_right, Color::Black, 3.0f);
+				DrawLine(top_right, bottom_left, Color::Black, 3.0f);
+			}
+		}
+	}
+}
+
 void GUI::DrawBackground() const
 {
     //LinearGradientBrush brush(
@@ -242,6 +286,7 @@ void GUI::DrawForeground()
     }
 	case Screen::NAME_SELECT:
 	{
+		DrawColorBoxes();
 
 		break;
 	}

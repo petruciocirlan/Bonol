@@ -58,7 +58,7 @@ void GUI::CreateGame()
     );
     /// TODO(@petru): add possible moves count
 
-    InvalidateTextBoxes();
+    InvalidateBoxes();
 
     is_mouse_down_ = false;
     is_selecting_ = false;
@@ -113,14 +113,19 @@ void GUI::EndMovingBlockTurn()
             winner = player_2_name_;
         }
         IncreaseLeaderboardScore(winner);
+
+        game_history_->push(Bonol(*this, *game_state_));
     }
     else if (current_mode_ != VersusMode::PLAYER)
     {
         PostMessage(hwnd_, WM_PAINT, 0, 0);
         PostMessage(hwnd_, WM_PC_MOVE, 0, 0);
     }
+    else
+    {
+        game_history_->push(Bonol(*this, *game_state_));
+    }
 
-    game_history_->push(Bonol(*this, *game_state_));
 }
 
 void GUI::ComputerTurn()
@@ -148,6 +153,7 @@ void GUI::ComputerTurn()
         }
     }
 
+    game_history_->push(Bonol(*this, *game_state_));
     InvalidateRect(hwnd_, 0, TRUE);
 }
 
@@ -223,7 +229,7 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor),
         new Font(TEXT("Arial"), 24),
         Padding(),
-        new SolidBrush(kTextHover),
+        new SolidBrush(Color::PaleVioletRed),
         new Font(TEXT("Arial"), 28)
     );
     play_player_button_ = new TextBox(
@@ -231,7 +237,7 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor),
         new Font(TEXT("Arial"), 24),
         Padding(),
-        new SolidBrush(Color::DodgerBlue),
+        new SolidBrush(Color::LimeGreen),
         new Font(TEXT("Arial"), 28)
     );
     play_computer_button_ = new TextBox(
@@ -239,7 +245,7 @@ void GUI::CreateMenu()
         new SolidBrush(kTextColor),
         new Font(TEXT("Arial"), 24),
         Padding(),
-        new SolidBrush(Color::PaleVioletRed),
+        new SolidBrush(Color::DodgerBlue),
         new Font(TEXT("Arial"), 28)
     );
     easy_computer_button_ = new TextBox(
@@ -262,7 +268,7 @@ void GUI::CreateMenu()
     easy_computer_button_->visible = false;
     hard_computer_button_->visible = false;
 
-    InvalidateTextBoxes();
+    InvalidateBoxes();
 
     player_1_name_ = TEXT(""), player_2_name_ = TEXT("");
     force_repaint_background_ = true;
@@ -293,11 +299,47 @@ void GUI::CreateNameSelect(const String default_name)
         new Font(TEXT("Arial"), 24)
     );
 
-    Color name_color = Color::PaleVioletRed;
+    INT color_box_width = 50;
+    red_box_ = new ColorBox(
+        Color::PaleVioletRed,
+        color_box_width
+    );
+    green_box_ = new ColorBox(
+        Color::LimeGreen,
+        color_box_width
+    );
+    blue_box_ = new ColorBox(
+        Color::DodgerBlue,
+        color_box_width
+    );
+
+    Color name_color;
     if (current_mode_ == VersusMode::PLAYER && player_1_name_ != TEXT(""))
     {
-        name_color = Color::DodgerBlue;
+        for (INT counter = 0; counter < kColorBoxesCount; ++counter)
+        {
+            if (color_boxes_[counter]->color.GetValue() == player_1_color_.GetValue())
+            {
+                color_boxes_[counter]->disabled = true;
+                break;
+            }
+        }
+        for (INT counter = 0; counter < kColorBoxesCount; ++counter)
+        {
+            if (color_boxes_[counter]->disabled == false)
+            {
+                color_boxes_[counter]->selected = true;
+                name_color = color_boxes_[counter]->color;
+                break;
+            }
+        }
     }
+    else
+    {
+        name_color = color_boxes_[0]->color;
+        color_boxes_[0]->selected = true;
+    }
+
     name_type_ = new TextBox(
         default_name,
         new SolidBrush(name_color),
@@ -305,7 +347,7 @@ void GUI::CreateNameSelect(const String default_name)
         Padding(5)
     );
     
-    InvalidateTextBoxes();
+    InvalidateBoxes();
 
     force_repaint_background_ = true;
 }
@@ -338,7 +380,7 @@ void GUI::CreateLeaderboard()
         new Font(TEXT("Arial"), 18)
     );
 
-    InvalidateTextBoxes();
+    InvalidateBoxes();
 
     force_repaint_background_ = true;
 }
@@ -510,16 +552,6 @@ GUI::GUI(const Dimensions window_dimensions, HINSTANCE hInstance, INT nCmdShow)
     RunMessageLoop();
 
     GdiplusShutdown(gdiplusToken);
-}
-
-GUI::TextBox::TextBox(const String TEXT,
-                      Brush* NORMAL_COLOR, Font* NORMAL_FONT, Padding PADDING,
-                      Brush* HIGHLIGHTED_COLOR, Font* HIGHLIGHTED_FONT)
-    : text(TEXT), normal_color(NORMAL_COLOR), normal_font(NORMAL_FONT), padding(PADDING),
-      highlighted_color(HIGHLIGHTED_COLOR), highlighted_font(HIGHLIGHTED_FONT),
-      updated(true), visible(true), is_hover(false), was_hover(false)
-{
-    /// TODO(@petru): caution - highlighted_color, highlighted_font can be NULL
 }
 
 GUI::TextBox::~TextBox()

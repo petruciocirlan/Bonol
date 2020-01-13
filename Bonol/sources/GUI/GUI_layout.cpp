@@ -59,15 +59,17 @@ void GUI::CalculateTextBoxPosition(TextBox& box)
 void GUI::CalculateCurrentPlayerText()
 {
     //String current_player = game_state_->GetActivePlayerName();
-    String player = player_1_name_;
+    String player_name = player_1_name_;
+    Color player_color = player_1_color_;
     if (game_state_->GetActivePlayer() == Bonol::Piece::BLUE)
     {
-        player = player_2_name_;
+        player_name = player_2_name_;
+        player_color = player_2_color_;
     }
 
     if (game_state_->IsOver())
     {
-        String new_text = player + TEXT(" has won!");
+        String new_text = player_name + TEXT(" has won!");
 
         if (current_player_->text != new_text)
         {
@@ -75,15 +77,15 @@ void GUI::CalculateCurrentPlayerText()
             current_player_->text = new_text;
 
             delete current_player_->normal_color;
-            current_player_->normal_color = new SolidBrush(Color::ForestGreen);
+            current_player_->normal_color = new SolidBrush(ChangeColorBrightness(player_color, 0.6f));
         }
     }
     else
     {
-        String new_text = TEXT("Your turn, ") + player + TEXT("!");
+        String new_text = TEXT("Your turn, ") + player_name + TEXT("!");
         if (current_mode_ != VersusMode::PLAYER && game_state_->GetActivePlayer() == Bonol::Piece::BLUE)
         {
-            new_text = TEXT("The COMPUTER is making it's turn...");
+            new_text = TEXT("It's the COMPUTER's turn...");
         }
 
         if (current_player_->text != new_text)
@@ -91,13 +93,13 @@ void GUI::CalculateCurrentPlayerText()
             current_player_->updated = true;
             current_player_->text = new_text;
             delete current_player_->normal_color;
-            if (player == player_1_name_)
+            if (player_name == player_1_name_)
             {
-                current_player_->normal_color = new SolidBrush(Color::PaleVioletRed);
+                current_player_->normal_color = new SolidBrush(player_1_color_);
             }
             else
             {
-                current_player_->normal_color = new SolidBrush(Color::DodgerBlue);
+                current_player_->normal_color = new SolidBrush(player_2_color_);
             }
         }
     }
@@ -174,15 +176,19 @@ void GUI::CalculateLayoutGame()
 
     /// TODO(@petru): suggestion - specify how many times you can undo ( UNDO(#) | where # is a number)
 
-    //InvalidateTextBoxes();
+    //InvalidateBoxes();
     game_state_->InvalidateTable();
 }
 
 void GUI::CalculateLayoutNameSelect()
 {
-    choose_name_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 150);
-    select_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 75);
-    name_type_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 50);
+    choose_name_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 180);
+    name_type_->center = PointGUI(window_.Width / 2, window_.Height / 2 - 90);
+    select_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 120);
+
+    red_box_->center = PointGUI(window_.Width / 2 - 80, window_.Height / 2);
+    green_box_->center = PointGUI(window_.Width / 2, window_.Height / 2);
+    blue_box_->center = PointGUI(window_.Width / 2 + 80, window_.Height / 2);
 }
 
 void GUI::CalculateLayoutLeaderboard()
@@ -191,7 +197,7 @@ void GUI::CalculateLayoutLeaderboard()
     back_button_->center = PointGUI(window_.Width / 2, window_.Height / 2 + 220);
 }
 
-void GUI::InvalidateTextBoxes()
+void GUI::InvalidateBoxes()
 {
     for (INT counter = 0; counter < kTextBoxesGlobalCount; ++counter)
         text_boxes_global_[counter]->updated = true;
@@ -214,6 +220,8 @@ void GUI::InvalidateTextBoxes()
     {
         for (INT counter = 0; counter < kTextBoxesNameSelectCount; ++counter)
             text_boxes_name_select_[counter]->updated = true;
+        for (INT counter = 0; counter < kColorBoxesCount; ++counter)
+            color_boxes_[counter]->updated = true;
         break;
     }
     case Screen::LEADERBOARD:

@@ -47,7 +47,7 @@ void GUI::OnMouseMoveGlobal(const PointGUI mouse_pos)
 
     if (updated)
     {
-        InvalidateTextBoxes();
+        InvalidateBoxes();
         InvalidateRect(hwnd_, 0, TRUE);
     }
 }
@@ -72,7 +72,7 @@ void GUI::OnMouseMoveMenu(const PointGUI mouse_pos)
 
     if (updated)
     {
-        InvalidateTextBoxes();
+        InvalidateBoxes();
         InvalidateRect(hwnd_, 0, TRUE);
     }
 }
@@ -119,7 +119,7 @@ void GUI::OnMouseMoveGame(const PointGUI mouse_pos)
 
         if (updated)
         {
-            InvalidateTextBoxes();
+            InvalidateBoxes();
             InvalidateRect(hwnd_, 0, TRUE);
         }
     }
@@ -145,7 +145,7 @@ void GUI::OnMouseMoveNameSelect(const PointGUI mouse_pos)
 
     if (updated)
     {
-        InvalidateTextBoxes();
+        InvalidateBoxes();
         InvalidateRect(hwnd_, 0, TRUE);
     }
 }
@@ -170,7 +170,7 @@ void GUI::OnMouseMoveLeaderboard(const PointGUI mouse_pos)
 
     if (updated)
     {
-        InvalidateTextBoxes();
+        InvalidateBoxes();
         InvalidateRect(hwnd_, 0, TRUE);
     }
 }
@@ -284,6 +284,7 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
         DestroyMenu();
         CreateNameSelect(TEXT("PLAYER"));
         player_2_name_ = TEXT("The COMPUTER");
+        player_2_color_ = Color::DarkSlateBlue;
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -295,6 +296,7 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
         DestroyMenu();
         CreateNameSelect(TEXT("PLAYER"));
         player_2_name_ = TEXT("The COMPUTER");
+        player_2_color_ = Color::DarkSlateBlue;
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -380,7 +382,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
 
             is_moving_block_ = false;
 
-            InvalidateTextBoxes();
+            InvalidateBoxes();
             game_state_->InvalidateTable();
 
             InvalidateRect(hwnd_, 0, TRUE);
@@ -396,7 +398,7 @@ void GUI::OnLeftClickPressGame(const PointGUI mouse_pos)
 
             is_moving_block_ = false;
 
-            InvalidateTextBoxes();
+            InvalidateBoxes();
             game_state_->InvalidateTable();
 
             InvalidateRect(hwnd_, 0, TRUE);
@@ -417,6 +419,16 @@ void GUI::OnLeftClickPressNameSelect(const PointGUI mouse_pos)
 {
     if (select_button_->rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
     {
+        Color player_color;
+        for (INT counter = 0; counter < kColorBoxesCount; ++counter)
+        {
+            if (color_boxes_[counter]->selected)
+            {
+                player_color = color_boxes_[counter]->color;
+                break;
+            }
+        }
+
         String player_name = name_type_->text;
 
         if (player_1_name_ == TEXT(""))
@@ -433,6 +445,7 @@ void GUI::OnLeftClickPressNameSelect(const PointGUI mouse_pos)
                 }
             }
             player_1_name_ = player_name;
+            player_1_color_ = player_color;
 
             DestroyNameSelect();
 
@@ -457,6 +470,7 @@ void GUI::OnLeftClickPressNameSelect(const PointGUI mouse_pos)
                     player_name = TEXT("PLAYER2");
                 }
                 player_2_name_ = player_name;
+                player_2_color_ = player_color;
 
                 current_screen_ = Screen::GAME;
 
@@ -469,6 +483,38 @@ void GUI::OnLeftClickPressNameSelect(const PointGUI mouse_pos)
         else
         {
             std::cout << "UNEXPECTED!\n";
+        }
+    }
+    else
+    {
+        for (INT counter = 0; counter < kColorBoxesCount; ++counter)
+        {
+            ColorBox& box = *color_boxes_[counter];
+            if (box.rect.Contains(Point(mouse_pos.x, mouse_pos.y)))
+            {
+                if (box.selected == false && box.disabled == false)
+                {
+                    for (INT counter = 0; counter < kColorBoxesCount; ++counter)
+                    {
+                        if (color_boxes_[counter]->selected)
+                        {
+                            color_boxes_[counter]->selected = false;
+                            color_boxes_[counter]->updated = true;
+                            break;
+                        }
+                    }
+
+                    box.selected = true;
+                    box.updated = true;
+
+                    delete name_type_->normal_color;
+                    name_type_->normal_color = new SolidBrush(box.color);
+                    name_type_->updated = true;
+
+                    InvalidateRect(hwnd_, 0, TRUE);
+                }
+                break;
+            }
         }
     }
 }
@@ -590,7 +636,7 @@ void GUI::OnPaint()
 
     if (force_repaint_background_)
     {
-        InvalidateTextBoxes();
+        InvalidateBoxes();
         DrawBackground();
         force_repaint_background_ = false;
     }
