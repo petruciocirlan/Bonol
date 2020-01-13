@@ -283,7 +283,7 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
 
         DestroyMenu();
         CreateNameSelect(TEXT("PLAYER"));
-        player_2_name_ = TEXT("COMPUTER");
+        player_2_name_ = TEXT("The COMPUTER");
 
         InvalidateRect(hwnd_, 0, TRUE);
     }
@@ -294,7 +294,7 @@ void GUI::OnLeftClickPressMenu(const PointGUI mouse_pos)
 
         DestroyMenu();
         CreateNameSelect(TEXT("PLAYER"));
-        player_2_name_ = TEXT("COMPUTER");
+        player_2_name_ = TEXT("The COMPUTER");
 
         InvalidateRect(hwnd_, 0, TRUE);
     }

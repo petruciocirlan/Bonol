@@ -19,9 +19,13 @@
 /// utility
 #include <map>
 #include <stack>
+#include <queue>
+
 #include <string>
-#include <sstream>
 #include <cassert>
+
+/// file manipulation
+#include <sstream>
 #include <iomanip>
 #include <fstream>
 #include <iostream>

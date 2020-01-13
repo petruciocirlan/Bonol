@@ -153,7 +153,59 @@ void GUI::ComputerTurn()
 
 void GUI::IncreaseLeaderboardScore(const String player_name) const
 {
-    /// TODO(@petru): increase player_name's score on the leaderboard
+    std::map < String, INT > scores;
+
+    std::basic_ifstream<TCHAR> leaderboard_input;
+    leaderboard_input.open("leaderboard");
+
+    String head;
+    getline(leaderboard_input, head);
+
+    while (!leaderboard_input.eof())
+    {
+        String name;
+        leaderboard_input >> name;
+        if (name.size() == 0)
+        {
+            break;
+        }
+
+        INT score;
+        leaderboard_input >> score;
+
+        scores[name] = score;
+    }
+
+    leaderboard_input.close();
+    
+    ++scores[player_name];
+
+    std::basic_ofstream<TCHAR> leaderboard_output;
+    leaderboard_output.open("leaderboard");
+
+    leaderboard_output << TEXT("PLAYER NAME\tSCORE\n");
+
+    std::priority_queue < std::pair < INT, String > > ranking;
+    for (auto it = scores.cbegin(); it != scores.cend(); ++it)
+    {
+        ranking.push(std::make_pair(it->second, it->first));
+    }
+
+    while (!ranking.empty())
+    {
+        INT score = ranking.top().first;
+        String name = ranking.top().second;
+        ranking.pop();
+
+        if (name.size() < 8)
+        {
+            name.append(8 - name.size(), TEXT(' '));
+        }
+
+        leaderboard_output << name << TEXT('\t') << score << TEXT('\n');
+    }
+
+    leaderboard_output.close();
 }
 
 void GUI::CreateMenu()
@@ -307,27 +359,32 @@ GUI::String GUI::GetLeaderboardContent() const
     std::basic_ifstream<TCHAR> leaderboard_input;
     leaderboard_input.open("leaderboard");
 
-    String line;
-    getline(leaderboard_input, line);
-    if (line.size() == 0)
+    String head;
+    getline(leaderboard_input, head);
+    if (head.size() == 0)
     {
         leaderboard_input.close();
 
         std::basic_ofstream<TCHAR> leaderboard_output;
         leaderboard_output.open("leaderboard");
-        leaderboard_output << (line = TEXT("PLAYER NAME\tSCORE"));
+        leaderboard_output << TEXT("PLAYER NAME\tSCORE\n");
         leaderboard_output.close();
 
         leaderboard_input.open("leaderboard");
+        getline(leaderboard_input, head);
     }
 
-    leaderboard_content << line;
+    leaderboard_content << head;
 
     INT player_count = 0;
     while (!leaderboard_input.eof() && player_count < 10)
     {
         String name;
         leaderboard_input >> name;
+        if (name.size() == 0)
+        {
+            break;
+        }
 
         INT score;
         leaderboard_input >> score;
