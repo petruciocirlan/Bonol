@@ -596,7 +596,7 @@ void GUI::OnLeftClickReleaseLeaderboard(const PointGUI mouse_pos)
 
 void GUI::TypeName(TCHAR character)
 {
-    if (iswalnum(character))
+    if (isascii(character) && isalnum(character))
     {
         if (name_type_->text.size() < 8)
         {
