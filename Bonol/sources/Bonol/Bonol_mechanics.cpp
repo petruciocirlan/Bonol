@@ -348,6 +348,7 @@ void GUI::Bonol::FindPcMove(String WhichMove)
 
 	std::cout << "\n" << "===== Show Board =====\n";
 
+	int totalCounts = 0;
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 	{
 		for (CoordCell column = 0; column < kBoardSize; ++column)
@@ -612,7 +613,8 @@ void GUI::Bonol::FindPcMove(String WhichMove)
 									old_state = aux_board;
 								}
 						}
-				std::cout << Count << " ";	
+				std::cout << Count << " ";
+				totalCounts += Count;
 			}
 			else std::cout << "0 ";
 
@@ -621,10 +623,11 @@ void GUI::Bonol::FindPcMove(String WhichMove)
 		}
 
 	}
-	
+
+
+	std::cout << "\n";
 
 	int BestMove = 99;
-	int WorstMove = -1;
 
 	for (CoordCell row = 0; row < kBoardSize; ++row)
 		for (CoordCell column = 0; column < kBoardSize; ++column)
@@ -632,42 +635,34 @@ void GUI::Bonol::FindPcMove(String WhichMove)
 			if (AuxMoves[column][row].LT > 0)
 			{
 				BestMove = min(AuxMoves[column][row].LT, BestMove);
-				WorstMove = max(AuxMoves[column][row].LT, WorstMove);
 			}
 			if (AuxMoves[column][row].LB > 0)
 			{
 				BestMove = min(AuxMoves[column][row].LB, BestMove);
-				WorstMove = max(AuxMoves[column][row].LB, WorstMove);
 			}
 			if (AuxMoves[column][row].RT > 0)
 			{
 				BestMove = min(AuxMoves[column][row].RT, BestMove);
-				WorstMove = max(AuxMoves[column][row].RT, WorstMove);
 			}
 			if (AuxMoves[column][row].RB > 0)
 			{
 				BestMove = min(AuxMoves[column][row].RB, BestMove);
-				WorstMove = max(AuxMoves[column][row].RB, WorstMove);
 			}
 			if (AuxMoves[column][row].TL > 0)
 			{
 				BestMove = min(AuxMoves[column][row].TL, BestMove);
-				WorstMove = max(AuxMoves[column][row].TL, WorstMove);
 			}
 			if (AuxMoves[column][row].TR > 0)
 			{
 				BestMove = min(AuxMoves[column][row].TR, BestMove);
-				WorstMove = max(AuxMoves[column][row].TR, WorstMove);
 			}
 			if (AuxMoves[column][row].BL > 0)
 			{
 				BestMove = min(AuxMoves[column][row].BL, BestMove);
-				WorstMove = max(AuxMoves[column][row].BL, WorstMove);
 			}
 			if (AuxMoves[column][row].BR > 0)
 			{
 				BestMove = min(AuxMoves[column][row].BR, BestMove);
-				WorstMove = max(AuxMoves[column][row].BR, WorstMove);
 			}
 		}
 
@@ -806,91 +801,136 @@ void GUI::Bonol::FindPcMove(String WhichMove)
 
 	if (WhichMove.compare(TEXT("EASY")) == 0)
 	{
-		std::cout << "===== End Of Showing Board EASY =====  "<< WorstMove << "\n";
+		std::cout << "===== End Of Showing Board EASY =====\n";
+
+		int randomMove = rand() % totalCounts + 1;
+
+		std::cout << "How many moves : " << totalCounts <<" choosing move "<<randomMove<<"\n";
 
 		bool FoundMove = false;
+		int countMove = 0;
 
 		for (CoordCell row = 0; row < kBoardSize && FoundMove == false; ++row)
 			for (CoordCell column = 0; column < kBoardSize && FoundMove == false; ++column)
 			{
-				if (AuxMoves[column][row].TR == WorstMove && FoundMove == false)
+				if (AuxMoves[column][row].TR != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 1, row - 2)) = Piece::BLUE;
-					FoundMove = true;
+					countMove++;
+					if(countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 1, row - 2)) = Piece::BLUE;
+						FoundMove = true;
+					}
 				}
-				if (AuxMoves[column][row].TL == WorstMove && FoundMove == false)
+				
+				if (AuxMoves[column][row].TL != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
+					countMove++;
+					if (countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
 
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 1, row - 2)) = Piece::BLUE;
-					FoundMove = true;
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row - 1)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row - 2)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 1, row - 2)) = Piece::BLUE;
+						FoundMove = true;
+					}
 				}
-				if (AuxMoves[column][row].RB == WorstMove && FoundMove == false)
+				
+				if (AuxMoves[column][row].RB != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
+					countMove++;
+					if (countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
 
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 2, row + 1)) = Piece::BLUE;
-					FoundMove = true;
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 2, row + 1)) = Piece::BLUE;
+						FoundMove = true;
+					}
 				}
-				if (AuxMoves[column][row].RT == WorstMove && FoundMove == false)
+				
+				if (AuxMoves[column][row].RT != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
+					countMove++;
+					if (countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
 
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 2, row - 1)) = Piece::BLUE;
-					FoundMove = true;
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 1, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 2, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 2, row - 1)) = Piece::BLUE;
+						FoundMove = true;
+					}
 				}
-				if (AuxMoves[column][row].BR == WorstMove && FoundMove == false)
+				
+				if (AuxMoves[column][row].BR != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
+					countMove++;
+					if (countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
 
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
-					old_board_->at(PosCell(column + 1, row + 2)) = Piece::BLUE;
-					FoundMove = true;
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
+						old_board_->at(PosCell(column + 1, row + 2)) = Piece::BLUE;
+						FoundMove = true;
+					}
 				}
-				if (AuxMoves[column][row].BL == WorstMove && FoundMove == false)
+				
+				if (AuxMoves[column][row].BL != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
+					countMove++;
+					if (countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
 
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
-					old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 1, row + 2)) = Piece::BLUE;
-					FoundMove = true;
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row + 1)) = Piece::BLUE;
+						old_board_->at(PosCell(column, row + 2)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 1, row + 2)) = Piece::BLUE;
+						FoundMove = true;
+					}
 				}
-				if (AuxMoves[column][row].LB == WorstMove && FoundMove == false)
+				
+				if (AuxMoves[column][row].LB != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
+					countMove++;
+					if (countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
 
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 2, row + 1)) = Piece::BLUE;
-					FoundMove = true;
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 2, row + 1)) = Piece::BLUE;
+						FoundMove = true;
+					}
+
 				}
-				if (AuxMoves[column][row].LT == WorstMove && FoundMove == false)
+				
+				if (AuxMoves[column][row].LT != -1 && FoundMove == false)
 				{
-					DeleteCurrentPlayerPieces();
+					countMove++;
+					if (countMove == randomMove)
+					{
+						DeleteCurrentPlayerPieces();
 
-					old_board_->at(PosCell(column, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
-					old_board_->at(PosCell(column - 2, row - 1)) = Piece::BLUE;
-					FoundMove = true;
+						old_board_->at(PosCell(column, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 1, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 2, row)) = Piece::BLUE;
+						old_board_->at(PosCell(column - 2, row - 1)) = Piece::BLUE;
+						FoundMove = true;
+					}
 				}
 			}
 		ChangePlayer();
